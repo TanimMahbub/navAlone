@@ -54,7 +54,11 @@ nav::-webkit-scrollbar-thumb:hover {background-color: #000}
 	border: 1px solid #ccc;
 	border-radius: 8px;
 	overflow: hidden;
-	transition: all 0.3s ease;
+	transition: height 0.3s ease;
+}
+
+.mm.no-transition {
+	transition: none;
 }
 
 .menu-level {

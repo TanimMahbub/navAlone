@@ -12,13 +12,28 @@ document.addEventListener("DOMContentLoaded", () => {
             currentActiveMenu.classList.remove("active-menu");
         }
         newActiveMenu.classList.add("active-menu");
-        setTimeout(() => updateMenuHeight(newActiveMenu), 0);
+        requestAnimationFrame(() => updateMenuHeight(newActiveMenu));
     };
 
-    window.addEventListener('load', () => {
-        const initialMenu = document.querySelector(".menu-level");
-        setActiveMenu(initialMenu);
-    });
+    // Set the initial menu to its correct height with transitions suppressed,
+    // so the container does not animate from height 0 on first paint.
+    const initialMenu = document.querySelector(".menu-level");
+    menu.classList.add("no-transition");
+    initialMenu.classList.add("active-menu");
+
+    const settleInitialHeight = () => {
+        updateMenuHeight(initialMenu);
+        requestAnimationFrame(() => {
+            requestAnimationFrame(() => menu.classList.remove("no-transition"));
+        });
+    };
+
+    // Wait for web fonts so scrollHeight is measured against the final layout.
+    if (document.fonts && document.fonts.ready) {
+        document.fonts.ready.then(settleInitialHeight);
+    } else {
+        settleInitialHeight();
+    }
 
     menu.addEventListener("click", (e) => {
         if (e.target.classList.contains("menu-item")) {
