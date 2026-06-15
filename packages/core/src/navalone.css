@@ -1,0 +1,727 @@
+@import url("https://fonts.googleapis.com/css2?family=Marcellus&display=swap");
+
+/* ---------------------------------------------------------------------- */
+/* Theme tokens. Every Navalone rule reads these custom properties — set   */
+/* them per instance via the `theme`, `width` and `animationDuration`      */
+/* options (applied inline on the root element) or override them in CSS.   */
+/* ---------------------------------------------------------------------- */
+:root {
+	--nv-width: 320px;
+	--nv-duration: 300ms;
+	--nv-font: "Marcellus", serif;
+
+	--nv-radius: 8px;
+	--nv-border-color: #ccc;
+	--nv-border: 1px solid var(--nv-border-color);
+	--nv-shadow: 0 0 30px -5px rgba(0, 0, 0, 0.2);
+
+	--nv-panel-bg: #ffffff;
+	--nv-text-color: #222222;
+	--nv-desc-color: #777777;
+	--nv-muted-color: #555555;
+
+	--nv-item-font-size: 16px;
+	--nv-item-padding: 10px;
+	--nv-row-gap: 10px;
+
+	--nv-header-bg: #333333;
+	--nv-header-color: #ffffff;
+	--nv-back-color: #cccccc;
+
+	--nv-badge-bg: #e0245e;
+	--nv-badge-color: #ffffff;
+
+	--nv-thumb-size: 36px;
+	--nv-thumb-radius: 6px;
+
+	--nv-focus-color: #4a90d9;
+	--nv-disabled-opacity: 0.4;
+
+	--nv-scrollbar-color: #333333;
+
+	/* Phase 2 — desktop bar */
+	--nv-bar-bg: #ffffff;
+	--nv-bar-color: #222222;
+	--nv-bar-height: 60px;
+	--nv-bar-padding: 0 20px;
+	--nv-bar-gap: 4px;
+	--nv-bar-item-padding: 10px 14px;
+	--nv-bar-shadow: 0 1px 0 rgba(0, 0, 0, 0.08), 0 2px 12px -6px rgba(0, 0, 0, 0.25);
+	--nv-logo-size: 22px;
+
+	--nv-hover-bg: rgba(0, 0, 0, 0.05);
+	--nv-z: 1000;
+
+	/* Phase 2 — desktop panels */
+	--nv-panel-shadow: 0 8px 30px -8px rgba(0, 0, 0, 0.35);
+	--nv-dropdown-width: 240px;
+	--nv-dropdown-lg-width: 320px;
+	--nv-mega-col-width: 220px;
+	--nv-panel-gap: 2px;
+	--nv-panel-pad: 6px;
+
+	/* Phase 2 — right buttons */
+	--nv-action-padding: 8px 16px;
+	--nv-action-radius: 6px;
+	--nv-action-gap: 8px;
+	--nv-action-bg: transparent;
+	--nv-action-color: var(--nv-bar-color);
+	--nv-action-border: 1px solid var(--nv-border-color);
+	--nv-action-primary-bg: #3a7afe;
+	--nv-action-primary-color: #ffffff;
+
+	/* Phase 2 — drawer */
+	--nv-backdrop-bg: rgba(0, 0, 0, 0.45);
+	--nv-drawer-head-bg: var(--nv-header-bg);
+	--nv-drawer-head-color: var(--nv-header-color);
+	--nv-hamburger-size: 24px;
+}
+
+* {
+	margin: 0;
+	padding: 0;
+	box-sizing: border-box;
+}
+
+body {
+	font-family: var(--nv-font);
+}
+
+body.nv-scroll-lock {
+	overflow: hidden;
+}
+
+/* ---------------------------------------------------------------------- */
+/* Component root                                                         */
+/* ---------------------------------------------------------------------- */
+.mm.navalone {
+	position: relative;
+	font-family: var(--nv-font);
+	color: var(--nv-bar-color);
+}
+
+/* ====================================================================== */
+/* Desktop bar                                                            */
+/* ====================================================================== */
+.nv-bar {
+	display: flex;
+	align-items: center;
+	gap: 16px;
+	min-height: var(--nv-bar-height);
+	padding: var(--nv-bar-padding);
+	background: var(--nv-bar-bg);
+	box-shadow: var(--nv-bar-shadow);
+	position: relative;
+	z-index: var(--nv-z);
+}
+
+.nv-logo {
+	font-size: var(--nv-logo-size);
+	font-weight: bold;
+	color: var(--nv-bar-color);
+	text-decoration: none;
+	white-space: nowrap;
+	flex: 0 0 auto;
+}
+
+.nv-logo img {
+	display: block;
+	height: var(--nv-logo-size);
+	width: auto;
+}
+
+.nv-menubar {
+	list-style: none;
+	display: flex;
+	align-items: center;
+	gap: var(--nv-bar-gap);
+	flex: 1 1 auto;
+	min-width: 0;
+}
+
+/* Center-menu alignment. */
+.nv-align-center .nv-menubar {
+	justify-content: center;
+}
+
+.nv-align-left .nv-menubar {
+	justify-content: flex-start;
+}
+
+.nv-align-right .nv-menubar {
+	justify-content: flex-end;
+}
+
+.nv-bar-li {
+	position: relative;
+}
+
+.nv-bar-item {
+	display: inline-flex;
+	align-items: center;
+	gap: 6px;
+	font-family: var(--nv-font);
+	font-size: var(--nv-item-font-size);
+	color: var(--nv-bar-color);
+	background: none;
+	border: none;
+	border-radius: var(--nv-radius);
+	padding: var(--nv-bar-item-padding);
+	cursor: pointer;
+	text-decoration: none;
+	white-space: nowrap;
+}
+
+.nv-bar-item:hover,
+.nv-bar-item[aria-expanded="true"] {
+	background: var(--nv-hover-bg);
+}
+
+.nv-bar-item .nv-arrow {
+	font-size: 0.7em;
+	transition: transform var(--nv-duration) ease;
+}
+
+.nv-bar-item[aria-expanded="true"] .nv-arrow {
+	transform: rotate(180deg);
+}
+
+.nv-bar-item:focus-visible,
+.nv-d-item:focus-visible,
+.nv-action:focus-visible,
+.nv-hamburger:focus-visible,
+.nv-drawer-close:focus-visible {
+	outline: 2px solid var(--nv-focus-color);
+	outline-offset: -2px;
+}
+
+/* Right-side CTA buttons */
+.nv-actions {
+	display: flex;
+	align-items: center;
+	gap: var(--nv-action-gap);
+	flex: 0 0 auto;
+}
+
+.nv-action {
+	display: inline-flex;
+	align-items: center;
+	gap: 6px;
+	font-family: var(--nv-font);
+	font-size: 14px;
+	padding: var(--nv-action-padding);
+	border-radius: var(--nv-action-radius);
+	background: var(--nv-action-bg);
+	color: var(--nv-action-color);
+	border: var(--nv-action-border);
+	text-decoration: none;
+	cursor: pointer;
+	white-space: nowrap;
+}
+
+.nv-action--primary {
+	background: var(--nv-action-primary-bg);
+	color: var(--nv-action-primary-color);
+	border-color: transparent;
+}
+
+/* Hamburger (mobile only) */
+.nv-hamburger {
+	flex: 0 0 auto;
+	width: 40px;
+	height: 40px;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	background: none;
+	border: none;
+	border-radius: var(--nv-radius);
+	cursor: pointer;
+}
+
+.nv-burger-bars,
+.nv-burger-bars::before,
+.nv-burger-bars::after {
+	content: "";
+	display: block;
+	width: var(--nv-hamburger-size);
+	height: 2px;
+	background: var(--nv-bar-color);
+	position: relative;
+	transition: transform var(--nv-duration) ease, opacity var(--nv-duration) ease;
+}
+
+.nv-burger-bars::before {
+	position: absolute;
+	top: -7px;
+	left: 0;
+}
+
+.nv-burger-bars::after {
+	position: absolute;
+	top: 7px;
+	left: 0;
+}
+
+/* ====================================================================== */
+/* Desktop submenu panels (dropdown / dropdown-lg / mega / flyout)        */
+/* ====================================================================== */
+.nv-panel {
+	position: absolute;
+	top: calc(100% + 4px);
+	left: 0;
+	z-index: calc(var(--nv-z) + 10);
+	background: var(--nv-panel-bg);
+	color: var(--nv-text-color);
+	border: var(--nv-border);
+	border-radius: var(--nv-radius);
+	box-shadow: var(--nv-panel-shadow);
+	padding: var(--nv-panel-pad);
+	opacity: 0;
+	visibility: hidden;
+	transform: translateY(6px);
+	pointer-events: none;
+	/* Delay the visibility flip until after the fade-out so the panel stays
+	   readable while closing; on open it flips instantly so rows are
+	   immediately focusable for keyboard navigation. */
+	transition: opacity var(--nv-duration) ease,
+		transform var(--nv-duration) ease,
+		visibility 0s linear var(--nv-duration);
+}
+
+.nv-panel.is-open {
+	opacity: 1;
+	visibility: visible;
+	transform: none;
+	pointer-events: auto;
+	transition: opacity var(--nv-duration) ease,
+		transform var(--nv-duration) ease,
+		visibility 0s;
+}
+
+.nv-panel ul {
+	list-style: none;
+}
+
+.nv-dropdown {
+	width: var(--nv-dropdown-width);
+}
+
+.nv-dropdown-lg {
+	width: var(--nv-dropdown-lg-width);
+}
+
+/* Mega: columns laid out side by side */
+.nv-mega {
+	display: flex;
+	gap: 8px;
+	max-width: calc(100vw - 16px);
+}
+
+.nv-col {
+	flex: 1 1 var(--nv-mega-col-width);
+	min-width: var(--nv-mega-col-width);
+}
+
+.nv-col-head {
+	font-size: 11px;
+	font-weight: bold;
+	text-transform: uppercase;
+	letter-spacing: 0.08em;
+	color: var(--nv-muted-color);
+	padding: 8px 10px 4px;
+}
+
+/* Flyout (nested) panels open to the side of their parent row. */
+.nv-flyout {
+	top: calc(-1 * var(--nv-panel-pad) - 1px);
+	left: 100%;
+	margin-left: 4px;
+	transform: translateX(6px);
+}
+
+.nv-flyout.is-open {
+	transform: none;
+}
+
+.nv-flyout.nv-flip-x {
+	left: auto;
+	right: 100%;
+	margin-left: 0;
+	margin-right: 4px;
+}
+
+/* Desktop rows */
+.nv-d-li {
+	position: relative;
+}
+
+.nv-d-item {
+	display: flex;
+	align-items: center;
+	gap: var(--nv-row-gap);
+	width: 100%;
+	font-family: var(--nv-font);
+	font-size: 15px;
+	color: var(--nv-text-color);
+	background: none;
+	border: none;
+	border-radius: 6px;
+	padding: var(--nv-item-padding);
+	text-align: left;
+	text-decoration: none;
+	cursor: pointer;
+}
+
+.nv-d-item:hover,
+.nv-d-item[aria-expanded="true"] {
+	background: var(--nv-hover-bg);
+}
+
+.nv-d-item .nv-arrow {
+	margin-left: auto;
+	opacity: 0.55;
+}
+
+/* ====================================================================== */
+/* Off-canvas drawer + backdrop                                           */
+/* ====================================================================== */
+.nv-backdrop {
+	position: fixed;
+	inset: 0;
+	background: var(--nv-backdrop-bg);
+	opacity: 0;
+	z-index: calc(var(--nv-z) + 20);
+	transition: opacity var(--nv-duration) ease;
+}
+
+.mm.navalone.nv-open .nv-backdrop {
+	opacity: 1;
+}
+
+.nv-drawer {
+	position: fixed;
+	top: 0;
+	bottom: 0;
+	width: var(--nv-width);
+	max-width: 90vw;
+	display: flex;
+	flex-direction: column;
+	background: var(--nv-panel-bg);
+	box-shadow: var(--nv-shadow);
+	z-index: calc(var(--nv-z) + 30);
+	transition: transform var(--nv-duration) ease;
+}
+
+.nv-side-left .nv-drawer {
+	left: 0;
+	transform: translateX(-100%);
+}
+
+.nv-side-right .nv-drawer {
+	right: 0;
+	transform: translateX(100%);
+}
+
+.mm.navalone.nv-open .nv-drawer {
+	transform: translateX(0);
+}
+
+.nv-drawer-head {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 12px;
+	padding: 12px 16px;
+	background: var(--nv-drawer-head-bg);
+	color: var(--nv-drawer-head-color);
+	flex: 0 0 auto;
+}
+
+.nv-drawer-head .nv-logo {
+	color: var(--nv-drawer-head-color);
+}
+
+.nv-drawer-close {
+	flex: 0 0 auto;
+	width: 32px;
+	height: 32px;
+	font-size: 22px;
+	line-height: 1;
+	background: none;
+	border: none;
+	color: var(--nv-drawer-head-color);
+	cursor: pointer;
+	border-radius: var(--nv-radius);
+}
+
+.nv-actions--drawer {
+	flex-wrap: wrap;
+	padding: 16px;
+	border-top: var(--nv-border);
+	flex: 0 0 auto;
+}
+
+.nv-actions--drawer .nv-action {
+	flex: 1 1 auto;
+	justify-content: center;
+}
+
+/* ---------------------------------------------------------------------- */
+/* Mode visibility: desktop bar vs. collapsed mobile header               */
+/* ---------------------------------------------------------------------- */
+.nv-mode-desktop .nv-hamburger {
+	display: none;
+}
+
+.nv-mode-mobile .nv-menubar {
+	display: none;
+}
+
+.nv-mode-mobile .nv-actions:not(.nv-actions--drawer) {
+	display: none;
+}
+
+.nv-mode-desktop .nv-actions--drawer {
+	display: none;
+}
+
+/* In the collapsed header, push the logo away from the hamburger. */
+.nv-mode-mobile .nv-bar {
+	justify-content: flex-start;
+}
+
+.nv-mode-mobile .nv-logo {
+	margin-right: auto;
+}
+
+/* The drawer/backdrop only matter once a drawer can be opened. */
+.nv-mode-desktop .nv-drawer,
+.nv-mode-desktop .nv-backdrop {
+	display: none;
+}
+
+/* ====================================================================== */
+/* Mobile sliding drill-down (Phase 1) — hosted inside .nv-panels         */
+/* ====================================================================== */
+.nv-panels {
+	position: relative;
+	width: 100%;
+	flex: 1 1 auto;
+	--mmHeight: 0;
+	height: var(--mmHeight);
+	background: var(--nv-panel-bg);
+	overflow-x: hidden;
+	overflow-y: auto;
+	transition: height var(--nv-duration) ease;
+
+	scrollbar-color: var(--nv-scrollbar-color) transparent;
+	scrollbar-width: thin;
+}
+
+.nv-panels.no-transition {
+	transition: none;
+}
+
+.nv-panels::-webkit-scrollbar-track {
+	background: transparent;
+}
+
+.nv-panels::-webkit-scrollbar {
+	width: 8px;
+}
+
+.nv-panels::-webkit-scrollbar-thumb {
+	background: var(--nv-scrollbar-color);
+	border-radius: 10px;
+	border: 2px solid transparent;
+}
+
+.menu-level {
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 100%;
+	background: var(--nv-panel-bg);
+	color: var(--nv-text-color);
+	opacity: 0;
+	visibility: hidden;
+	transition: transform var(--nv-duration) ease,
+		opacity var(--nv-duration) ease,
+		visibility 0s linear var(--nv-duration);
+}
+
+.nv-panels.no-transition .menu-level {
+	transition: none;
+}
+
+.active-menu {
+	opacity: 1;
+	visibility: visible;
+	transition: transform var(--nv-duration) ease,
+		opacity var(--nv-duration) ease,
+		visibility 0s;
+}
+
+.level-1 {
+	transform: translateX(0);
+}
+
+.menu-level:not(.level-1) {
+	transform: translateX(100%);
+}
+
+.menu-level ul {
+	list-style: none;
+	padding: 0;
+	margin: 0;
+}
+
+.menu-level li + li {
+	border-top: var(--nv-border);
+}
+
+.menu-level li {
+	font-family: var(--nv-font);
+	font-size: 14px;
+	padding: 5px 10px;
+}
+
+/* ---------------------------------------------------------------------- */
+/* Rows (label · optional thumbnail/icon/description/badge · arrow)        */
+/* ---------------------------------------------------------------------- */
+.menu-level li > button,
+.menu-level li > a {
+	font-family: var(--nv-font);
+	font-size: var(--nv-item-font-size);
+	color: var(--nv-text-color);
+	cursor: pointer;
+	width: 100%;
+	padding: var(--nv-item-padding);
+	border: none;
+	background: none;
+	text-align: left;
+	text-decoration: none;
+	display: flex;
+	align-items: center;
+	gap: var(--nv-row-gap);
+}
+
+.menu-level li > button:focus-visible,
+.menu-level li > a:focus-visible {
+	outline: 2px solid var(--nv-focus-color);
+	outline-offset: -2px;
+}
+
+.nv-thumb {
+	flex: 0 0 auto;
+	width: var(--nv-thumb-size);
+	height: var(--nv-thumb-size);
+	border-radius: var(--nv-thumb-radius);
+	object-fit: cover;
+}
+
+.nv-icon {
+	flex: 0 0 auto;
+	width: var(--nv-thumb-size);
+	text-align: center;
+	font-size: 18px;
+}
+
+/* In the desktop bar the icon is inline-sized, not a fixed column. */
+.nv-bar-item .nv-icon,
+.nv-action .nv-icon {
+	width: auto;
+	font-size: 1em;
+}
+
+.nv-text {
+	display: flex;
+	flex-direction: column;
+	flex: 1 1 auto;
+	min-width: 0;
+}
+
+.nv-label {
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.nv-desc {
+	font-size: 12px;
+	color: var(--nv-desc-color);
+	white-space: normal;
+}
+
+.nv-badge {
+	flex: 0 0 auto;
+	font-size: 11px;
+	line-height: 1;
+	background: var(--nv-badge-bg);
+	color: var(--nv-badge-color);
+	padding: 4px 8px;
+	border-radius: 999px;
+}
+
+.nv-arrow {
+	flex: 0 0 auto;
+	opacity: 0.55;
+}
+
+/* Mega-menu column headings, flattened into the drill-down panel. */
+.nv-group {
+	font-size: 11px;
+	font-weight: bold;
+	text-transform: uppercase;
+	letter-spacing: 0.08em;
+	color: var(--nv-muted-color);
+	padding: 10px 10px 4px;
+}
+
+.is-disabled {
+	opacity: var(--nv-disabled-opacity);
+	cursor: not-allowed;
+	pointer-events: none;
+}
+
+/* ---------------------------------------------------------------------- */
+/* Sub-panel header                                                       */
+/* ---------------------------------------------------------------------- */
+.menu-header {
+	display: flex;
+	align-items: center;
+	justify-content: flex-end;
+	background: var(--nv-header-bg);
+	color: var(--nv-header-color);
+	border-bottom: var(--nv-border);
+	padding: 10px;
+	position: relative;
+	z-index: 1;
+}
+
+.menu-header .back-button {
+	color: var(--nv-back-color);
+	font-family: var(--nv-font);
+	font-weight: bold;
+	position: absolute;
+	width: 100%;
+	height: 100%;
+	left: 0;
+	top: 0;
+	background: none;
+	border: none;
+	margin-right: 10px;
+	cursor: pointer;
+	z-index: 2;
+}
+
+.menu-header .back-button:focus-visible {
+	outline: 2px solid var(--nv-focus-color);
+	outline-offset: -2px;
+}
+
+.menu-header .menu-title {
+	font-weight: bold;
+	pointer-events: none;
+}

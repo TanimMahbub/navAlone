@@ -1,0 +1,15 @@
+{
+    "extends": "../../tsconfig.base.json",
+    "compilerOptions": {
+        "target": "ES2022",
+        "lib": ["ES2022", "DOM", "DOM.Iterable"],
+        "useDefineForClassFields": false,
+        "experimentalDecorators": false,
+        "emitDecoratorMetadata": false
+    },
+    "angularCompilerOptions": {
+        "strictTemplates": true,
+        "strictInjectionParameters": true
+    },
+    "include": ["src/**/*.ts"]
+}

@@ -1,0 +1,62 @@
+{
+    "name": "navalone",
+    "version": "0.0.0",
+    "description": "A free, open-source responsive main-menu plugin — desktop dropdowns, multi-level menus and mega menus that collapse to a sliding mobile drawer. A free alternative to mmenu.js.",
+    "keywords": [
+        "menu",
+        "navigation",
+        "navbar",
+        "dropdown",
+        "mega-menu",
+        "mobile-menu",
+        "off-canvas",
+        "drawer",
+        "responsive",
+        "hamburger",
+        "mmenu-alternative"
+    ],
+    "author": "Tanim Mahbub",
+    "license": "MIT",
+    "type": "module",
+    "sideEffects": [
+        "**/*.css",
+        "./dist/navalone.global.js"
+    ],
+    "main": "./dist/index.cjs",
+    "module": "./dist/index.mjs",
+    "types": "./dist/index.d.ts",
+    "unpkg": "./dist/navalone.global.js",
+    "jsdelivr": "./dist/navalone.global.js",
+    "style": "./dist/navalone.css",
+    "exports": {
+        ".": {
+            "types": "./dist/index.d.ts",
+            "import": "./dist/index.mjs",
+            "require": "./dist/index.cjs"
+        },
+        "./css": "./dist/navalone.css",
+        "./navalone.css": "./dist/navalone.css",
+        "./global": "./dist/navalone.global.js",
+        "./package.json": "./package.json"
+    },
+    "files": [
+        "dist",
+        "src",
+        "README.md"
+    ],
+    "scripts": {
+        "build": "tsup && node scripts/copy-css.mjs",
+        "dev": "tsup --watch --onSuccess \"node scripts/copy-css.mjs\"",
+        "test": "vitest run",
+        "test:watch": "vitest",
+        "test:e2e": "node test/e2e/run-browser.mjs",
+        "example": "npx --yes serve .",
+        "typecheck": "tsc --noEmit"
+    },
+    "devDependencies": {
+        "jsdom": "^25.0.1",
+        "tsup": "^8.3.5",
+        "typescript": "^5.7.2",
+        "vitest": "^2.1.8"
+    }
+}

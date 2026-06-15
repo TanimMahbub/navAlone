@@ -3,20 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Navalone — Responsive main menu with dropdowns, mega menus & mobile drawer</title>
-    <meta name="description" content="Navalone: a free, open-source responsive main-menu plugin — desktop dropdowns and mega menus that collapse to a sliding mobile drawer.">
-    <meta name="theme-color" content="#cccccc">
-    <meta property="og:title" content="Navalone — Responsive main menu plugin">
-    <meta property="og:image" content="https://mobileapplike-menu.onrender.com/img/og.png">
-    <meta name="twitter:card" content="summary_large_image">
-    <meta property="twitter:image" content="https://mobileapplike-menu.onrender.com/img/og.png">
-    <meta name="twitter:site" content="@tanim_mahbub">
-    <meta property="twitter:title" content="Navalone — Responsive main menu plugin">
-    <meta name="author" content="Tanim Mahbub">
-    <link rel="shortcut icon" href="img/favicon.svg" type="image/x-icon">
-    <!-- Build-free: consumes the built TypeScript output. Run
-         `pnpm --filter navalone build` first (see packages/core). -->
-    <link rel="stylesheet" href="packages/core/dist/navalone.css">
+    <title>Navalone — build-free example (built dist/)</title>
+    <meta name="description" content="Navalone example consuming the built UMD/IIFE bundle and CSS straight from dist/ — no build step.">
+    <!-- Build-free: link the shipped stylesheet and the minified IIFE bundle
+         straight from dist/. Run `pnpm --filter navalone build` first, then open
+         this file (file:// works, or `pnpm --filter navalone example`). -->
+    <link rel="stylesheet" href="../dist/navalone.css">
     <style>
         /* Demo page chrome only — not part of the plugin. */
         .demo-page {
@@ -47,15 +39,15 @@
 </head>
 <body>
     <!-- The plugin builds the bar, submenu panels and the off-canvas drawer
-         into this element from the config below. Declarative markup is also
-         supported (see README). -->
+         into this element from the config below. -->
     <menu class="mm" id="mm"></menu>
 
     <main class="demo-page">
-        <h1>Navalone</h1>
-        <p>A free, open-source responsive main-menu plugin. The bar above renders
-           desktop dropdowns, a large dropdown, nested flyouts and a multi-column
-           mega menu from a single <code>items</code> config.</p>
+        <h1>Navalone — build-free example</h1>
+        <p>This page loads <code>../dist/navalone.css</code> and
+           <code>../dist/navalone.global.js</code> (the minified IIFE) with no build
+           step, proving the <code>&lt;script&gt;</code> workflow still works against
+           the built TypeScript output.</p>
 
         <div class="hint">
             <strong>Try it:</strong>
@@ -73,7 +65,7 @@
         <p>End of page — scrolling is locked while the mobile drawer is open.</p>
     </main>
 
-    <script src="packages/core/dist/navalone.global.js"></script>
+    <script src="../dist/navalone.global.js"></script>
     <script>
         // Tiny inline SVG thumbnails so the demo runs from file:// with no
         // external requests.

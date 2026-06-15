@@ -1,0 +1,10 @@
+node_modules/
+dist/
+coverage/
+*.log
+.DS_Store
+.pnpm-store/
+
+# throwaway browser-verification artifacts (see memory/verify-in-browser-headless-chrome.md)
+__*.html
+__*.png
