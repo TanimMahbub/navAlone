@@ -7,7 +7,7 @@
 import type { Navalone } from "./navalone";
 import type { NavaloneColumn, NavaloneItem } from "./types";
 import { durationMs, uid } from "./dom";
-import { buildActions, buildLogo, fillRow } from "./render";
+import { buildActions, buildLogo, chevronSvg, fillRow } from "./render";
 import { focusPanel, labelOf } from "./a11y";
 
 /* ------------------------------- Building -------------------------------- */
@@ -115,7 +115,7 @@ function buildRow(nv: Navalone, item: NavaloneItem): HTMLElement {
         hasChild: !!targetId,
         thumbnails: nv.options.showThumbnails,
         description: true,
-        arrow: "→"
+        arrow: "right"
     });
     el.dataset.nvReady = "1";
     li.appendChild(el);
@@ -181,12 +181,13 @@ function buildHeader(): HTMLElement {
     const back = document.createElement("button");
     back.type = "button";
     back.className = "back-button";
-    back.textContent = "← Back";
+    back.innerHTML = chevronSvg("left") + "<span>Back</span>";
     back.setAttribute("aria-label", "Back");
 
     const title = document.createElement("span");
     title.className = "menu-title";
 
+    // Back on the left, the parent level's name on the right.
     header.appendChild(back);
     header.appendChild(title);
     return header;
@@ -377,6 +378,12 @@ export function setActive(nv: Navalone, panel: HTMLElement): void {
     }
     panel.classList.add("active-menu");
     nv._panels.forEach((p) => setHiddenState(p, p !== panel));
+    // The panels slide purely via transform; the host must never carry a
+    // horizontal scroll (a stray focus-into-view scroll would push the active
+    // panel off-screen and blank the drawer body). A fresh panel also starts at
+    // its top.
+    nv._panelHost.scrollLeft = 0;
+    nv._panelHost.scrollTop = 0;
     requestAnimationFrame(() => updateHeight(nv, panel));
 }
 

@@ -1,0 +1,309 @@
+---
+// Hero with a single, resizable live preview (Tailwind-style): one real Navalone
+// instance inside a frame you can drag to resize, so it collapses from desktop
+// bar to mobile drawer live — plus a vanilla Web Animations API intro.
+---
+
+<header class="hero">
+    <div class="hero-glow" aria-hidden="true"></div>
+    <div class="wrap hero-inner">
+        <p class="eyebrow hero-el">Free &amp; open source · MIT</p>
+        <h1 class="hero-title hero-el">
+            One nav.<br />
+            <span class="title-accent">Every screen.</span>
+        </h1>
+        <p class="hero-sub hero-el">
+            Nav, alone, is enough. Navalone takes one menu model and stands it up across every
+            device — desktop dropdowns, mega menus and nested flyouts that fold into a buttery
+            off-canvas drawer on mobile. No second nav to build, no dropdown logic to hand-roll.
+        </p>
+        <div class="hero-cta hero-el">
+            <a class="btn btn--primary" href="#get-started">Get started</a>
+            <a class="btn btn--ghost" href="/docs/">Read the docs</a>
+        </div>
+
+        <div class="hero-stage hero-el">
+            <div class="preview-bar" role="group" aria-label="Resize the live preview">
+                <div class="preview-presets">
+                    <button type="button" data-w="100%" class="is-active">Desktop</button>
+                    <button type="button" data-w="760">Tablet</button>
+                    <button type="button" data-w="380">Mobile</button>
+                </div>
+                <span class="preview-size" aria-live="polite"><span data-size>—</span> px</span>
+            </div>
+
+            <div class="preview-shell">
+                <div class="preview-frame" data-frame>
+                    <iframe
+                        data-preview
+                        src="/demo/responsive/"
+                        title="A live Navalone menu — resize to watch it collapse from desktop bar to mobile drawer"
+                        loading="lazy"></iframe>
+                    <button
+                        type="button"
+                        class="preview-handle"
+                        data-handle
+                        aria-label="Drag to resize the preview"
+                        title="Drag to resize">
+                        <span aria-hidden="true"></span>
+                    </button>
+                </div>
+            </div>
+            <p class="demo-caption">Drag the handle → resize the frame and watch one menu adapt.</p>
+        </div>
+    </div>
+</header>
+
+<style>
+    .hero {
+        position: relative;
+        padding: 120px 0 80px;
+        overflow: hidden;
+    }
+    .hero-glow {
+        position: absolute;
+        top: -30%;
+        left: 50%;
+        width: 1100px;
+        height: 1100px;
+        transform: translateX(-50%);
+        background: radial-gradient(
+            circle,
+            rgba(128, 203, 196, 0.1),
+            transparent 60%
+        );
+        filter: blur(10px);
+        pointer-events: none;
+    }
+    .hero-inner {
+        position: relative;
+        text-align: center;
+    }
+    .hero-title {
+        font-size: clamp(2.6rem, 7vw, 5rem);
+        line-height: 1.02;
+        margin: 18px auto 20px;
+        font-weight: 800;
+        letter-spacing: -0.02em;
+        color: var(--title);
+    }
+    .title-accent {
+        color: var(--accent);
+    }
+    .hero-sub {
+        max-width: 60ch;
+        margin: 0 auto 28px;
+        color: var(--text);
+        font-size: 1.15rem;
+    }
+    .hero-cta {
+        display: flex;
+        gap: 14px;
+        justify-content: center;
+        flex-wrap: wrap;
+        margin-bottom: 40px;
+    }
+
+    /* ---- Resizable live preview (Tailwind-style) ---- */
+    .hero-stage {
+        max-width: 1000px;
+        margin: 0 auto;
+    }
+    .preview-bar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        margin-bottom: 12px;
+    }
+    .preview-presets {
+        display: inline-flex;
+        gap: 4px;
+        padding: 4px;
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid var(--border);
+        border-radius: 10px;
+    }
+    .preview-presets button {
+        appearance: none;
+        border: 0;
+        background: none;
+        color: var(--muted);
+        font: inherit;
+        font-size: 0.82rem;
+        padding: 6px 14px;
+        border-radius: 7px;
+        cursor: pointer;
+        transition: background 0.15s ease, color 0.15s ease;
+    }
+    .preview-presets button:hover {
+        color: var(--text);
+    }
+    .preview-presets button.is-active {
+        background: rgba(128, 203, 196, 0.22);
+        color: var(--accent);
+    }
+    .preview-size {
+        font-size: 0.78rem;
+        color: var(--muted);
+        font-variant-numeric: tabular-nums;
+        font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    }
+
+    /* The shell holds the frame centred; the frame's width is what we resize. */
+    .preview-shell {
+        display: flex;
+        justify-content: center;
+        border-radius: 18px;
+    }
+    .preview-frame {
+        position: relative;
+        width: 100%;
+        max-width: 100%;
+        height: 520px;
+        background: #263238;
+        border-radius: 16px;
+        box-shadow: 0 40px 120px -30px rgba(8, 12, 14, 0.75);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        overflow: hidden;
+        /* While dragging we disable the transition for 1:1 tracking. */
+        transition: width 0.25s ease;
+    }
+    .preview-frame.is-dragging {
+        transition: none;
+        user-select: none;
+    }
+    .preview-frame iframe {
+        width: 100%;
+        height: 100%;
+        border: 0;
+        display: block;
+        background: #263238;
+    }
+    /* Right-edge drag handle, like tailwindcss.com component previews. */
+    .preview-handle {
+        position: absolute;
+        top: 0;
+        right: 0;
+        height: 100%;
+        width: 18px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: none;
+        border: 0;
+        cursor: ew-resize;
+        touch-action: none;
+        z-index: 2;
+    }
+    .preview-handle span {
+        width: 6px;
+        height: 46px;
+        border-radius: 999px;
+        background: rgba(196, 218, 227, 0.55);
+        box-shadow: 0 0 0 4px rgba(8, 12, 14, 0.45);
+        transition: background 0.15s ease;
+    }
+    .preview-handle:hover span,
+    .preview-frame.is-dragging .preview-handle span {
+        background: var(--accent);
+    }
+    .demo-caption {
+        margin: 14px 0 0;
+        text-align: center;
+        font-size: 0.85rem;
+        color: var(--muted);
+    }
+
+    @media (max-width: 720px) {
+        .preview-frame {
+            height: 460px;
+        }
+        .preview-handle {
+            display: none; /* touch: presets only */
+        }
+    }
+</style>
+
+<script>
+    const frame = document.querySelector<HTMLElement>("[data-frame]");
+    const handle = document.querySelector<HTMLElement>("[data-handle]");
+    const sizeOut = document.querySelector<HTMLElement>("[data-size]");
+    const presets = Array.from(document.querySelectorAll<HTMLButtonElement>(".preview-presets button"));
+
+    function shellWidth(): number {
+        const shell = frame?.parentElement;
+        return shell ? shell.clientWidth : 1000;
+    }
+
+    function report(): void {
+        if (frame && sizeOut) sizeOut.textContent = String(Math.round(frame.getBoundingClientRect().width));
+    }
+
+    function setWidth(w: number | string, markPreset?: HTMLButtonElement | null): void {
+        if (!frame) return;
+        if (typeof w === "number") {
+            const max = shellWidth();
+            frame.style.width = Math.min(Math.max(w, 300), max) + "px";
+        } else {
+            frame.style.width = w; // "100%"
+        }
+        presets.forEach((b) => b.classList.toggle("is-active", b === markPreset));
+        requestAnimationFrame(report);
+    }
+
+    // Device presets.
+    for (const btn of presets) {
+        btn.addEventListener("click", () => {
+            const raw = btn.dataset.w!;
+            setWidth(raw === "100%" ? "100%" : Number(raw), btn);
+        });
+    }
+
+    // Drag-to-resize from the right edge.
+    if (frame && handle) {
+        let dragging = false;
+        const onMove = (e: PointerEvent) => {
+            if (!dragging) return;
+            const left = frame.getBoundingClientRect().left;
+            setWidth(e.clientX - left, null);
+        };
+        const stop = () => {
+            dragging = false;
+            frame.classList.remove("is-dragging");
+            window.removeEventListener("pointermove", onMove);
+            window.removeEventListener("pointerup", stop);
+        };
+        handle.addEventListener("pointerdown", (e) => {
+            e.preventDefault();
+            dragging = true;
+            frame.classList.add("is-dragging");
+            window.addEventListener("pointermove", onMove);
+            window.addEventListener("pointerup", stop);
+        });
+    }
+
+    window.addEventListener("resize", report);
+    report();
+
+    // Staggered intro via the Web Animations API — no library. The elements start
+    // hidden (`.reveal-ready .hero-el { opacity: 0 }`, set in <head> only when
+    // motion is allowed) and animate in; WAAPI leaves no lingering inline
+    // transforms on ancestors of the preview (the drawer lives in the iframe).
+    const heroEls = Array.from(document.querySelectorAll<HTMLElement>(".hero-el"));
+    const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (!reduce && "animate" in Element.prototype) {
+        heroEls.forEach((el, i) => {
+            const anim = el.animate(
+                [
+                    { opacity: 0, transform: "translateY(24px)" },
+                    { opacity: 1, transform: "none" }
+                ],
+                { duration: 800, delay: i * 120, easing: "cubic-bezier(0.16, 1, 0.3, 1)", fill: "both" }
+            );
+            if (i === heroEls.length - 1) anim.addEventListener("finish", report);
+        });
+    } else {
+        heroEls.forEach((el) => (el.style.opacity = "1"));
+    }
+</script>

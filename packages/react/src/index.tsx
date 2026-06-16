@@ -103,19 +103,21 @@ function NavaloneComponent(props: NavaloneProps, ref: ForwardedRef<NavaloneHandl
             return;
         }
 
-        const merged: NavaloneOptions = { ...optionsRef.current };
+        // Type-erased so the indexed callback assignment below doesn't collapse
+        // to an intersection of every detail type.
+        const merged: Record<string, unknown> = { ...optionsRef.current };
         // Replace each callback with a stable wrapper that reads the latest
         // handler from the ref at call time.
         for (const key of CALLBACK_KEYS) {
-            merged[key] = ((detail: unknown) => {
+            merged[key] = (detail: unknown) => {
                 const fn = optionsRef.current[key] as ((d: unknown) => void) | null | undefined;
                 if (typeof fn === "function") {
                     fn(detail);
                 }
-            }) as NavaloneOptions[typeof key];
+            };
         }
 
-        const instance = new NavaloneCore(host, merged);
+        const instance = new NavaloneCore(host, merged as NavaloneOptions);
         instanceRef.current = instance;
 
         return () => {

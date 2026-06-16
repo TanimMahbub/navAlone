@@ -81,7 +81,7 @@ function buildBarItem(nv: Navalone, item: NavaloneItem, index: number): HTMLElem
         }
     }
 
-    fillRow(nv, trigger, item, { hasChild: !!submenu, thumbnails: false, arrow: "▾" });
+    fillRow(nv, trigger, item, { hasChild: !!submenu, thumbnails: false, arrow: "down" });
     li.appendChild(trigger);
 
     if (submenu) {
@@ -183,7 +183,7 @@ function buildDesktopRow(
         hasChild: !!submenu,
         thumbnails: rich,
         description: rich,
-        arrow: submenu ? "›" : null
+        arrow: submenu ? "right" : null
     });
     li.appendChild(row);
 
@@ -320,13 +320,23 @@ export function desktopPanelById(nv: Navalone, id: string): HTMLElement | null {
 // Keep open exactly the chain of panels that the pointer is over, plus open a
 // hovered trigger's panel. Closes everything else.
 export function hoverSync(nv: Navalone, target: HTMLElement): void {
+    const overPanel = target.closest<HTMLElement>(".nv-panel");
+    const trig = target.closest<HTMLElement>(".nv-bar-item, .nv-d-item");
+    // Neutral area (the small gaps between a trigger and its panel, the logo,
+    // bar padding, etc.): don't close anything. Closing here is what made the
+    // dropdowns "twitchy" — the pointer briefly crossed dead space on its way to
+    // the panel and the panel vanished. Leaving the bar entirely is handled by
+    // the (debounced) mouseleave on the root instead.
+    if (!overPanel && !trig) {
+        return;
+    }
+
     const keep: HTMLElement[] = [];
-    let p: HTMLElement | null | undefined = target.closest<HTMLElement>(".nv-panel");
+    let p: HTMLElement | null | undefined = overPanel;
     while (p) {
         keep.push(p);
         p = p._nvParentPanel;
     }
-    const trig = target.closest<HTMLElement>(".nv-bar-item, .nv-d-item");
     let toOpen: HTMLElement | null = null;
     if (trig && trig._nvPanel && !trig.classList.contains("is-disabled")) {
         toOpen = trig;

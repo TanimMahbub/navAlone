@@ -1,0 +1,216 @@
+---
+import { Code } from "astro:components";
+
+const vanilla = `import { Navalone } from "navalone";
+import "navalone/css";
+
+new Navalone("#menu", {
+    logo: { text: "Acme", href: "/" },
+    items: [
+        { label: "Pricing", href: "/pricing" },
+        {
+            label: "Products",
+            submenu: {
+                id: "products",
+                display: "mega",
+                columns: [
+                    { heading: "Apps", items: [{ label: "Analytics", href: "/a" }] }
+                ]
+            }
+        }
+    ]
+});`;
+
+const react = `import { Navalone } from "@navalone/react";
+import "navalone/css";
+
+<Navalone
+    items={items}
+    logo="Acme"
+    onSubmenuOpen={(d) => console.log(d.id)}
+/>;`;
+
+const cdn = `<link rel="stylesheet"
+    href="https://unpkg.com/navalone/dist/navalone.css">
+<menu id="menu"></menu>
+<script src="https://unpkg.com/navalone/dist/navalone.global.js"></script>
+<script>
+    new Navalone("#menu", { logo: "Acme", items });
+</script>`;
+---
+
+<section id="get-started">
+    <div class="wrap">
+        <div class="section-head">
+            <p class="eyebrow">Get started</p>
+            <h2>Drop it in however you build.</h2>
+            <p>Build-free from a CDN, typed ESM/CJS in your bundler, or a thin wrapper for your framework.</p>
+        </div>
+
+        <div class="code-grid">
+            <div class="code-card reveal">
+                <div class="code-card-head">
+                    <span class="dot dot-r"></span><span class="dot dot-y"></span><span class="dot dot-g"></span>
+                    <span class="code-file">main.ts</span>
+                    <span class="code-lang">Vanilla / TypeScript</span>
+                    <button type="button" class="copy-btn" aria-label="Copy code">Copy</button>
+                </div>
+                <Code code={vanilla} lang="ts" theme="material-theme" />
+            </div>
+            <div class="code-card reveal">
+                <div class="code-card-head">
+                    <span class="dot dot-r"></span><span class="dot dot-y"></span><span class="dot dot-g"></span>
+                    <span class="code-file">App.tsx</span>
+                    <span class="code-lang">React</span>
+                    <button type="button" class="copy-btn" aria-label="Copy code">Copy</button>
+                </div>
+                <Code code={react} lang="tsx" theme="material-theme" />
+            </div>
+            <div class="code-card reveal">
+                <div class="code-card-head">
+                    <span class="dot dot-r"></span><span class="dot dot-y"></span><span class="dot dot-g"></span>
+                    <span class="code-file">index.html</span>
+                    <span class="code-lang">CDN</span>
+                    <button type="button" class="copy-btn" aria-label="Copy code">Copy</button>
+                </div>
+                <Code code={cdn} lang="html" theme="material-theme" />
+            </div>
+        </div>
+    </div>
+</section>
+
+<style>
+    .code-grid {
+        display: grid;
+        grid-template-columns: 1.1fr 0.9fr;
+        gap: 20px;
+    }
+    .code-grid .code-card:first-child {
+        grid-row: span 2;
+    }
+    .code-card {
+        background: #263238; /* Material Theme — Dark background */
+        border: 1px solid var(--border);
+        border-radius: 14px;
+        overflow: hidden;
+        box-shadow: 0 24px 60px -30px rgba(0, 0, 0, 0.8);
+        transition: transform 0.2s ease, border-color 0.2s ease;
+    }
+    .code-card:hover {
+        transform: translateY(-3px);
+        border-color: rgba(128, 203, 196, 0.5);
+    }
+    .code-card-head {
+        display: flex;
+        align-items: center;
+        gap: 7px;
+        padding: 12px 16px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+        background: rgba(255, 255, 255, 0.02);
+        font-size: 0.78rem;
+    }
+    .copy-btn {
+        margin-left: 10px;
+        appearance: none;
+        border: 1px solid var(--border);
+        background: rgba(255, 255, 255, 0.04);
+        color: var(--muted);
+        font: inherit;
+        font-size: 0.7rem;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+        padding: 4px 10px;
+        border-radius: 7px;
+        cursor: pointer;
+        transition: color 0.15s ease, border-color 0.15s ease, background 0.15s ease;
+    }
+    .copy-btn:hover {
+        color: var(--text);
+        border-color: var(--accent);
+    }
+    .copy-btn.is-copied {
+        color: #c3e88d;
+        border-color: #c3e88d;
+    }
+    .dot {
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+    }
+    .dot-r { background: #ff5f57; }
+    .dot-y { background: #febc2e; }
+    .dot-g { background: #28c840; }
+    .code-file {
+        margin-left: 8px;
+        color: #c7cde0;
+        font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    }
+    .code-lang {
+        margin-left: auto;
+        color: var(--muted);
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        font-size: 0.68rem;
+    }
+    /* Shiki output */
+    .code-card :global(.astro-code) {
+        margin: 0;
+        padding: 18px;
+        overflow-x: auto;
+        font-size: 0.82rem;
+        line-height: 1.6;
+        background: transparent !important;
+        scrollbar-width: thin;
+        scrollbar-color: var(--scrollbar) transparent;
+    }
+    .code-card :global(.astro-code code) {
+        font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    }
+    .code-card :global(.astro-code::-webkit-scrollbar) {
+        height: 9px;
+    }
+    .code-card :global(.astro-code::-webkit-scrollbar-track) {
+        background: transparent;
+    }
+    .code-card :global(.astro-code::-webkit-scrollbar-thumb) {
+        background: var(--scrollbar);
+        border-radius: 999px;
+        border: 2px solid transparent;
+        background-clip: padding-box;
+    }
+    .code-card :global(.astro-code::-webkit-scrollbar-thumb:hover) {
+        background: var(--accent);
+        background-clip: padding-box;
+    }
+    @media (max-width: 860px) {
+        .code-grid {
+            grid-template-columns: 1fr;
+        }
+        .code-grid .code-card:first-child {
+            grid-row: auto;
+        }
+    }
+</style>
+
+<script>
+    // Copy-to-clipboard for each static Shiki block.
+    document.querySelectorAll<HTMLButtonElement>(".code-card .copy-btn").forEach((btn) => {
+        const card = btn.closest(".code-card");
+        const code = card?.querySelector(".astro-code code");
+        let reset: number | undefined;
+        btn.addEventListener("click", async () => {
+            try {
+                await navigator.clipboard.writeText(code?.textContent || "");
+                btn.textContent = "Copied";
+                btn.classList.add("is-copied");
+                window.clearTimeout(reset);
+                reset = window.setTimeout(() => {
+                    btn.textContent = "Copy";
+                    btn.classList.remove("is-copied");
+                }, 1800);
+            } catch {
+                btn.textContent = "Ctrl+C";
+            }
+        });
+    });
+</script>

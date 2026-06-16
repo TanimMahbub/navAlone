@@ -1,0 +1,155 @@
+---
+// A generic, postMessage-driven live preview, embedded via <iframe> by every
+// docs Live Example. Because the menu lives inside THIS iframe, it reacts to the
+// frame's own width — so dragging the handle (or picking a device preset)
+// collapses the SAME instance from desktop bar to mobile drawer, exactly like
+// the hero. The parent sends the (editable) config + button actions over
+// postMessage; this page rebuilds the instance and reports status back.
+import "navalone/css";
+---
+
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Navalone — live preview</title>
+    </head>
+    <body>
+        <menu class="mm" id="preview-menu"></menu>
+
+        <main class="pg" aria-hidden="true">
+            <div class="pg-line pg-line--lg"></div>
+            <div class="pg-line"></div>
+            <div class="pg-line pg-line--sm"></div>
+            <div class="pg-cards">
+                <div class="pg-card"></div>
+                <div class="pg-card"></div>
+            </div>
+        </main>
+
+        <style>
+            html,
+            body {
+                margin: 0;
+                min-height: 100%;
+                background: #f6f7fb;
+                font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+                /* A wide panel (mega / dropdown-lg) or the bar itself can exceed a
+                   narrow preset frame and spawn a horizontal scrollbar. The frame
+                   is a fixed-width viewport, so clip the cross-axis overflow rather
+                   than scroll it — the menu still collapses to the drawer as the
+                   frame narrows. */
+                overflow-x: hidden;
+            }
+            #preview-menu {
+                margin: 0;
+            }
+            /* Standalone iframe document — global.css never loads here, so restate
+               the Material scrollbar for the vertical scrollbar that remains. */
+            * {
+                scrollbar-width: thin;
+                scrollbar-color: #546e7a transparent;
+            }
+            *::-webkit-scrollbar {
+                width: 10px;
+                height: 10px;
+            }
+            *::-webkit-scrollbar-track {
+                background: transparent;
+            }
+            *::-webkit-scrollbar-thumb {
+                background: #546e7a;
+                border-radius: 999px;
+                border: 2px solid transparent;
+                background-clip: padding-box;
+            }
+            *::-webkit-scrollbar-thumb:hover {
+                background: #80cbc4;
+                background-clip: padding-box;
+            }
+            /* A faint faux page so the menu sits on something believable. */
+            .pg {
+                padding: 28px 22px;
+            }
+            .pg-line {
+                height: 14px;
+                border-radius: 7px;
+                background: #e6e8f2;
+                margin: 0 0 12px;
+            }
+            .pg-line--lg {
+                height: 22px;
+                width: 60%;
+                background: #dfe2ef;
+            }
+            .pg-line--sm {
+                width: 40%;
+            }
+            .pg-cards {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 14px;
+                margin-top: 22px;
+            }
+            .pg-card {
+                height: 90px;
+                border-radius: 12px;
+                background: linear-gradient(160deg, #ffffff, #eef1fa);
+                border: 1px solid #e6e8f2;
+            }
+        </style>
+
+        <script>
+            import { Navalone, type NavaloneOptions } from "navalone";
+
+            const el = document.getElementById("preview-menu")!;
+            let instance: Navalone | null = null;
+
+            function reply(message: object): void {
+                // Same-origin parent; targetOrigin pins it to our own origin.
+                window.parent.postMessage(
+                    { source: "navalone-preview", ...message },
+                    window.location.origin
+                );
+            }
+
+            function build(config: NavaloneOptions): void {
+                instance?.destroy();
+                el.innerHTML = "";
+                try {
+                    // Default the breakpoint low enough that the "Desktop" preset
+                    // (full pane width — narrower than a real desktop here) still
+                    // reads as desktop, while Tablet/Mobile collapse to the
+                    // drawer. An explicit breakpoint in the edited JSON still wins.
+                    instance = new Navalone(el, { breakpoint: 460, ...config });
+                    reply({ type: "status", ok: true, message: "Updated ✓" });
+                } catch (err) {
+                    reply({ type: "status", ok: false, message: (err as Error).message });
+                }
+            }
+
+            window.addEventListener("message", (e: MessageEvent) => {
+                if (e.origin !== window.location.origin) return;
+                const data = e.data;
+                if (!data || typeof data !== "object") return;
+
+                if (data.type === "build") {
+                    build(data.config as NavaloneOptions);
+                } else if (data.type === "action" && instance) {
+                    const method = data.method as keyof Navalone;
+                    const fn = instance[method];
+                    if (typeof fn === "function") {
+                        (fn as (...a: unknown[]) => unknown).apply(
+                            instance,
+                            (data.args as unknown[]) ?? []
+                        );
+                    }
+                }
+            });
+
+            // Tell the parent we're ready for the initial config.
+            reply({ type: "ready" });
+        </script>
+    </body>
+</html>

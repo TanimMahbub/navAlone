@@ -1,0 +1,156 @@
+:root {
+    /* Material Theme — Dark (the classic #263238 editor palette). */
+    --bg: #263238;
+    --bg-2: #21292e;
+    --surface: #2c393f;
+    --border: #37474f;
+    --text: #c4dae3;
+    --muted: #93acb8;
+    /* Titles use a soft, dim light instead of the old colourful gradient. */
+    --title: #cfd8dc;
+    --accent: #80cbc4;
+    --accent-2: #80cbc4;
+    --accent-3: #80cbc4;
+    /* Material syntax / scrollbar helpers */
+    --code-bg: #263238;
+    --scrollbar: #546e7a;
+    --max: 1140px;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+html {
+    /* Base colour sits on the root so the fixed decorative background
+       (SiteBackground.astro, z-index: -1) can show through a transparent body. */
+    background: var(--bg);
+}
+
+body {
+    margin: 0;
+    background: transparent;
+    color: var(--text);
+    font: 16px/1.6 system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+}
+
+a {
+    color: inherit;
+}
+
+.wrap {
+    max-width: var(--max);
+    margin: 0 auto;
+    padding: 0 24px;
+}
+
+.eyebrow {
+    text-transform: uppercase;
+    letter-spacing: 0.18em;
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: var(--accent-2);
+}
+
+.btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 22px;
+    border-radius: 10px;
+    font-weight: 600;
+    text-decoration: none;
+    border: 1px solid var(--border);
+    transition: transform 0.15s ease, border-color 0.15s ease, background 0.15s ease;
+}
+.btn:hover {
+    transform: translateY(-2px);
+}
+.btn--primary {
+    background: var(--accent);
+    border-color: transparent;
+    color: #15252b;
+}
+.btn--ghost {
+    background: var(--surface);
+}
+
+section {
+    position: relative;
+    padding: 96px 0;
+}
+
+.section-head {
+    max-width: 60ch;
+    margin-bottom: 48px;
+}
+.section-head h2 {
+    font-size: clamp(1.8rem, 4vw, 2.6rem);
+    margin: 12px 0;
+    line-height: 1.1;
+    color: var(--title);
+    font-weight: 700;
+    letter-spacing: -0.01em;
+}
+.section-head p {
+    color: var(--text);
+    font-size: 1.05rem;
+}
+
+/* Material-theme scrollbars across the page (incl. code blocks). */
+* {
+    scrollbar-width: thin;
+    scrollbar-color: var(--scrollbar) transparent;
+}
+*::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+}
+*::-webkit-scrollbar-track {
+    background: transparent;
+}
+*::-webkit-scrollbar-thumb {
+    background: var(--scrollbar);
+    border-radius: 999px;
+    border: 2px solid transparent;
+    background-clip: padding-box;
+}
+*::-webkit-scrollbar-thumb:hover {
+    background: #80cbc4;
+    background-clip: padding-box;
+}
+
+/* Scroll-reveal (vanilla IntersectionObserver, see index.astro). The hidden
+   start state only applies once `.reveal-ready` is set synchronously in <head>,
+   so it never hides content for no-JS or reduced-motion visitors. */
+.reveal {
+    transition: opacity 0.7s ease, transform 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.reveal-ready .reveal {
+    opacity: 0;
+    transform: translateY(36px);
+}
+.reveal-ready .reveal.is-visible {
+    opacity: 1;
+    transform: none;
+}
+/* Hero intro elements are hidden pre-JS (motion only) then animated in. */
+.reveal-ready .hero-el {
+    opacity: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    html {
+        scroll-behavior: auto;
+    }
+    * {
+        animation-duration: 0.001ms !important;
+        transition-duration: 0.001ms !important;
+    }
+}

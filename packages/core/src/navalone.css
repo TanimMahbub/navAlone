@@ -299,6 +299,32 @@ body.nv-scroll-lock {
 		visibility 0s;
 }
 
+/* Invisible "hover bridge" covering the gap between a trigger and its panel, so
+   the pointer stays within the menu while moving onto an open panel and the
+   dropdown doesn't drop out from under the cursor. */
+.nv-panel.is-open::before {
+	content: "";
+	position: absolute;
+	top: -10px;
+	left: 0;
+	right: 0;
+	height: 10px;
+}
+
+.nv-flyout.is-open::before {
+	top: 0;
+	left: -10px;
+	right: auto;
+	bottom: 0;
+	width: 10px;
+	height: auto;
+}
+
+.nv-flyout.nv-flip-x.is-open::before {
+	left: auto;
+	right: -10px;
+}
+
 .nv-panel ul {
 	list-style: none;
 }
@@ -666,7 +692,13 @@ body.nv-scroll-lock {
 
 .nv-arrow {
 	flex: 0 0 auto;
+	display: inline-flex;
+	align-items: center;
 	opacity: 0.55;
+}
+
+.nv-chevron {
+	display: block;
 }
 
 /* Mega-menu column headings, flattened into the drill-down panel. */
@@ -691,29 +723,44 @@ body.nv-scroll-lock {
 .menu-header {
 	display: flex;
 	align-items: center;
-	justify-content: flex-end;
+	justify-content: space-between;
+	gap: 12px;
 	background: var(--nv-header-bg);
 	color: var(--nv-header-color);
 	border-bottom: var(--nv-border);
-	padding: 10px;
+	padding: 10px 14px;
 	position: relative;
 	z-index: 1;
 }
 
+/* Back button: chevron + label, sits on the left. */
 .menu-header .back-button {
+	display: inline-flex;
+	align-items: center;
+	gap: 6px;
+	flex: 0 0 auto;
 	color: var(--nv-back-color);
 	font-family: var(--nv-font);
-	font-weight: bold;
-	position: absolute;
-	width: 100%;
-	height: 100%;
-	left: 0;
-	top: 0;
+	font-size: 14px;
+	font-weight: 600;
+	line-height: 1;
 	background: none;
 	border: none;
-	margin-right: 10px;
 	cursor: pointer;
-	z-index: 2;
+	padding: 7px 10px 7px 8px;
+	margin: -4px 0 -4px -6px;
+	border-radius: var(--nv-radius);
+	transition: background var(--nv-duration) ease, color var(--nv-duration) ease;
+}
+
+.menu-header .back-button:hover {
+	background: rgba(255, 255, 255, 0.12);
+	color: var(--nv-header-color);
+}
+
+.menu-header .back-button .nv-chevron {
+	width: 18px;
+	height: 18px;
 }
 
 .menu-header .back-button:focus-visible {
@@ -721,7 +768,17 @@ body.nv-scroll-lock {
 	outline-offset: -2px;
 }
 
+/* The parent level's name, on the right. */
 .menu-header .menu-title {
-	font-weight: bold;
+	flex: 1 1 auto;
+	min-width: 0;
+	text-align: right;
+	font-family: var(--nv-font);
+	font-weight: 600;
+	font-size: 15px;
+	color: var(--nv-header-color);
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
 	pointer-events: none;
 }

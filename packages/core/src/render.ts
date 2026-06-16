@@ -10,7 +10,26 @@ export interface FillRowOptions {
     hasChild?: boolean;
     thumbnails?: boolean | null;
     description?: boolean;
-    arrow?: string | null;
+    /** Chevron direction for items with a child panel. */
+    arrow?: "down" | "right" | "left" | null;
+}
+
+/* Rounded, "curvy" chevrons (Feather-style) shared by the bar, flyouts, the
+   mobile drill-down rows and the back button — no more glyph arrows. */
+const CHEVRON: Record<string, string> = {
+    down: '<polyline points="6 9 12 15 18 9"/>',
+    right: '<polyline points="9 6 15 12 9 18"/>',
+    left: '<polyline points="15 6 9 12 15 18"/>'
+};
+
+export function chevronSvg(dir: "down" | "right" | "left"): string {
+    return (
+        '<svg class="nv-chevron" viewBox="0 0 24 24" width="1em" height="1em" ' +
+        'fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" ' +
+        'stroke-linejoin="round" aria-hidden="true">' +
+        (CHEVRON[dir] || "") +
+        "</svg>"
+    );
 }
 
 export function fillRow(
@@ -60,7 +79,7 @@ export function fillRow(
         const arrow = document.createElement("span");
         arrow.className = "nv-arrow";
         arrow.setAttribute("aria-hidden", "true");
-        arrow.textContent = opts.arrow;
+        arrow.innerHTML = chevronSvg(opts.arrow);
         el.appendChild(arrow);
     }
 }

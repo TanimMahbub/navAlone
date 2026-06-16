@@ -1,0 +1,197 @@
+---
+// The single live preview embedded (via <iframe>) in the hero's resizable frame.
+// It renders ONE real Navalone at full width with a normal breakpoint, so as the
+// surrounding frame is dragged narrower the SAME instance collapses from the
+// desktop bar into the hamburger + off-canvas multi-level drawer — one model,
+// every size, live. (Replaces the old "desktop frame + phone iframe" pairing.)
+import "navalone/css";
+---
+
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Navalone — responsive demo</title>
+    </head>
+    <body>
+        <menu class="mm" id="demo-menu"></menu>
+
+        <main class="demo-page" aria-hidden="true">
+            <section class="demo-hero">
+                <span class="demo-pill">your-site.com</span>
+                <h1>Build something people love.</h1>
+                <p>This is a real Navalone menu. Drag the handle to resize the
+                    frame &mdash; watch the desktop bar collapse into the mobile
+                    drawer, then open it and drill through the levels.</p>
+                <div class="demo-actions">
+                    <span class="demo-btn demo-btn--p">Get started</span>
+                    <span class="demo-btn">Live demo</span>
+                </div>
+            </section>
+            <div class="demo-cards">
+                <div class="demo-card"></div>
+                <div class="demo-card"></div>
+                <div class="demo-card"></div>
+            </div>
+        </main>
+
+        <style>
+            /* A soft, low-glare white page so the embedded demo reads as a real
+               product site. Kept off pure-white to take the harsh shine off. */
+            html,
+            body {
+                margin: 0;
+                min-height: 100%;
+                background: #eef1f4;
+                color: #3a4a52;
+                font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+                overflow-x: hidden;
+            }
+            /* This page is a standalone iframe document, so global.css never
+               reaches it — restate the Material dark scrollbar here so the frame's
+               own scrollbar matches the site instead of the OS default. */
+            * {
+                scrollbar-width: thin;
+                scrollbar-color: #546e7a transparent;
+            }
+            *::-webkit-scrollbar {
+                width: 10px;
+                height: 10px;
+            }
+            *::-webkit-scrollbar-track {
+                background: transparent;
+            }
+            *::-webkit-scrollbar-thumb {
+                background: #546e7a;
+                border-radius: 999px;
+                border: 2px solid transparent;
+                background-clip: padding-box;
+            }
+            *::-webkit-scrollbar-thumb:hover {
+                background: #80cbc4;
+                background-clip: padding-box;
+            }
+            /* The fixed drawer/backdrop are scoped to THIS iframe's viewport, so
+               they fill the frame exactly. (A transform on the root used to be
+               here to "contain" them, but it re-based position:fixed onto the
+               full document height — which pushed the drawer footer below the
+               fold. The iframe boundary already contains them.) */
+            #demo-menu {
+                margin: 0;
+            }
+            .demo-page {
+                padding: 0 24px 40px;
+                color: #3a4a52;
+            }
+            .demo-hero {
+                max-width: 640px;
+                margin: 0 auto;
+                padding: 56px 0 36px;
+                text-align: center;
+            }
+            .demo-pill {
+                display: inline-block;
+                padding: 5px 12px;
+                border-radius: 999px;
+                background: rgba(128, 203, 196, 0.2);
+                color: #2a8f86;
+                font-size: 0.72rem;
+                font-weight: 600;
+                letter-spacing: 0.04em;
+            }
+            .demo-hero h1 {
+                font-size: clamp(1.8rem, 5vw, 2.8rem);
+                line-height: 1.08;
+                margin: 16px 0 12px;
+                letter-spacing: -0.02em;
+                color: #243038;
+            }
+            .demo-hero p {
+                color: #5f7079;
+                font-size: 0.98rem;
+                margin: 0 auto 22px;
+                max-width: 48ch;
+            }
+            .demo-actions {
+                display: flex;
+                gap: 10px;
+                justify-content: center;
+                flex-wrap: wrap;
+            }
+            .demo-btn {
+                padding: 10px 18px;
+                border-radius: 8px;
+                font-size: 0.85rem;
+                font-weight: 600;
+                background: #f7f9fb;
+                border: 1px solid #dde4e8;
+                color: #3a4a52;
+            }
+            .demo-btn--p {
+                background: #80cbc4;
+                color: #15252b;
+                border-color: transparent;
+            }
+            .demo-cards {
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+                gap: 16px;
+                max-width: 720px;
+                margin: 0 auto;
+            }
+            .demo-card {
+                height: 110px;
+                border-radius: 14px;
+                background: linear-gradient(160deg, #f8fafb, #eef1f4);
+                border: 1px solid #e0e6ea;
+            }
+        </style>
+
+        <script>
+            import { Navalone } from "navalone";
+            import { heroMenu } from "../../data/menu";
+
+            const el = document.getElementById("demo-menu");
+            if (el) {
+                // Normal breakpoint: the instance reacts to THIS frame's width, so
+                // resizing the hero frame drives the desktop⇄mobile transition live.
+                // Soft light theme so the demo reads as a real product site (the
+                // page scrollbar stays the site's Material slate — kept on purpose).
+                new Navalone(el, {
+                    ...heroMenu,
+                    breakpoint: 820,
+                    width: "86%",
+                    theme: {
+                        // Soft white — off pure-white surfaces to keep the shine down.
+                        "--nv-bar-bg": "#f7f9fb",
+                        "--nv-bar-color": "#33454d",
+                        "--nv-bar-shadow":
+                            "0 1px 0 rgba(20, 40, 50, 0.05), 0 2px 16px -10px rgba(20, 40, 50, 0.2)",
+                        "--nv-panel-bg": "#fbfcfd",
+                        "--nv-panel-shadow": "0 18px 50px -20px rgba(20, 40, 50, 0.22)",
+                        "--nv-text-color": "#33454d",
+                        "--nv-desc-color": "#6b7c85",
+                        "--nv-muted-color": "#6b7c85",
+                        "--nv-border-color": "#e3e8ec",
+                        "--nv-hover-bg": "rgba(128, 203, 196, 0.16)",
+                        "--nv-header-bg": "#f0f3f5",
+                        "--nv-header-color": "#2b3a42",
+                        "--nv-back-color": "#2a8f86",
+                        "--nv-scrollbar-color": "#546e7a",
+                        "--nv-backdrop-bg": "rgba(20, 30, 35, 0.42)",
+                        "--nv-shadow": "0 0 30px -5px rgba(20, 40, 50, 0.18)",
+                        "--nv-action-bg": "#f7f9fb",
+                        "--nv-action-color": "#33454d",
+                        "--nv-action-border": "1px solid #e3e8ec",
+                        "--nv-action-primary-bg": "#80cbc4",
+                        "--nv-action-primary-color": "#15252b",
+                        "--nv-focus-color": "#26a69a",
+                        "--nv-badge-bg": "#009688",
+                        "--nv-badge-color": "#ffffff"
+                    }
+                });
+            }
+        </script>
+    </body>
+</html>

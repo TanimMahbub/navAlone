@@ -1,0 +1,91 @@
+---
+---
+
+<section id="cta">
+    <div class="wrap cta-inner reveal">
+        <h2>One nav. Ship it everywhere.</h2>
+        <p>Free, open source, and framework-ready. Install in seconds.</p>
+        <div class="cta-install">
+            <code>npm install navalone</code>
+        </div>
+        <div class="cta-buttons">
+            <a class="btn btn--primary" href="/docs/">Read the docs</a>
+            <a class="btn btn--ghost" href="https://github.com/">Star on GitHub</a>
+            <a class="btn btn--ghost" href="https://www.npmjs.com/package/navalone">View on npm</a>
+        </div>
+    </div>
+</section>
+
+<footer class="site-footer">
+    <div class="wrap">
+        <p>Navalone · MIT licensed · One nav for every screen</p>
+        <nav aria-label="Footer">
+            <a href="/docs/">Docs</a>
+            <a href="https://github.com/">GitHub</a>
+            <a href="https://www.npmjs.com/package/navalone">npm</a>
+        </nav>
+    </div>
+</footer>
+
+<style>
+    #cta {
+        padding-bottom: 64px;
+    }
+    .cta-inner {
+        text-align: center;
+        background: var(--bg-2);
+        border: 1px solid var(--border);
+        border-radius: 22px;
+        padding: 64px 24px;
+    }
+    .cta-inner h2 {
+        font-size: clamp(1.8rem, 4vw, 2.8rem);
+        margin: 0 0 10px;
+        color: var(--title);
+    }
+    .cta-install code {
+        color: var(--accent);
+    }
+    .cta-inner p {
+        color: var(--muted);
+        margin: 0 0 24px;
+    }
+    .cta-install {
+        display: inline-block;
+        background: var(--bg);
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        padding: 14px 22px;
+        margin-bottom: 24px;
+        font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    }
+    .cta-buttons {
+        display: flex;
+        gap: 12px;
+        justify-content: center;
+        flex-wrap: wrap;
+    }
+    .site-footer {
+        border-top: 1px solid var(--border);
+        padding: 32px 0;
+        color: var(--muted);
+        font-size: 0.9rem;
+    }
+    .site-footer .wrap {
+        display: flex;
+        justify-content: space-between;
+        gap: 16px;
+        flex-wrap: wrap;
+    }
+    .site-footer nav {
+        display: flex;
+        gap: 18px;
+    }
+    .site-footer a {
+        color: var(--muted);
+        text-decoration: none;
+    }
+    .site-footer a:hover {
+        color: var(--text);
+    }
+</style>

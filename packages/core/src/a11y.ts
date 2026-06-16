@@ -44,17 +44,27 @@ export function trapTab(drawer: HTMLElement, e: KeyboardEvent): void {
     }
 }
 
-/** Focus a preferred element inside the panel, else its first enabled row. */
+/**
+ * Focus a preferred element inside the panel, else its first enabled row.
+ *
+ * `preventScroll` is essential here: during a drill the incoming panel is still
+ * transformed off-screen (translateX(±100%)) at the moment we focus into it.
+ * Without it the browser scrolls the `.nv-panels` container horizontally to
+ * bring the focused row into view, and that scroll persists after the transform
+ * settles — leaving the active panel shoved one full width off-screen (a blank
+ * drawer body). The slide-in is purely transform-driven, so we never want focus
+ * to move the container.
+ */
 export function focusPanel(panel: HTMLElement, preferred?: HTMLElement | null): void {
     if (preferred && panel.contains(preferred)) {
-        preferred.focus();
+        preferred.focus({ preventScroll: true });
         return;
     }
     const first = panel.querySelector<HTMLElement>(
         "li > button:not([disabled]):not(.is-disabled), li > a:not(.is-disabled)"
     );
     if (first) {
-        first.focus();
+        first.focus({ preventScroll: true });
     }
 }
 

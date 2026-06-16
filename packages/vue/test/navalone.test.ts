@@ -44,10 +44,13 @@ describe("@navalone/vue", () => {
         vm.openSubmenu("company");
         await wrapper.vm.$nextTick();
 
-        expect(wrapper.find("#company").classes()).toContain("is-open");
         const events = wrapper.emitted("submenuopen");
         expect(events).toBeTruthy();
-        expect((events![0][0] as { id: string }).id).toBe("company");
+        const detail = events![0][0] as { id: string; panel: HTMLElement };
+        // The desktop dropdown panel from the event detail is open and holds the
+        // company submenu's rows.
+        expect(detail.panel.classList.contains("is-open")).toBe(true);
+        expect(detail.panel.textContent).toContain("Careers");
         wrapper.unmount();
     });
 

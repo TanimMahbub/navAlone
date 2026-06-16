@@ -1,0 +1,21 @@
+{
+    "name": "@navalone/site",
+    "version": "0.0.0",
+    "private": true,
+    "description": "Navalone landing page — an awwwards-style marketing site built with Astro (vanilla JS, no animation libraries).",
+    "type": "module",
+    "scripts": {
+        "dev": "astro dev",
+        "build": "astro build",
+        "preview": "astro preview",
+        "astro": "astro"
+    },
+    "dependencies": {
+        "highlight.js": "^11.11.1",
+        "navalone": "workspace:*"
+    },
+    "devDependencies": {
+        "astro": "^5.0.0",
+        "typescript": "^5.7.2"
+    }
+}

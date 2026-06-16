@@ -54,9 +54,11 @@ describe("@navalone/angular", () => {
     it("opens a submenu and emits submenuopen", () => {
         const { fixture, host } = setup();
         host.menu.openSubmenu("company");
-        const el = fixture.nativeElement as HTMLElement;
-        expect(el.querySelector("#company")?.classList.contains("is-open")).toBe(true);
-        expect(host.lastSubmenu?.id).toBe("company");
+        expect(host.lastSubmenu).toBeTruthy();
+        // The desktop dropdown panel from the event detail is open and holds the
+        // company submenu's rows.
+        expect(host.lastSubmenu!.panel.classList.contains("is-open")).toBe(true);
+        expect(host.lastSubmenu!.panel.textContent).toContain("Careers");
         fixture.destroy();
     });
 

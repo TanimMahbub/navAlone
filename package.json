@@ -9,10 +9,21 @@
     "packageManager": "pnpm@9.15.9",
     "scripts": {
         "build": "pnpm -r run build",
+        "build:core": "pnpm --filter navalone run build",
+        "build:packages": "pnpm --filter \"./packages/*\" run build",
+        "build:apps": "pnpm --filter \"./apps/*\" run build",
         "dev": "pnpm --filter navalone run dev",
+        "dev:docs": "pnpm --filter @navalone/docs run dev",
+        "dev:site": "pnpm --filter @navalone/site run dev",
+        "preview:docs": "pnpm --filter @navalone/docs run preview",
+        "preview:site": "pnpm --filter @navalone/site run preview",
         "test": "pnpm -r run test",
         "test:e2e": "pnpm --filter navalone run test:e2e",
-        "example": "pnpm --filter navalone run example",
+        "typecheck": "pnpm -r run typecheck",
+        "example:core": "pnpm --filter navalone run example",
+        "example:react": "pnpm --filter @navalone/react run example",
+        "example:vue": "pnpm --filter @navalone/vue run example",
+        "example:angular": "pnpm --filter @navalone/angular run example",
         "lint": "eslint .",
         "format": "prettier --write ."
     },
@@ -23,5 +34,10 @@
         "prettier": "^3.4.2",
         "typescript": "^5.7.2",
         "typescript-eslint": "^8.18.1"
+    },
+    "pnpm": {
+        "overrides": {
+            "typescript": "5.8.3"
+        }
     }
 }

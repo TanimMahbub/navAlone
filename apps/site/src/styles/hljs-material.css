@@ -1,0 +1,77 @@
+/*
+ * highlight.js palette tuned to the Material Theme — Dark (#263238), so the docs
+ * code blocks match the landing-page Shiki "material-theme" output.
+ * Background #263238, foreground #b2ccd6, with material accent hues.
+ */
+.hljs {
+    color: #b2ccd6;
+    background: #263238;
+}
+
+.hljs-comment,
+.hljs-quote {
+    color: #546e7a;
+    font-style: italic;
+}
+
+.hljs-keyword,
+.hljs-selector-tag,
+.hljs-built_in,
+.hljs-name,
+.hljs-tag {
+    color: #c792ea;
+}
+
+.hljs-string,
+.hljs-title,
+.hljs-section,
+.hljs-attribute,
+.hljs-literal,
+.hljs-template-tag,
+.hljs-template-variable,
+.hljs-type,
+.hljs-addition {
+    color: #c3e88d;
+}
+
+.hljs-string {
+    color: #c3e88d;
+}
+
+.hljs-number,
+.hljs-symbol,
+.hljs-bullet,
+.hljs-link,
+.hljs-meta,
+.hljs-selector-id,
+.hljs-deletion {
+    color: #f78c6c;
+}
+
+.hljs-title.function_,
+.hljs-function .hljs-title,
+.hljs-section {
+    color: #82aaff;
+}
+
+.hljs-attr,
+.hljs-variable,
+.hljs-property,
+.hljs-params,
+.hljs-class .hljs-title {
+    color: #ffcb6b;
+}
+
+.hljs-regexp,
+.hljs-selector-attr,
+.hljs-selector-pseudo {
+    color: #89ddff;
+}
+
+.hljs-emphasis {
+    font-style: italic;
+}
+
+.hljs-strong {
+    font-weight: bold;
+}

@@ -19,7 +19,10 @@ and mega menus that collapse to a sliding mobile drawer. A free alternative to
 - **Phase 3 — done:** TypeScript core extracted into a pnpm monorepo (`packages/core`),
   built with tsup to ESM + CJS + a minified IIFE/UMD + `.d.ts`, with the CSS shipped
   alongside. The plain-JS prototype is gone; vanilla `<script>` usage is unchanged.
-- **Phase 4:** React / Vue / Angular wrappers, documentation site and landing page.
+- **Phase 4 — done:** thin React / Vue / Angular wrappers (`@navalone/{react,vue,angular}`),
+  a documentation site with live editable examples + a theming playground (`apps/docs`), and
+  an Astro + GSAP landing page (`apps/site`). All consume the local `packages/core` — no
+  behaviour is duplicated.
 
 ## Install
 
@@ -295,40 +298,115 @@ close button or **Escape** (returning focus to the hamburger).
 - **Drawer:** `role="dialog"` + `aria-modal`, focus trapped while open, hamburger exposes
   `aria-expanded`.
 
+## Framework wrappers
+
+Thin adapters over the same core — each instantiates `Navalone` on mount and calls
+`destroy()` on unmount, with **no behaviour re-implemented**. They are **SSR-safe** (the core
+is never touched at import time) and **tree-shakeable**; the framework and `navalone` are
+`peerDependencies`. Option, method and event types are re-exported from the core, so the
+wrapper shapes always track the core's `.d.ts`.
+
+### React — [`@navalone/react`](packages/react)
+
+```tsx
+import { useRef } from "react";
+import { Navalone, type NavaloneHandle } from "@navalone/react";
+import "navalone/css";
+
+const menu = useRef<NavaloneHandle>(null);
+<Navalone ref={menu} items={items} logo="Acme" onSubmenuOpen={(d) => console.log(d.id)} />;
+// menu.current?.openSubmenu("products")  ·  open/close/toggle/navigateTo/back/closeAll/destroy
+```
+
+### Vue 3 — [`@navalone/vue`](packages/vue)
+
+```vue
+<script setup lang="ts">
+import { ref } from "vue";
+import { Navalone } from "@navalone/vue";
+import "navalone/css";
+const menu = ref();
+</script>
+
+<template>
+    <Navalone ref="menu" :items="items" logo="Acme" @submenuopen="(d) => console.log(d.id)" />
+</template>
+```
+
+Props mirror the options; events are emitted (`navigate`, `back`, `open`, `close`,
+`submenuopen`, `submenuclose`); methods are `expose`d via the template ref.
+
+### Angular — [`@navalone/angular`](packages/angular)
+
+```ts
+import { NavaloneComponent } from "@navalone/angular";
+
+@Component({
+    standalone: true,
+    imports: [NavaloneComponent],
+    template: `<navalone-menu [items]="items" logo="Acme"
+        (submenuopen)="onOpen($event)"></navalone-menu>`
+})
+export class HeaderComponent {}
+```
+
+`@Input()`s mirror the options; `@Output()`s surface the events; the drawer/back methods are
+`openDrawer`/`closeDrawer`/`goBack` (to avoid clashing with the `open`/`close`/`back` outputs).
+
+## Apps
+
+- **[`apps/docs`](apps/docs)** — a static Vite SPA: getting started, full API reference, and
+  **live, editable** examples of every submenu type plus a **theming playground** that mutates
+  `--nv-*` tokens on a live instance. `pnpm dev:docs` / `pnpm --filter @navalone/docs build`.
+- **[`apps/site`](apps/site)** — an awwwards-style **Astro + GSAP** landing page with a live
+  interactive hero menu, feature highlights (free vs. mmenu.js), code snippets and CTAs.
+  `pnpm dev:site` / `pnpm --filter @navalone/site build`.
+
+Each package and app builds, tests and deploys independently.
+
 ## Monorepo & development
 
-This repo is a **pnpm workspace**. The plugin lives in `packages/core`; framework wrappers
-and apps (Phase 4) will sit alongside it.
+This repo is a **pnpm workspace**.
 
 ```
 .
 ├── packages/
-│   └── core/              # the "navalone" package (TypeScript source → built dist/)
-│       ├── src/           # navalone.ts · desktop.ts · drawer.ts · model.ts ·
-│       │                  #   render.ts · a11y.ts · dom.ts · types.ts · navalone.css
-│       ├── example/       # build-free demo consuming dist/
-│       └── test/          # Vitest unit/behaviour/keyboard + test/e2e headless-Chrome
-│   └── react|vue|angular/ # (Phase 4 — workspace globs reserved)
-├── apps/                  # docs · site (Phase 4 — reserved)
+│   ├── core/              # the "navalone" package (TypeScript source → built dist/)
+│   │   ├── src/           # navalone.ts · desktop.ts · drawer.ts · model.ts ·
+│   │   │                  #   render.ts · a11y.ts · dom.ts · types.ts · navalone.css
+│   │   ├── example/       # build-free demo consuming dist/
+│   │   └── test/          # Vitest unit/behaviour/keyboard + test/e2e headless-Chrome
+│   ├── react/             # @navalone/react  (tsup → ESM/CJS + d.ts, peerDeps react)
+│   ├── vue/               # @navalone/vue    (tsup → ESM/CJS + d.ts, peerDeps vue)
+│   └── angular/           # @navalone/angular (ng-packagr, peerDeps @angular/*)
+├── apps/
+│   ├── docs/              # Vite SPA — API reference, live examples, theming playground
+│   └── site/              # Astro + GSAP landing page
+├── scripts/verify-phase4.mjs  # headless-Chrome verification of the built apps/examples
 ├── index.html             # repo-root demo, also consumes packages/core/dist/
 └── tsconfig.base.json · eslint.config.js · .prettierrc.json
 ```
 
 Scripts (run from the repo root):
 
-| Command                 | What it does                                                        |
-| ----------------------- | ------------------------------------------------------------------ |
-| `pnpm install`          | Install workspace dependencies.                                     |
-| `pnpm build`            | Build every package (`packages/core` → `dist/`).                   |
-| `pnpm dev`              | Rebuild the core on change (tsup watch).                            |
-| `pnpm test`             | Run the Vitest suites across the workspace.                         |
-| `pnpm test:e2e`         | Drive the installed headless Chrome against the built `dist/`.²     |
-| `pnpm example`          | Serve `packages/core` so you can open `/example/`.                  |
-| `pnpm lint` / `format`  | ESLint / Prettier (4-space JS/TS, tab CSS).                         |
+| Command                  | What it does                                                        |
+| ------------------------ | ------------------------------------------------------------------ |
+| `pnpm install`           | Install workspace dependencies.                                     |
+| `pnpm build`             | Build every package and app (topological order).                    |
+| `pnpm build:packages`    | Build just `packages/*` (core + wrappers).                          |
+| `pnpm build:apps`        | Build just `apps/*` (docs + site).                                  |
+| `pnpm dev`               | Rebuild the core on change (tsup watch).                            |
+| `pnpm dev:docs` / `dev:site` | Run the docs / landing-page dev servers.                       |
+| `pnpm test`              | Run the Vitest suites across the workspace.                         |
+| `pnpm test:e2e`          | Drive the installed headless Chrome against the built core `dist/`.² |
+| `pnpm example:react` / `:vue` / `:angular` | Run a wrapper's usage example (Vite dev). |
+| `pnpm lint` / `format`   | ESLint / Prettier (4-space JS/TS, tab CSS).                         |
 
 > ¹ TypeScript is **authoring-only** — vanilla consumers get compiled JS + CSS + `.d.ts`.
 > ² `test:e2e` needs Chrome; override its path with `CHROME_PATH`. After `pnpm build`, the
 >   root `index.html` and `packages/core/example/index.html` work from `file://`.
+> `node scripts/verify-phase4.mjs` rebuilds-independent: it serves the built apps/examples and
+> drives headless Chrome (via the DevTools Protocol) to confirm each renders + screenshots them.
 
 The build is done with [tsup](https://tsup.egoist.dev/) (esbuild + `rollup-plugin-dts`),
 chosen over Vite lib mode for its first-class multi-format output (ESM + CJS + IIFE) and

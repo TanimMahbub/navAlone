@@ -1,0 +1,29 @@
+---
+// The documentation, served by the SAME Astro server as the landing page at
+// /docs (no second app/server). The docs UI is built on the client into #app by
+// the ported docs modules — getting started, API reference, live editable
+// examples and the theming playground — all driving the same core the rest of
+// the site uses.
+---
+
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <meta
+            name="description"
+            content="Navalone documentation — getting started, API reference, live editable examples and a theming playground." />
+        <title>Navalone — Documentation</title>
+    </head>
+    <body>
+        <a class="skip-link" href="#content">Skip to content</a>
+        <div id="app"></div>
+        <script>
+            // Top-level import runs the docs bootstrap (builds #app, wires the
+            // live examples/playground, highlights code). CSS is imported by the
+            // module graph (navalone/css, docs styles, material hljs theme).
+            import "../../docs/main.ts";
+        </script>
+    </body>
+</html>

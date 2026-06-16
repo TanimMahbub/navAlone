@@ -39,7 +39,7 @@ refactor prototype into a configurable vanilla **`Navalone`** plugin (options AP
 events, a11y) — still plain JS — DONE 2026-06-15. Phase 2 = responsive desktop bar +
 dropdown/dropdown-lg/nested-flyout/mega rendering + off-canvas drawer — DONE 2026-06-15.
 Phase 3 = monorepo + TS + build — DONE 2026-06-16. Phase 4 = framework wrappers, docs,
-landing page.
+landing page — DONE 2026-06-16.
 
 **Branding done (2026-06-15):** project files renamed to Navalone — `package.json` created
 (name "navalone", MIT, keywords), `README.md` rewritten with roadmap, `index.html`
@@ -105,3 +105,148 @@ against the BUILT `dist` — 13 assertions incl. edge-clamp + the visibility-got
 + desktop/mobile screenshots. `pnpm test` = vitest; `pnpm test:e2e` = the Chrome harness.
 ESLint flat config + Prettier (4-space JS/TS, tab CSS) tuned to existing style; `tsc --noEmit`
 strict passes. Still manual/owner-only: on-disk folder rename, GitHub remote, OG image URLs.
+
+**After Phase 4 (2026-06-16):** built the ecosystem on top of `packages/core` with NO logic
+duplication — wrappers/apps all consume the local `navalone` workspace package; behaviour lives
+only in the core. **Confirmed with owner before scaffolding:** React 19 + Vue 3.5 + Angular 19;
+docs = custom Vite SPA; landing site = Astro + GSAP. **Thin framework wrappers** (each: own
+`package.json` with framework + `navalone` as peerDeps, types RE-EXPORTED from core so shapes
+track the `.d.ts`, SSR-safe, tree-shakeable, example + Vitest tests):
+- `@navalone/react` (`packages/react`, tsup→ESM/CJS+d.ts): `forwardRef` component, props =
+  `NavaloneOptions` + className/style/id, imperative `NavaloneHandle` ref (open/close/toggle/
+  navigateTo/back/openSubmenu/closeSubmenu/closeAll/destroy/instance). Instance built in an
+  effect keyed on `JSON.stringify(options)` (drops fn callbacks → callback-identity changes
+  don't rebuild); stable wrapper callbacks read latest handler from a ref. 5 tests.
+- `@navalone/vue` (`packages/vue`, tsup): render-function `defineComponent` (no SFC compiler
+  needed for the lib build); props mirror data options via `PropType<...>` from core, events
+  re-emitted (navigate/back/open/close/submenuopen/submenuclose), methods `expose`d; rebuilds
+  on a `JSON.stringify` watch. 4 tests.
+- `@navalone/angular` (`packages/angular`, **ng-packagr** → FESM+types): standalone component
+  `<navalone-menu>`, `@Input()`s mirror options, `@Output()`s for events; drawer/back methods
+  named `openDrawer`/`closeDrawer`/`goBack` to avoid clashing with `open`/`close`/`back`
+  outputs; builds in `ngAfterViewInit`. **type:"module"** so the ESM-only Analog vitest config
+  loads. Tests via Vitest + `@analogjs/vite-plugin-angular` + TestBed (needs `@angular/build`
+  for the plugin's `/private` entry, and a `tsconfig.spec.json`/`example/tsconfig.app.json`
+  passed via `angular({ tsconfig })`). 4 tests. **Gotcha:** the lightweight Analog Vite plugin
+  only compiles Angular in serve/test mode — a bare `vite build` of the example emits an empty
+  bundle, so the Angular example is dev-server-only (no `example:build`).
+**Root pnpm override `typescript: 5.8.3`** — Angular 19.2 compiler/ng-packagr peer is TS <5.9,
+but `^5.7.2` was hoisting to 5.9.x. **Apps:** `apps/docs` (Vite SPA importing core: getting
+started, API ref, live EDITABLE examples per submenu type via a JSON textarea that
+re-instantiates, + a theming playground mutating `--nv-*` on a live instance) and `apps/site`
+(Astro 5 + GSAP awwwards landing: live hero menu island, free-vs-mmenu.js comparison, code
+snippets, CTAs; GSAP intro + ScrollTrigger reveals, both gated on prefers-reduced-motion).
+Root scripts wired: build/build:packages/build:apps/test (all topological via `pnpm -r`),
+dev:docs/dev:site, example:react/vue/angular. **Verification gotcha (important):** Chrome
+`--headless --dump-dom` + `--virtual-time-budget` HANGS over `http://` (never sees a live
+origin's network as idle) though it works over `file://` — so `scripts/verify-phase4.mjs`
+drives Chrome via the **DevTools Protocol** instead (Node 24 global fetch+WebSocket; launch
+with `--remote-debugging-port`, /json/list → page ws, navigate, wait, read DOM +
+`Page.captureScreenshot`, taskkill /T). Also: Vite dev binds `localhost`=IPv6 on Windows, set
+`server.host:"127.0.0.1"` for the Angular example. **Verified:** all 6 projects build clean
+from install; 51 unit tests pass (core 38 / react 5 / vue 4 / angular 4); core e2e 13/13 real
+Chrome; verify-phase4 confirms React/Vue/docs/site render in real Chrome + screenshots, and
+the Angular example verified via its dev server (mounts the core `.nv-bar`). Wrapper behaviour
+(render / submenu-open / drawer-open / events-fire / destroy-on-unmount) covered by the
+per-wrapper tests on the real wrapper code. See [[verify-in-browser-headless-chrome]].
+
+**Phase 5 — owner-driven landing-page fixes (2026-06-16, all verified in real Chrome via CDP):**
+The owner had been testing **the landing site (`pnpm dev:site`)** the whole time (not
+index.html/docs), which reframed every complaint as an `apps/site` issue.
+- **THE drawer bug finally root-caused & fixed** — see [[drawer-blank-panel-rootcause]]
+  (focus-triggered horizontal scroll on `.nv-panels`, NOT DOM/data). Fix in core
+  `a11y.ts` (focus `{preventScroll:true}`) + `drawer.ts` `setActive` (reset
+  `scrollLeft/scrollTop=0`). Applies to ALL surfaces (all consume core `dist`).
+- **Hero redesigned**: removed the "two menus stacked" mess (a desktop browser frame +
+  a phone iframe). Now ONE Tailwind-style **resizable preview**: `Hero.astro` has a frame
+  with a right-edge drag handle + Desktop/Tablet/Mobile presets + live px readout, hosting
+  a new page `apps/site/src/pages/demo/responsive.astro` (one Navalone, `breakpoint:820`,
+  `width:"86%"`) that collapses desktop→mobile live as the frame resizes. (`demo/phone.astro`
+  now unused but left in place.)
+- **Code blocks → Atom Material**: site `CodeShowcase.astro` Shiki theme night-owl →
+  `material-theme-palenight` (card bg `#292d3e`).
+- **Emoji→SVG everywhere**: apps were already SVG; swapped the remaining emoji thumbnails
+  in root `index.html` to an inline Feather-style icon set.
+- **Docs merged into the site at `/docs` (ONE server)** — owner chose "merge into Astro".
+  Ported the docs modules into `apps/site/src/docs/` (content/live-example/playground/data/
+  code/icons/main/styles) + a standalone `apps/site/src/pages/docs/index.astro` (`#app` +
+  client `import "../../docs/main.ts"`). Docs code highlighting switched from hljs
+  atom-one-dark to a custom `apps/site/src/styles/hljs-material.css` (palenight) to match.
+  `highlight.js` added to site deps. `pnpm dev:site` now serves `/` AND `/docs`. The
+  standalone `apps/docs` app still exists (not yet deleted — duplicate source of truth;
+  safe to remove later once references in root scripts + verify-phase4 are updated).
+  Verified: site builds 4 routes; `/docs` renders 6 live menus + 7 material-highlighted
+  blocks; responsive demo collapses + drill-down paints (`scrollLeft:0`); 51 tests pass.
+  Repro/verify scripts: `scripts/repro-drawer.mjs`, `verify-responsive.mjs`, `shot-site.mjs`,
+  `shot-docs.mjs`.
+
+**Landing-demo fix (2026-06-16):** owner reported "multi-level menu not working when it
+collapses." Reproduced in real Chrome (drill via clicks AND programmatic navigateTo, 4 levels
+deep) — the **core drill-down is NOT broken**. Root cause was the **`apps/site` hero demo**:
+it ran ONE desktop-width Navalone with an "open the mobile drawer" button calling `menu.open()`,
+but `.nv-mode-desktop .nv-drawer { display:none }` means the drawer never shows above the
+breakpoint — so on a desktop screen the collapsed/multi-level experience was simply invisible
+(looked "broken" + "no height to check responsive"). Fix: a NEW standalone page
+`apps/site/src/pages/demo/phone.astro` mounts the core menu with `breakpoint: 99999` (forces
+mobile mode) + `width:"100%"`, auto-`open()`s the drawer, and re-opens on `navalone:close` so
+it's never empty; `transform: translateZ(0)` on its `<html>/<body>` makes the
+`position:fixed` drawer/backdrop a contained block. `Hero.astro` now embeds it via an
+`<iframe src="/demo/phone/">` inside a CSS phone mockup, beside the live desktop browser frame
+— "one model, two presentations" shown live, and the multi-level drawer is genuinely
+interactive on the page. Also: **code snippets now syntax-highlighted** via Astro's built-in
+Shiki `<Code lang theme="night-owl">` (was a flat single-colour `<pre>`); `CodeShowcase.astro`
+cards got editor chrome (traffic-light dots + filename + lang). Removed the dead
+`#hero-open-drawer` button/handler. **Screenshot gotcha:** the site's GSAP intro/ScrollTrigger
+leave `.hero-el`/`.reveal` at opacity:0 in headless capture — screenshot with Chrome
+`--force-prefers-reduced-motion` (the JS skips GSAP under reduced-motion, leaving natural
+opacity). `--headless=new --screenshot` captures only the viewport from the top (hash-scroll
+doesn't take); for lower sections make the window tall enough to capture the full page, then
+crop. See [[verify-in-browser-headless-chrome]].
+
+**Landing-demo fix round 2 (2026-06-16) — the REAL drawer bug + docs polish:** owner still saw
+the collapsed multi-level menu "slide into nothing — just header and footer" when narrowing the
+browser. Definitively reproduced by driving real Chrome over the **DevTools Protocol** (Node 24
+global fetch+WebSocket; `Emulation.setDeviceMetricsOverride` to actually resize desktop→mobile,
+then click hamburger + a `.menu-item[data-target]`). Probe returned `activeRows:2` (DOM fine)
+but `stageTransform:"matrix(1,0,0,1,0,0)"` and **`drawerTop:630`** instead of 0. Root cause:
+**GSAP's intro leaves an inline `transform` on `.hero-stage`** (it's both `.hero-el` and the
+scale-`from` target), and a transformed ancestor becomes the containing block for
+`position:fixed`, so the `#hero-menu` drawer was positioned/clipped relative to the small stage
+(~630px down, off-screen) — the drill panels slid in correctly but rendered outside the
+viewport. Fix: add **`clearProps`** to the Hero GSAP tweens (`clearProps:"transform,opacity"` on
+the `.hero-el` tween, `clearProps:"transform"` on the `.hero-stage` scale) so no transform
+lingers; CDP re-probe confirmed `stageTransform:"none"`, `drawerTop:0`, full-height drawer.
+**Lesson:** never leave a GSAP/CSS transform on any ancestor of a Navalone root that can open
+its `position:fixed` drawer. **Docs polish (`apps/docs`, a Vite SPA — no Astro `<Code>`):** added
+`highlight.js` (registered subset typescript/xml/bash + `atom-one-dark` theme) — new
+`src/code.ts` `enhanceCodeBlocks()` highlights every static `<pre><code>` and wraps it with a
+hover copy-to-clipboard button; called once from `main.ts` after render. New `src/icons.ts` =
+a Feather/Lucide-style inline-SVG icon set (`svgIcon` for UI markup, `thumbIcon` for coloured-
+tile menu-thumbnail data-URIs); replaced ALL emoji/glyph thumbnails in `src/data.ts`
+(⚙📚🎓✍💬📈 → settings/book/award/edit/message/trending) and the `Run ▶` button glyph in
+`live-example.ts` with an SVG `play` icon. Same emoji→SVG swap done in the site hero menu data
+(`apps/site/src/data/menu.ts` + new `apps/site/src/data/icons.ts`: ✦⚙</>✎🚀🏢 →
+zap/settings/code/edit/rocket/building). Verified icons render via a standalone HTML grid
+screenshot, copy buttons (7) + highlighting via CDP. See [[verify-in-browser-headless-chrome]].
+
+**Positioning + GSAP-removal pass (2026-06-17, owner-driven):** TWO standing decisions that
+change future copy/build work on `apps/site` (landing + the merged `/docs`):
+- **GSAP is GONE from the site/docs** (the plugin never used it). `apps/site` `Hero.astro`
+  intro → vanilla **Web Animations API** stagger; `index.astro` `.reveal` scroll-reveal →
+  vanilla **IntersectionObserver**. Hidden start-states are gated behind a `.reveal-ready`
+  class added synchronously in `Layout.astro` `<head>` (motion-allowed only) so no-JS /
+  reduced-motion show everything — and the old "GSAP leaves transform on `.hero-stage`"
+  containing-block bug can't recur. `gsap` dep removed from `apps/site/package.json`.
+- **DROP the mmenu.js framing entirely** — owner wants NO mention of mmenu.js anywhere in
+  the landing/docs copy. New positioning is built on the NAME: "Nav" + "Alone" = **one nav,
+  alone, is enough for every screen** — no separate desktop vs mobile nav, no hand-rolling
+  dropdown/multi-level/mega-menu logic. The Features comparison table was reframed from
+  "Navalone vs mmenu.js" to **"Doing it by hand" vs "With Navalone"**. (Note: root
+  `package.json` + READMEs still say "alternative to mmenu.js" — those are plugin/repo
+  metadata, left untouched this pass; revisit if owner wants them scrubbed too.)
+- **Theme = Material Dark, accent teal `#80cbc4`.** Stray indigo/blue (`#6366f1`, `#3a7afe`,
+  `rgba(99,102,241,…)`) were replaced with teal: hero preset buttons, the hero preview
+  box-shadow (now dark `rgba(8,12,14,.75)`), and the `demo/responsive.astro` chrome + its
+  Navalone `theme` tokens (`--nv-action-primary-bg`/`focus-color`/`badge-bg`). Docs live
+  EXAMPLES were deliberately left on their default light palette (owner's call). Body/muted
+  text + table cells brightened (`--text` #c4dae3, `--muted` #93acb8) for more "shine".

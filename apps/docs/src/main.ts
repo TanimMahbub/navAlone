@@ -10,6 +10,7 @@ import {
 } from "./content";
 import { createLiveExample } from "./live-example";
 import { createPlayground } from "./playground";
+import { enhanceCodeBlocks } from "./code";
 import {
     dropdownConfig,
     dropdownLgConfig,
@@ -123,6 +124,9 @@ examples.append(
     }),
     createPlayground()
 );
+
+// Syntax-highlight every static code sample and add copy buttons.
+enhanceCodeBlocks(app);
 
 /* ----------------------------- Page chrome ------------------------------ */
 

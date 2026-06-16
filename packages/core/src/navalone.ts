@@ -67,6 +67,7 @@ export class Navalone {
     _mode: "mobile" | "desktop" | null = null;
     _destroyed = false;
     _lastFocus: HTMLElement | null = null;
+    _hoverCloseTimer: number | undefined; // debounced desktop hover-close
 
     _mql!: MediaQueryList;
     _bar!: HTMLElement;
@@ -249,6 +250,7 @@ export class Navalone {
         }
         this._cleanups.forEach((fn) => fn());
         this._cleanups = [];
+        window.clearTimeout(this._hoverCloseTimer);
         document.body.classList.remove("nv-scroll-lock");
 
         this.root.innerHTML = this._originalHTML;
@@ -339,6 +341,10 @@ export class Navalone {
         if (this.options.openOn !== "hover" || this._mode !== "desktop") {
             return;
         }
+        // Re-entering the menu cancels any pending close, so traversing a small
+        // gap (which momentarily fires mouseleave) won't drop the open panel.
+        window.clearTimeout(this._hoverCloseTimer);
+        this._hoverCloseTimer = undefined;
         hoverSync(this, e.target as HTMLElement);
     };
 
@@ -346,7 +352,15 @@ export class Navalone {
         if (this.options.openOn !== "hover" || this._mode !== "desktop") {
             return;
         }
-        closeDesktopAll(this);
+        // Defer the close briefly: if the pointer crossed a gap (trigger → panel,
+        // parent → flyout) it re-enters within this window and _onOver cancels it.
+        window.clearTimeout(this._hoverCloseTimer);
+        this._hoverCloseTimer = window.setTimeout(() => {
+            this._hoverCloseTimer = undefined;
+            if (!this._destroyed) {
+                closeDesktopAll(this);
+            }
+        }, 160);
     };
 
     _onDocClick = (e: Event): void => {

@@ -32,19 +32,19 @@ describe("@navalone/react", () => {
     it("exposes the public methods through a ref and opens a submenu", () => {
         const onSubmenuOpen = vi.fn();
         const ref = createRef<NavaloneHandle>();
-        const { container } = render(
-            <Navalone ref={ref} items={items} onSubmenuOpen={onSubmenuOpen} />
-        );
+        render(<Navalone ref={ref} items={items} onSubmenuOpen={onSubmenuOpen} />);
 
         expect(ref.current?.instance).toBeTruthy();
         act(() => {
             ref.current?.openSubmenu("company");
         });
 
-        const panel = container.querySelector("#company");
-        expect(panel?.classList.contains("is-open")).toBe(true);
         expect(onSubmenuOpen).toHaveBeenCalledTimes(1);
-        expect(onSubmenuOpen.mock.calls[0][0].id).toBe("company");
+        const detail = onSubmenuOpen.mock.calls[0][0];
+        // The desktop dropdown panel from the event detail is open and holds the
+        // company submenu's rows.
+        expect(detail.panel.classList.contains("is-open")).toBe(true);
+        expect(detail.panel.textContent).toContain("Careers");
     });
 
     it("opens the drawer and fires onOpen", () => {

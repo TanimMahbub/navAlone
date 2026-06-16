@@ -5,6 +5,11 @@ coverage/
 .DS_Store
 .pnpm-store/
 
+# Astro build cache / generated types
+.astro/
+
 # throwaway browser-verification artifacts (see memory/verify-in-browser-headless-chrome.md)
 __*.html
 __*.png
+scripts/.phase4-shots/
+**/__e2e-shots/

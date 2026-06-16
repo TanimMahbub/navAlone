@@ -183,6 +183,67 @@ pre code {
     line-height: 1.6;
 }
 
+/* Code block wrapper (highlight.js + copy button) */
+.code-block {
+    position: relative;
+    margin: 16px 0;
+}
+.code-block pre {
+    margin: 0;
+}
+/* Let the highlight.js theme own the code text colours, framed by our border. */
+.code-block pre code.hljs {
+    background: transparent;
+    padding: 0;
+}
+.copy-btn {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 5px 10px;
+    font-size: 0.74rem;
+    font-family: inherit;
+    color: var(--doc-muted);
+    background: rgba(20, 24, 33, 0.85);
+    border: 1px solid var(--doc-border);
+    border-radius: 7px;
+    cursor: pointer;
+    opacity: 0;
+    transition: opacity 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+}
+.code-block:hover .copy-btn,
+.copy-btn:focus-visible {
+    opacity: 1;
+}
+.copy-btn:hover {
+    color: var(--doc-text);
+    border-color: var(--doc-accent);
+}
+.copy-btn.is-copied {
+    color: #34d399;
+    border-color: #34d399;
+    opacity: 1;
+}
+.copy-btn svg {
+    display: block;
+}
+@media (hover: none) {
+    .copy-btn {
+        opacity: 1;
+    }
+}
+.btn-run {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+.btn-run svg {
+    display: block;
+}
+
 .table-wrap {
     overflow-x: auto;
 }

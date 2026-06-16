@@ -1,0 +1,60 @@
+---
+// Standalone page embedded (via <iframe>) inside the hero phone mockup. Because
+// the iframe is ~390px wide, Navalone's own matchMedia reports mobile, so this
+// renders the REAL collapsed experience — hamburger, off-canvas drawer and the
+// multi-level drill-down — genuinely responsive and fully contained in the frame.
+import "navalone/css";
+---
+
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Navalone — mobile demo</title>
+    </head>
+    <body>
+        <menu class="mm" id="phone-menu"></menu>
+
+        <style>
+            html,
+            body {
+                margin: 0;
+                height: 100%;
+                background:
+                    radial-gradient(120% 80% at 50% 0%, #1b1b27, #0d0d14 70%);
+                font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+                /* A transform on the root establishes a containing block, keeping the
+                   position:fixed drawer/backdrop inside this frame. */
+                transform: translateZ(0);
+            }
+            #phone-menu {
+                margin: 0;
+            }
+        </style>
+
+        <script>
+            import { Navalone } from "navalone";
+            import { heroMenu } from "../../data/menu";
+
+            const el = document.getElementById("phone-menu");
+            if (el) {
+                // Force the collapsed presentation regardless of the iframe width by
+                // setting a breakpoint above it, then open the drawer immediately so
+                // the drill-down is on show the moment the page loads.
+                const menu = new Navalone(el, {
+                    ...heroMenu,
+                    breakpoint: 99999,
+                    width: "100%"
+                });
+                menu.open();
+
+                // Keep the drawer open: re-open if the user closes it, so the demo
+                // never collapses to an empty frame.
+                el.addEventListener("navalone:close", () => {
+                    window.setTimeout(() => menu.open(), 350);
+                });
+            }
+        </script>
+    </body>
+</html>

@@ -5,6 +5,7 @@
  * the same core the wrappers use, with no behaviour duplicated here.
  */
 import { Navalone, type NavaloneOptions } from "navalone";
+import { svgIcon } from "./icons";
 
 export interface LiveExampleOptions {
     id: string;
@@ -33,7 +34,7 @@ export function createLiveExample(opts: LiveExampleOptions): HTMLElement {
                 <label for="${editorId}">Editable config (JSON)</label>
                 <textarea id="${editorId}" spellcheck="false" aria-describedby="${statusId}"></textarea>
                 <div class="example-toolbar">
-                    <button type="button" data-run>Run ▶</button>
+                    <button type="button" data-run class="btn-run">${svgIcon("play", 13)}<span>Run</span></button>
                     <button type="button" data-reset>Reset</button>
                     <span id="${statusId}" class="status" role="status" aria-live="polite"></span>
                 </div>

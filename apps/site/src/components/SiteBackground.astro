@@ -1,0 +1,89 @@
+---
+// Decorative, full-viewport background behind every page (rendered once in
+// Layout.astro). Purely cosmetic: aria-hidden, pointer-events: none, fixed.
+//
+// One quiet techy motif: a very faint honeycomb mesh. It doesn't drift — instead
+// it blooms in and out at a few well-spaced spots, each on its own timing, so the
+// cells appear in one place while fading away in another, at random. Wherever
+// they're hidden, only the base gradient shows through. Each "cell" is the same
+// mesh masked to a soft circle at a different position. Motion stops under
+// prefers-reduced-motion.
+
+// Spot positions (kept well apart) + independent timing for a random feel. The
+// negative delays start each one part-way through its cycle so they're staggered
+// from first paint.
+const spots = [
+    { x: "18%", y: "26%", r: "30%", dur: "11s", delay: "0s" },
+    { x: "76%", y: "20%", r: "26%", dur: "14s", delay: "-5s" },
+    { x: "32%", y: "74%", r: "34%", dur: "12s", delay: "-8s" },
+    { x: "84%", y: "68%", r: "28%", dur: "16s", delay: "-3s" }
+];
+---
+
+<div class="site-bg" aria-hidden="true">
+    {
+        spots.map((s) => (
+            <div
+                class="site-bg__cell"
+                style={`--x:${s.x};--y:${s.y};--r:${s.r};--dur:${s.dur};--delay:${s.delay}`}
+            />
+        ))
+    }
+</div>
+
+<style>
+    .site-bg {
+        position: fixed;
+        inset: 0;
+        z-index: -1;
+        pointer-events: none;
+        overflow: hidden;
+        /* A single, barely-there lift toward the top. */
+        background: radial-gradient(120% 80% at 50% -20%, #2a373d 0%, #263238 60%, #21292e 100%);
+        /* The shared honeycomb tile — faint Material teal. Defined once here and
+           pulled into every cell via var(--mesh) (custom properties inherit). */
+        --mesh: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='28' height='49' viewBox='0 0 28 49'%3E%3Cpath fill='%2380cbc4' fill-opacity='0.06' fill-rule='evenodd' d='M13.99 9.25l13 7.5v15l-13 7.5L1 31.75v-15l12.99-7.5zM3 17.9v12.7l10.99 6.34 11-6.35V17.9l-11-6.34L3 17.9zM0 15l12.98-7.5V0h-2v6.35L0 12.69v2.3zm0 18.5L12.98 41v8h-2v-6.85L0 35.81v-2.3zM15 0v7.5L27.99 15H28v-2.31h-.01L17 6.35V0h-2zm0 49v-8l12.99-7.5H28v2.31h-.01L17 42.15V49h-2z'/%3E%3C/svg%3E");
+    }
+
+    /* Each cell is the same honeycomb, masked to a soft circle at its own spot, and
+       fading in and out on its own clock — so the mesh appears and disappears in a
+       few places at once, at random intervals. */
+    .site-bg__cell {
+        position: absolute;
+        inset: 0;
+        background-image: var(--mesh);
+        background-repeat: repeat;
+        background-size: 44px 77px;
+        opacity: 0;
+        -webkit-mask-image: radial-gradient(
+            var(--r) var(--r) at var(--x) var(--y),
+            #000 0%,
+            #000 24%,
+            transparent 100%
+        );
+        mask-image: radial-gradient(
+            var(--r) var(--r) at var(--x) var(--y),
+            #000 0%,
+            #000 24%,
+            transparent 100%
+        );
+        animation: cell-bloom var(--dur) ease-in-out var(--delay) infinite;
+    }
+
+    @keyframes cell-bloom {
+        0%,
+        100% {
+            opacity: 0;
+        }
+        50% {
+            opacity: 1;
+        }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        .site-bg__cell {
+            animation: none;
+            opacity: 0.5;
+        }
+    }
+</style>

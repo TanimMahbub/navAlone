@@ -1,0 +1,41 @@
+---
+// The core stylesheet is imported here so it is bundled into the page.
+import "navalone/css";
+import "../styles/global.css";
+import SiteBackground from "../components/SiteBackground.astro";
+
+interface Props {
+    title?: string;
+    description?: string;
+}
+
+const {
+    title = "Navalone — one nav for every screen",
+    description = "One navigation that stands alone across every device. Desktop dropdowns, mega menus and nested flyouts fold into a sliding mobile drawer — from a single data model. Free and open source."
+} = Astro.props;
+---
+
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <meta name="description" content={description} />
+        <meta property="og:title" content={title} />
+        <meta property="og:description" content={description} />
+        <meta property="og:type" content="website" />
+        <title>{title}</title>
+        <script is:inline>
+            // Arm the scroll-reveal hidden state before first paint (so there's no
+            // flash), but only when motion is allowed — no-JS and reduced-motion
+            // users get every block visible up-front.
+            if (!matchMedia("(prefers-reduced-motion: reduce)").matches) {
+                document.documentElement.classList.add("reveal-ready");
+            }
+        </script>
+    </head>
+    <body>
+        <SiteBackground />
+        <slot />
+    </body>
+</html>
