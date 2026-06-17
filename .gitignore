@@ -8,6 +8,9 @@ coverage/
 # Astro build cache / generated types
 .astro/
 
+# Claude Code working memory (local notes, not part of the project)
+memory/
+
 # throwaway browser-verification artifacts (see memory/verify-in-browser-headless-chrome.md)
 __*.html
 __*.png

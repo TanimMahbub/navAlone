@@ -204,19 +204,6 @@ const targets = [
         ]
     },
     {
-        name: "Docs (theming playground)",
-        dir: "apps/docs/dist",
-        shot: "docs-playground.png",
-        size: [1280, 1000],
-        scrollToId: "theming-playground",
-        assert: (h) => [
-            ["renders the docs hero", h.includes("Navalone")],
-            ["renders a live example bar", h.includes("nv-bar")],
-            ["renders the theming playground", h.includes("theming-playground")],
-            ["renders token controls", h.includes("--nv-bar-bg")]
-        ]
-    },
-    {
         name: "Landing site (hero)",
         dir: "apps/site/dist",
         shot: "site-hero.png",

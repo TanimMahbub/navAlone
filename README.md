@@ -20,9 +20,8 @@ and mega menus that collapse to a sliding mobile drawer. A free alternative to
   built with tsup to ESM + CJS + a minified IIFE/UMD + `.d.ts`, with the CSS shipped
   alongside. The plain-JS prototype is gone; vanilla `<script>` usage is unchanged.
 - **Phase 4 — done:** thin React / Vue / Angular wrappers (`@navalone/{react,vue,angular}`),
-  a documentation site with live editable examples + a theming playground (`apps/docs`), and
-  an Astro + GSAP landing page (`apps/site`). All consume the local `packages/core` — no
-  behaviour is duplicated.
+  and an Astro + GSAP landing page with embedded docs — live editable examples + a theming
+  playground (`apps/site`). All consume the local `packages/core` — no behaviour is duplicated.
 
 ## Install
 
@@ -401,11 +400,10 @@ export class HeaderComponent {}
 
 ## Apps
 
-- **[`apps/docs`](apps/docs)** — a static Vite SPA: getting started, full API reference, and
-  **live, editable** examples of every submenu type plus a **theming playground** that mutates
-  `--nv-*` tokens on a live instance. `pnpm dev:docs` / `pnpm --filter @navalone/docs build`.
 - **[`apps/site`](apps/site)** — an awwwards-style **Astro + GSAP** landing page with a live
-  interactive hero menu, feature highlights (free vs. mmenu.js), code snippets and CTAs.
+  interactive hero menu, feature highlights (free vs. mmenu.js), code snippets and CTAs, plus
+  embedded docs: getting started, full API reference, **live, editable** examples of every
+  submenu type and a **theming playground** that mutates `--nv-*` tokens on a live instance.
   `pnpm dev:site` / `pnpm --filter @navalone/site build`.
 
 Each package and app builds, tests and deploys independently.
@@ -426,8 +424,8 @@ This repo is a **pnpm workspace**.
 │   ├── vue/               # @navalone/vue    (tsup → ESM/CJS + d.ts, peerDeps vue)
 │   └── angular/           # @navalone/angular (ng-packagr, peerDeps @angular/*)
 ├── apps/
-│   ├── docs/              # Vite SPA — API reference, live examples, theming playground
-│   └── site/              # Astro + GSAP landing page
+│   └── site/              # Astro + GSAP landing page with embedded docs,
+│                          #   live examples & theming playground
 ├── scripts/verify-phase4.mjs  # headless-Chrome verification of the built apps/examples
 ├── index.html             # repo-root demo, also consumes packages/core/dist/
 └── tsconfig.base.json · eslint.config.js · .prettierrc.json
@@ -440,9 +438,9 @@ Scripts (run from the repo root):
 | `pnpm install`           | Install workspace dependencies.                                     |
 | `pnpm build`             | Build every package and app (topological order).                    |
 | `pnpm build:packages`    | Build just `packages/*` (core + wrappers).                          |
-| `pnpm build:apps`        | Build just `apps/*` (docs + site).                                  |
+| `pnpm build:apps`        | Build just `apps/*` (the site).                                     |
 | `pnpm dev`               | Rebuild the core on change (tsup watch).                            |
-| `pnpm dev:docs` / `dev:site` | Run the docs / landing-page dev servers.                       |
+| `pnpm dev:site`          | Run the landing-page (+ docs) dev server.                          |
 | `pnpm test`              | Run the Vitest suites across the workspace.                         |
 | `pnpm test:e2e`          | Drive the installed headless Chrome against the built core `dist/`.² |
 | `pnpm example:react` / `:vue` / `:angular` | Run a wrapper's usage example (Vite dev). |
