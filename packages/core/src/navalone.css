@@ -504,12 +504,19 @@ body.nv-scroll-lock {
 	display: none;
 }
 
-.nv-mode-mobile .nv-actions:not(.nv-actions--drawer) {
+/* Default: the right-side buttons stay on the bar at every screen size, so the
+   in-drawer copy never shows. Footer mode (`rightButtonsFooter`) flips this on
+   medium/small screens — the bar copy collapses into the drawer footer. */
+.nv-actions--drawer {
 	display: none;
 }
 
-.nv-mode-desktop .nv-actions--drawer {
+.nv-rt-footer.nv-mode-mobile .nv-actions:not(.nv-actions--drawer) {
 	display: none;
+}
+
+.nv-rt-footer.nv-mode-mobile .nv-actions--drawer {
+	display: flex;
 }
 
 /* In the collapsed header, push the logo away from the hamburger. */

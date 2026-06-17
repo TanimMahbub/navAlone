@@ -323,7 +323,7 @@ tbody tr:hover {
     display: grid;
     grid-template-columns: minmax(0, 0.68fr) minmax(0, 1.32fr);
     gap: 20px;
-    align-items: stretch;
+    align-items: start;
 }
 .example-editor {
     display: flex;
@@ -362,8 +362,107 @@ button:focus-visible {
     outline: 2px solid var(--doc-accent);
     outline-offset: 1px;
 }
+
+/* Syntax-highlighted code editor: a highlighted <pre> layer carries the box and
+   sizes to its content (like a static code block); the textarea is laid over it
+   with transparent text but a visible caret. Both share identical metrics so the
+   colours line up character-for-character. */
+.code-editor {
+    position: relative;
+    background: var(--doc-code-bg);
+    border: 1px solid var(--doc-border);
+    border-radius: 10px;
+    overflow: hidden;
+}
+.code-editor-highlight,
+.code-editor textarea {
+    margin: 0;
+    border: 0;
+    padding: 14px;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    font-size: 0.82rem;
+    line-height: 1.55;
+    tab-size: 4;
+    white-space: pre;
+    box-sizing: border-box;
+}
+/* In flow, so the block is exactly as tall as the code it holds. */
+.code-editor-highlight {
+    position: relative;
+    background: transparent;
+    overflow: hidden;
+    min-height: 3em;
+}
+.code-editor-highlight code.hljs {
+    display: block;
+    background: transparent;
+    padding: 0;
+    font: inherit;
+}
+.code-editor textarea {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    min-height: 0;
+    background: transparent;
+    color: transparent;
+    caret-color: var(--doc-text);
+    -webkit-text-fill-color: transparent;
+    resize: none;
+    /* Horizontal scroll lives here; the overlay mirrors it in JS. */
+    overflow-x: auto;
+    overflow-y: hidden;
+    border-radius: 10px;
+}
+.code-editor:focus-within {
+    outline: 2px solid var(--doc-accent);
+    outline-offset: 1px;
+}
+.code-editor textarea:focus {
+    outline: none;
+}
+/* Clamp the live-example editor to the preview's height (set in JS as
+   --code-clamp) so the code block and preview read as equal-height columns.
+   "See more" lifts the clamp; "See less" restores it. */
+.example-editor.is-collapsible:not(.is-expanded) .code-editor {
+    max-height: var(--code-clamp, 440px);
+}
+/* A soft fade hints that more code is hidden below the fold. */
+.example-editor.is-collapsible:not(.is-expanded) .code-editor::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 52px;
+    pointer-events: none;
+    background: linear-gradient(to bottom, transparent, var(--doc-code-bg));
+}
+.code-toggle {
+    align-self: flex-start;
+    margin-top: 10px;
+    font-size: 0.82rem;
+    padding: 6px 12px;
+}
 .theme-output {
     min-height: 0;
+}
+/* "How it works" — pure-HTML example: two editors on top, full-width preview
+   underneath (reuses the shared .preview-* frame/handle styles below). */
+.html-example-editors {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    align-items: start;
+}
+.html-example .example-editor label em {
+    color: var(--doc-muted);
+    opacity: 0.8;
+    font-style: normal;
+}
+.html-example-preview {
+    margin-top: 4px;
 }
 .example-toolbar {
     display: flex;
@@ -602,6 +701,9 @@ button:hover {
         transform: translateY(0);
     }
     .example-grid {
+        grid-template-columns: 1fr;
+    }
+    .html-example-editors {
         grid-template-columns: 1fr;
     }
     textarea {

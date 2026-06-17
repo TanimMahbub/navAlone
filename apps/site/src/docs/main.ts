@@ -6,14 +6,17 @@ import {
     gettingStarted,
     methodsReference,
     optionsReference,
+    pureHtmlSetup,
     wrappersReference
 } from "./content";
 import { createLiveExample } from "./live-example";
+import { createHtmlExample } from "./html-example";
 import { createPlayground } from "./playground";
 import { enhanceCodeBlocks } from "./code";
 import {
     dropdownConfig,
     dropdownLgConfig,
+    footerButtonsConfig,
     fullConfig,
     megaConfig,
     nestedConfig
@@ -22,6 +25,8 @@ import {
 const NAV = [
     { href: "#getting-started", label: "Getting started" },
     { href: "#data-contract", label: "Data contract" },
+    { href: "#pure-html", label: "Pure HTML setup" },
+    { href: "#how-it-works", label: "How it works" },
     { href: "#options", label: "Options" },
     { href: "#methods", label: "Methods" },
     { href: "#events", label: "Events" },
@@ -30,6 +35,7 @@ const NAV = [
     { href: "#example-nested", label: "Example: nested flyout" },
     { href: "#example-mega", label: "Example: mega" },
     { href: "#example-drawer", label: "Example: mobile drawer" },
+    { href: "#example-footer-buttons", label: "Example: footer buttons" },
     { href: "#theming-playground", label: "Theming playground" },
     { href: "#wrappers", label: "Framework wrappers" }
 ];
@@ -61,6 +67,8 @@ app.innerHTML = `
             </div>
             ${gettingStarted}
             ${dataContract}
+            ${pureHtmlSetup}
+            <div data-how-it-works></div>
             ${optionsReference}
             ${methodsReference}
             ${eventsReference}
@@ -75,6 +83,9 @@ app.innerHTML = `
         </main>
     </div>
 `;
+
+// The "How it works" pure-HTML example sits right under its reference section.
+app.querySelector<HTMLElement>("[data-how-it-works]")!.replaceWith(createHtmlExample());
 
 const examples = app.querySelector<HTMLElement>("[data-examples]")!;
 
@@ -122,6 +133,15 @@ examples.append(
             { label: "Close drawer", method: "close" }
         ],
         note: "Switch the preset to Tablet or Mobile and the bar collapses to the hamburger automatically."
+    }),
+    createLiveExample({
+        id: "example-footer-buttons",
+        title: "Buttons in the drawer footer",
+        description:
+            "By default the right-side buttons stay on the bar at every width. Set rightButtonsFooter: true and they collapse into the drawer footer on medium/small screens instead.",
+        config: footerButtonsConfig,
+        actions: [{ label: "Open drawer", method: "open" }],
+        note: "Pick the Tablet or Mobile preset, then Open drawer — Log in / Sign up sit at the bottom of the drawer. Set rightButtonsFooter back to false and they stay on the bar."
     }),
     createPlayground()
 );

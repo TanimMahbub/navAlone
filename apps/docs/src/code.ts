@@ -7,14 +7,16 @@ import hljs from "highlight.js/lib/core";
 import typescript from "highlight.js/lib/languages/typescript";
 import xml from "highlight.js/lib/languages/xml";
 import bash from "highlight.js/lib/languages/bash";
+import json from "highlight.js/lib/languages/json";
 import "highlight.js/styles/atom-one-dark.css";
 import { svgIcon } from "./icons";
 
 hljs.registerLanguage("typescript", typescript);
 hljs.registerLanguage("xml", xml);
 hljs.registerLanguage("bash", bash);
+hljs.registerLanguage("json", json);
 
-const SUBSET = ["typescript", "xml", "bash"];
+const SUBSET = ["typescript", "xml", "bash", "json"];
 
 function highlight(code: HTMLElement): void {
     const raw = code.textContent || "";
@@ -55,6 +57,55 @@ function addCopyButton(pre: HTMLPreElement, code: HTMLElement): void {
             btn.querySelector("span")!.textContent = "Press Ctrl+C";
         }
     });
+}
+
+/**
+ * Turn an editable `<textarea>` into a syntax-highlighted code editor. A
+ * highlighted `<pre>` layer sits directly behind the textarea (which keeps a
+ * transparent fill but a visible caret), so the live editors read with the same
+ * theme colours as the static `<pre><code>` samples. Returns a `render` callback
+ * to re-highlight after a programmatic value change (e.g. Reset).
+ */
+export function enhanceCodeEditor(
+    textarea: HTMLTextAreaElement,
+    lang: string
+): () => void {
+    const wrap = document.createElement("div");
+    wrap.className = "code-editor";
+    textarea.parentNode?.insertBefore(wrap, textarea);
+
+    const pre = document.createElement("pre");
+    pre.className = "code-editor-highlight";
+    pre.setAttribute("aria-hidden", "true");
+    const code = document.createElement("code");
+    code.className = `hljs language-${lang}`;
+    pre.appendChild(code);
+
+    wrap.appendChild(pre);
+    wrap.appendChild(textarea);
+    // Horizontal scroll instead of soft-wrap keeps the overlay aligned line-for-line.
+    textarea.setAttribute("wrap", "off");
+
+    const render = (): void => {
+        const raw = textarea.value;
+        const result =
+            hljs.getLanguage(lang)
+                ? hljs.highlight(raw, { language: lang })
+                : hljs.highlightAuto(raw, SUBSET);
+        // A trailing newline in the source needs an extra blank line in the
+        // overlay, or the last (empty) line clips.
+        code.innerHTML = result.value + (raw.endsWith("\n") ? "\n" : "");
+    };
+    const syncScroll = (): void => {
+        pre.scrollTop = textarea.scrollTop;
+        pre.scrollLeft = textarea.scrollLeft;
+    };
+
+    textarea.addEventListener("input", render);
+    textarea.addEventListener("scroll", syncScroll);
+    render();
+
+    return render;
 }
 
 export function enhanceCodeBlocks(root: ParentNode = document): void {

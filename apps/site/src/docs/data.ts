@@ -150,3 +150,14 @@ export const fullConfig: NavaloneOptions = {
     ],
     items: fullItems
 };
+
+/** Right-side buttons that drop into the drawer footer on small screens. */
+export const footerButtonsConfig: NavaloneOptions = {
+    logo: { text: "Acme", href: "#" },
+    rightButtonsFooter: true,
+    rightButtons: [
+        { label: "Log in", href: "#login" },
+        { label: "Sign up", href: "#signup", variant: "primary" }
+    ],
+    items: fullItems
+};

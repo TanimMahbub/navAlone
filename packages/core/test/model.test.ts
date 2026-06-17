@@ -79,3 +79,42 @@ describe("model — declarative markup parsing", () => {
         expect(root.querySelector(".nv-bar .nv-logo")?.textContent).toBe("Override");
     });
 });
+
+describe("model — declarative mega columns", () => {
+    const megaMarkup = `
+        <div class="menu-level level-1" id="main">
+            <ul>
+                <li><button class="menu-item" data-target="resources" data-submenu="mega">Resources →</button></li>
+            </ul>
+        </div>
+        <div class="menu-level level-2" id="resources" data-submenu="mega" data-title="Resources">
+            <div class="menu-header"><button class="back-button">← Back</button><span class="menu-title"></span></div>
+            <ul>
+                <li class="nv-group">Learn</li>
+                <li><a href="#docs" data-description="Guides">Documentation</a></li>
+                <li><a href="#tutorials">Tutorials</a></li>
+                <li class="nv-group">Community</li>
+                <li><a href="#blog" data-badge="New">Blog</a></li>
+            </ul>
+        </div>`;
+
+    it("renders a real multi-column desktop mega panel from .nv-group rows", () => {
+        const { root } = mountDeclarative(megaMarkup);
+        const mega = root.querySelector(".nv-menubar .nv-mega");
+        expect(mega).not.toBeNull();
+        const cols = mega!.querySelectorAll(".nv-col");
+        expect(cols.length).toBe(2);
+        expect(cols[0].querySelector(".nv-col-head")?.textContent).toBe("Learn");
+        expect(cols[1].querySelector(".nv-col-head")?.textContent).toBe("Community");
+        expect(cols[0].querySelectorAll(".nv-d-li").length).toBe(2);
+    });
+
+    it("flattens the same columns to grouped rows in the mobile drawer", () => {
+        const { root } = mountDeclarative(megaMarkup);
+        const panel = root.querySelector('.nv-panels .menu-level[data-columns="2"]');
+        expect(panel).not.toBeNull();
+        const groups = panel!.querySelectorAll("li.nv-group");
+        expect(groups.length).toBe(2);
+        expect(groups[0].textContent).toBe("Learn");
+    });
+});

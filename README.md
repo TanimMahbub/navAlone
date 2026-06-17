@@ -94,7 +94,7 @@ The bar has three regions: `[logo] [center menu] [right buttons]`.
 new Navalone("#mm", {
     logo: { text: "Navalone", href: "/" },   // or { img: "logo.svg", alt: "Navalone", href: "/" }
     menuAlign: "center",                       // "left" | "center" | "right"
-    rightButtons: [                            // CTAs on the right (and in the drawer footer)
+    rightButtons: [                            // CTAs on the right (at every screen size)
         { label: "Log in",  href: "/login" },
         { label: "Sign up", href: "/signup", variant: "primary", icon: "→" }
     ],
@@ -115,7 +115,9 @@ Panels are **edge-aware**: top-level panels clamp horizontally to stay within th
 and flyouts flip to the other side / shift up when they would overflow.
 
 `rightButtons` fields: `label`, `href` (renders a link), `icon`, `variant` (`"primary"` for a
-filled CTA), `linkTarget`. Set `showRightButtons: false` to hide the region entirely.
+filled CTA), `linkTarget`. Set `showRightButtons: false` to hide the region entirely. By
+default the buttons stay on the right of the bar at every screen size; set
+`rightButtonsFooter: true` to collapse them into the drawer footer on medium/small screens.
 
 ### The data contract
 
@@ -226,6 +228,7 @@ buttons. Both are parsed into the same model that drives the desktop bar and mob
 | `logo`              | `null`      | `string`, or `{ text \| img, alt, href }`.                                 |
 | `rightButtons`      | `null`      | Array of `{ label, href, icon, variant, linkTarget }` CTAs.                |
 | `showRightButtons`  | `true`      | Toggle the right CTA region (bar + drawer footer).                         |
+| `rightButtonsFooter`| `false`     | `false` keeps the right buttons on the bar at every size; `true` collapses them into the drawer footer on medium/small screens. |
 | `drawerLabel`       | `"Menu"`    | `aria-label` for the drawer dialog.                                        |
 | `onNavigate`        | `null`      | Callback `(detail) => void` when drilling into a mobile panel.             |
 | `onBack`            | `null`      | Callback `(detail) => void` when going back.                               |

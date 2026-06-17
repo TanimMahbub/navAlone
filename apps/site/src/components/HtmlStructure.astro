@@ -1,0 +1,274 @@
+---
+// "Pure HTML" landing section: the bold "nav, alone, is enough" claim made
+// concrete. One declarative structure — authored in plain HTML, no framework —
+// scales from a couple of dropdowns to an e-commerce mega menu, and folds into
+// the mobile drawer untouched. The snippet is real: `new Navalone("#mm")` with
+// no `items` parses exactly this markup.
+import { Code } from "astro:components";
+
+// Feather/Lucide-style inline icons (stroke, currentColor) — no emoji.
+const ICONS: Record<string, string> = {
+    link: '<path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.71 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/>',
+    columns:
+        '<rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><line x1="9" y1="3" x2="9" y2="21"/><line x1="15" y1="3" x2="15" y2="21"/>',
+    smartphone:
+        '<rect x="6" y="2" width="12" height="20" rx="2" ry="2"/><line x1="11" y1="18" x2="13" y2="18"/>'
+};
+
+const markup = `<!-- One structure → desktop bar + mobile drawer, no second nav. -->
+<menu class="mm" id="mm">
+  <a data-nv-logo href="/">Acme</a>
+
+  <!-- The .level-1 panel becomes the bar. -->
+  <div class="menu-level level-1" id="main-menu">
+    <ul>
+      <li><a href="/pricing">Pricing</a></li>
+      <!-- data-target opens the panel with the matching id. -->
+      <li><button data-target="shop">Shop</button></li>
+    </ul>
+  </div>
+
+  <!-- A multi-column mega menu: each .nv-group starts a column. -->
+  <div class="menu-level" id="shop" data-submenu="mega">
+    <ul>
+      <li class="nv-group">Men</li>
+      <li><a href="/men/shoes">Shoes</a></li>
+      <li><a href="/men/shirts">Shirts</a></li>
+      <li class="nv-group">Women</li>
+      <li><a href="/women/bags">Bags</a></li>
+      <li><a href="/women/dresses">Dresses</a></li>
+    </ul>
+  </div>
+</menu>
+
+<script src="https://unpkg.com/navalone/dist/navalone.global.js"></script>
+<script>
+  // No items option, so Navalone parses the markup above.
+  new Navalone("#mm");
+</script>`;
+
+const points = [
+    {
+        icon: "link",
+        title: "One pairing wires it all",
+        body: "A trigger's data-target opens the panel whose id matches. That single relationship nests to any depth — multi-level dropdowns and flyouts included."
+    },
+    {
+        icon: "columns",
+        title: "Mega menus in plain markup",
+        body: "A big e-commerce shop menu? Mark a panel data-submenu=\"mega\" and let each .nv-group heading start a column. No JavaScript config required."
+    },
+    {
+        icon: "smartphone",
+        title: "Folds into the drawer",
+        body: "The same HTML collapses to a hamburger and a drill-down off-canvas drawer below your breakpoint. You never author a second mobile nav."
+    }
+];
+---
+
+<section id="pure-html-structure">
+    <div class="wrap">
+        <div class="section-head">
+            <p class="eyebrow">Pure HTML</p>
+            <h2>One structure. Every menu. Every screen.</h2>
+            <p>Nav, alone, is enough — even in a plain HTML template. Write the menu as markup,
+            call <code>new Navalone()</code> with no config, and the same structure scales from a
+            couple of dropdowns to an e-commerce mega menu with deep multi-level dropdowns — then
+            folds into the mobile drawer, untouched.</p>
+        </div>
+
+        <div class="hs-grid">
+            <div class="code-card reveal">
+                <div class="code-card-head">
+                    <span class="dot dot-r"></span><span class="dot dot-y"></span><span class="dot dot-g"></span>
+                    <span class="code-file">index.html</span>
+                    <span class="code-lang">Pure HTML</span>
+                    <button type="button" class="copy-btn" aria-label="Copy code">Copy</button>
+                </div>
+                <Code code={markup} lang="html" theme="material-theme" />
+            </div>
+
+            <ul class="hs-points reveal">
+                {
+                    points.map((p) => (
+                        <li class="hs-point">
+                            <span class="hs-icon" aria-hidden="true">
+                                <svg
+                                    viewBox="0 0 24 24"
+                                    width="20"
+                                    height="20"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    stroke-width="1.8"
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                    set:html={ICONS[p.icon]}
+                                />
+                            </span>
+                            <div>
+                                <h3>{p.title}</h3>
+                                <p>{p.body}</p>
+                            </div>
+                        </li>
+                    ))
+                }
+                <li class="hs-cta">
+                    <a class="btn btn--ghost" href="/docs/#pure-html">Read the pure-HTML guide</a>
+                </li>
+            </ul>
+        </div>
+    </div>
+</section>
+
+<style>
+    .hs-grid {
+        display: grid;
+        grid-template-columns: 1.15fr 0.85fr;
+        gap: 28px;
+        align-items: start;
+    }
+
+    /* Terminal-style code card, matching the showcase. */
+    .code-card {
+        background: #263238; /* Material Theme — Dark background */
+        border: 1px solid var(--border);
+        border-radius: 14px;
+        overflow: hidden;
+        box-shadow: 0 24px 60px -30px rgba(0, 0, 0, 0.8);
+    }
+    .code-card-head {
+        display: flex;
+        align-items: center;
+        gap: 7px;
+        padding: 12px 16px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+        background: rgba(255, 255, 255, 0.02);
+        font-size: 0.78rem;
+    }
+    .dot {
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+    }
+    .dot-r { background: #ff5f57; }
+    .dot-y { background: #febc2e; }
+    .dot-g { background: #28c840; }
+    .code-file {
+        margin-left: 8px;
+        color: #c7cde0;
+        font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    }
+    .code-lang {
+        margin-left: auto;
+        color: var(--muted);
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        font-size: 0.68rem;
+    }
+    .copy-btn {
+        margin-left: 10px;
+        appearance: none;
+        border: 1px solid var(--border);
+        background: rgba(255, 255, 255, 0.04);
+        color: var(--muted);
+        font: inherit;
+        font-size: 0.7rem;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+        padding: 4px 10px;
+        border-radius: 7px;
+        cursor: pointer;
+        transition: color 0.15s ease, border-color 0.15s ease, background 0.15s ease;
+    }
+    .copy-btn:hover {
+        color: var(--text);
+        border-color: var(--accent);
+    }
+    .copy-btn.is-copied {
+        color: #c3e88d;
+        border-color: #c3e88d;
+    }
+    .code-card :global(.astro-code) {
+        margin: 0;
+        padding: 18px;
+        overflow-x: auto;
+        font-size: 0.8rem;
+        line-height: 1.6;
+        background: transparent !important;
+        scrollbar-width: thin;
+        scrollbar-color: var(--scrollbar) transparent;
+    }
+    .code-card :global(.astro-code code) {
+        font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    }
+
+    .hs-points {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+        display: flex;
+        flex-direction: column;
+        gap: 22px;
+    }
+    .hs-point {
+        display: flex;
+        gap: 14px;
+    }
+    .hs-icon {
+        flex: 0 0 auto;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 40px;
+        height: 40px;
+        border-radius: 11px;
+        background: rgba(128, 203, 196, 0.12);
+        border: 1px solid rgba(128, 203, 196, 0.25);
+        color: var(--accent);
+    }
+    .hs-point h3 {
+        margin: 2px 0 4px;
+        font-size: 1rem;
+        color: var(--title);
+    }
+    .hs-point p {
+        margin: 0;
+        color: var(--text);
+        font-size: 0.92rem;
+        line-height: 1.55;
+    }
+    .hs-cta {
+        margin-top: 2px;
+    }
+
+    @media (max-width: 860px) {
+        .hs-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+
+<script>
+    // Copy-to-clipboard for the static Shiki block (scoped to this section).
+    document
+        .querySelectorAll<HTMLButtonElement>("#pure-html-structure .copy-btn")
+        .forEach((btn) => {
+            const card = btn.closest(".code-card");
+            const code = card?.querySelector(".astro-code code");
+            let reset: number | undefined;
+            btn.addEventListener("click", async () => {
+                try {
+                    await navigator.clipboard.writeText(code?.textContent || "");
+                    btn.textContent = "Copied";
+                    btn.classList.add("is-copied");
+                    window.clearTimeout(reset);
+                    reset = window.setTimeout(() => {
+                        btn.textContent = "Copy";
+                        btn.classList.remove("is-copied");
+                    }, 1800);
+                } catch {
+                    btn.textContent = "Ctrl+C";
+                }
+            });
+        });
+</script>

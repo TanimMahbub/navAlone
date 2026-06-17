@@ -9,6 +9,7 @@
  */
 import type { NavaloneOptions } from "navalone";
 import { svgIcon } from "./icons";
+import { enhanceCodeEditor } from "./code";
 
 /** A button that drives the live instance via a public Navalone method. */
 export interface LiveExampleAction {
@@ -33,7 +34,7 @@ export interface LiveExampleOptions {
 /** Device presets: label + frame width ("100%" or a pixel number). */
 const PRESETS: { label: string; w: string }[] = [
     { label: "Desktop", w: "100%" },
-    { label: "Tablet", w: "430" },
+    { label: "Tablet", w: "575" },
     { label: "Mobile", w: "340" }
 ];
 
@@ -86,6 +87,8 @@ export function createLiveExample(opts: LiveExampleOptions): HTMLElement {
     `;
 
     const textarea = section.querySelector<HTMLTextAreaElement>("textarea")!;
+    const editorPane = section.querySelector<HTMLElement>(".example-editor")!;
+    const previewPane = section.querySelector<HTMLElement>(".example-preview")!;
     const status = section.querySelector<HTMLElement>(".status")!;
     const actionsHost = section.querySelector<HTMLElement>("[data-actions]")!;
     const runBtn = section.querySelector<HTMLButtonElement>("[data-run]")!;
@@ -100,6 +103,53 @@ export function createLiveExample(opts: LiveExampleOptions): HTMLElement {
 
     const initial = JSON.stringify(opts.config, null, 2);
     textarea.value = initial;
+    const renderEditor = enhanceCodeEditor(textarea, "json");
+    // enhanceCodeEditor wraps the textarea in a .code-editor; grab it after.
+    const codeEditor = section.querySelector<HTMLElement>(".code-editor")!;
+
+    /* ----------------------- See more / See less --------------------------- */
+
+    // By default the editor is clamped to the preview's height so the two
+    // columns read as equal blocks. When the config is taller than the preview,
+    // a "See more" toggle reveals the rest (and "See less" collapses it again).
+    const toggle = document.createElement("button");
+    toggle.type = "button";
+    toggle.className = "code-toggle";
+    toggle.hidden = true;
+    toggle.addEventListener("click", () => {
+        const expanded = editorPane.classList.toggle("is-expanded");
+        toggle.textContent = expanded ? "See less" : "See more";
+    });
+    editorPane.appendChild(toggle);
+
+    const singleColumn = window.matchMedia("(max-width: 900px)");
+
+    function syncClamp(): void {
+        // Stacked layout: the columns no longer sit side by side, so let the
+        // editor size to its content and drop the clamp entirely.
+        if (singleColumn.matches) {
+            editorPane.classList.remove("is-collapsible", "is-expanded");
+            editorPane.style.removeProperty("--code-clamp");
+            toggle.hidden = true;
+            return;
+        }
+        // Height available to the code editor so its bottom lines up with the
+        // preview column's bottom (preview height minus the label above it).
+        const offset =
+            codeEditor.getBoundingClientRect().top -
+            editorPane.getBoundingClientRect().top;
+        const clamp = Math.max(previewPane.getBoundingClientRect().height - offset, 160);
+        editorPane.style.setProperty("--code-clamp", clamp + "px");
+
+        const overflows = codeEditor.scrollHeight - clamp > 8;
+        editorPane.classList.toggle("is-collapsible", overflows);
+        toggle.hidden = !overflows;
+        if (!overflows) {
+            editorPane.classList.remove("is-expanded");
+        } else if (!editorPane.classList.contains("is-expanded")) {
+            toggle.textContent = "See more";
+        }
+    }
 
     function setStatus(text: string, ok: boolean): void {
         status.textContent = text;
@@ -190,7 +240,10 @@ export function createLiveExample(opts: LiveExampleOptions): HTMLElement {
         window.addEventListener("pointermove", onMove);
         window.addEventListener("pointerup", stop);
     });
-    window.addEventListener("resize", reportSize);
+    window.addEventListener("resize", () => {
+        reportSize();
+        syncClamp();
+    });
 
     /* ------------------------------- actions ------------------------------- */
 
@@ -209,13 +262,20 @@ export function createLiveExample(opts: LiveExampleOptions): HTMLElement {
     textarea.addEventListener("input", () => {
         window.clearTimeout(timer);
         timer = window.setTimeout(build, 400);
+        // Re-evaluate overflow as the user types (the config can grow or shrink).
+        syncClamp();
     });
     runBtn.addEventListener("click", build);
     resetBtn.addEventListener("click", () => {
         textarea.value = initial;
+        renderEditor();
         build();
+        syncClamp();
     });
 
-    requestAnimationFrame(reportSize);
+    requestAnimationFrame(() => {
+        reportSize();
+        syncClamp();
+    });
     return section;
 }

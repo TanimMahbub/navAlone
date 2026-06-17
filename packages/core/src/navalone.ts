@@ -98,6 +98,7 @@ export class Navalone {
         logo: null,
         rightButtons: null,
         showRightButtons: true,
+        rightButtonsFooter: false,
         drawerLabel: "Menu",
         onOpen: null,
         onClose: null,
@@ -186,6 +187,9 @@ export class Navalone {
         }
         this.root.classList.add("nv-align-" + (o.menuAlign || "center"));
         this.root.classList.add("nv-side-" + (o.drawerSide || "left"));
+        if (o.rightButtonsFooter) {
+            this.root.classList.add("nv-rt-footer");
+        }
     }
 
     _build(): void {

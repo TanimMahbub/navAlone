@@ -26,7 +26,7 @@
             <div class="preview-bar" role="group" aria-label="Resize the live preview">
                 <div class="preview-presets">
                     <button type="button" data-w="100%" class="is-active">Desktop</button>
-                    <button type="button" data-w="760">Tablet</button>
+                    <button type="button" data-w="767">Tablet</button>
                     <button type="button" data-w="380">Mobile</button>
                 </div>
                 <span class="preview-size" aria-live="polite"><span data-size>—</span> px</span>
@@ -259,6 +259,12 @@
             setWidth(raw === "100%" ? "100%" : Number(raw), btn);
         });
     }
+
+    // The frame width animates (0.25s); report the settled size once the
+    // transition ends, otherwise the readout shows the pre-transition width.
+    frame?.addEventListener("transitionend", (e) => {
+        if ((e as TransitionEvent).propertyName === "width") report();
+    });
 
     // Drag-to-resize from the right edge.
     if (frame && handle) {

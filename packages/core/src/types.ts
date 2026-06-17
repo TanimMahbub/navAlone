@@ -140,6 +140,12 @@ export interface ResolvedNavaloneOptions {
     logo: NavaloneLogo | null;
     rightButtons: NavaloneButton[] | null;
     showRightButtons: boolean;
+    /**
+     * Where the right-side buttons live below the breakpoint. `false` (default)
+     * keeps them on the right of the bar at every screen size; `true` collapses
+     * them into the drawer footer on medium/small screens.
+     */
+    rightButtonsFooter: boolean;
     drawerLabel: string;
     onOpen: ((detail: NavaloneOpenDetail) => void) | null;
     onClose: ((detail: NavaloneCloseDetail) => void) | null;

@@ -6,6 +6,7 @@
  */
 import { Navalone, type NavaloneOptions } from "navalone";
 import { svgIcon } from "./icons";
+import { enhanceCodeEditor } from "./code";
 
 export interface LiveExampleOptions {
     id: string;
@@ -56,6 +57,7 @@ export function createLiveExample(opts: LiveExampleOptions): HTMLElement {
 
     const initial = JSON.stringify(opts.config, null, 2);
     textarea.value = initial;
+    const renderEditor = enhanceCodeEditor(textarea, "json");
 
     let instance: Navalone | null = null;
 
@@ -106,6 +108,7 @@ export function createLiveExample(opts: LiveExampleOptions): HTMLElement {
     runBtn.addEventListener("click", build);
     resetBtn.addEventListener("click", () => {
         textarea.value = initial;
+        renderEditor();
         build();
     });
 
