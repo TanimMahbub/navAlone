@@ -225,6 +225,7 @@ buttons. Both are parsed into the same model that drives the desktop bar and mob
 | `menuAlign`         | `"center"`  | Desktop center-menu alignment: `"left"`, `"center"` or `"right"`.          |
 | `openOn`            | `"hover"`   | Desktop submenu trigger: `"hover"` (click also works) or `"click"`.        |
 | `drawerSide`        | `"left"`    | Side the mobile drawer slides in from: `"left"` or `"right"`.              |
+| `mobileMenu`        | `"drilldown"` | How submenus behave in the mobile drawer: `"drilldown"` (tap slides to a new panel, with a back button) or `"accordion"` (tap expands the submenu inline on the same screen). |
 | `logo`              | `null`      | `string`, or `{ text \| img, alt, href }`.                                 |
 | `rightButtons`      | `null`      | Array of `{ label, href, icon, variant, linkTarget }` CTAs.                |
 | `showRightButtons`  | `true`      | Toggle the right CTA region (bar + drawer footer).                         |
@@ -285,6 +286,12 @@ mobile re-measures the drill-down height without animating from a stale value.
 The mobile drawer is a true off-canvas panel: it slides in from `drawerSide`, dims the page
 with a backdrop, locks body scroll, traps focus while open, and closes on the backdrop, the
 close button or **Escape** (returning focus to the hamburger).
+
+Inside the drawer, `mobileMenu` chooses how submenus open. The default `"drilldown"` is the
+app-style sliding drill-down (tap a row to slide to the next panel, with a back button).
+`"accordion"` instead expands each submenu **inline on the same screen** — tapping a row
+reveals its children below it (and nested submenus open as nested accordions); there is no
+sliding and no back button. Both modes are driven by the same `items` model.
 
 ### Accessibility & keyboard
 

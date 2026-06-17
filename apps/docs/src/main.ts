@@ -14,6 +14,7 @@ import { createHtmlExample } from "./html-example";
 import { createPlayground } from "./playground";
 import { enhanceCodeBlocks } from "./code";
 import {
+    accordionConfig,
     dropdownConfig,
     dropdownLgConfig,
     footerButtonsConfig,
@@ -35,6 +36,7 @@ const NAV = [
     { href: "#example-nested", label: "Example: nested flyout" },
     { href: "#example-mega", label: "Example: mega" },
     { href: "#example-drawer", label: "Example: mobile drawer" },
+    { href: "#example-accordion", label: "Example: mobile accordion" },
     { href: "#example-footer-buttons", label: "Example: footer buttons" },
     { href: "#theming-playground", label: "Theming playground" },
     { href: "#wrappers", label: "Framework wrappers" }
@@ -132,6 +134,18 @@ examples.append(
             { label: "Close drawer", run: (m) => m.close() }
         ],
         note: "On a real mobile viewport the hamburger appears automatically."
+    }),
+    createLiveExample({
+        id: "example-accordion",
+        title: "Mobile accordion",
+        description:
+            "Set mobileMenu: \"accordion\" and submenus expand inline on the same screen instead of sliding to a new panel — tap a row and its children unfold beneath it (nested submenus nest as accordions). The default is \"drilldown\" (the sliding panels shown above).",
+        config: { ...accordionConfig, breakpoint: 1200 },
+        actions: [
+            { label: "Open drawer", run: (m) => m.open() },
+            { label: "Close drawer", run: (m) => m.close() }
+        ],
+        note: "This preview is forced into mobile mode (high breakpoint) so the accordion is visible — Open drawer, then tap a row with a chevron to expand it in place."
     }),
     createLiveExample({
         id: "example-footer-buttons",

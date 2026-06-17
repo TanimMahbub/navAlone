@@ -44,7 +44,8 @@ import {
     navigateTo,
     openDrawer,
     remeasure,
-    setupPanels
+    setupPanels,
+    toggleAccordion
 } from "./drawer";
 import { trapTab } from "./a11y";
 
@@ -95,6 +96,7 @@ export class Navalone {
         menuAlign: "center",
         openOn: "hover",
         drawerSide: "left",
+        mobileMenu: "drilldown",
         logo: null,
         rightButtons: null,
         showRightButtons: true,
@@ -320,11 +322,18 @@ export class Navalone {
             return;
         }
 
-        // Mobile drill-down rows.
+        // Mobile rows: drill-down navigation or inline accordion toggle.
         const item = target.closest<HTMLElement>(".menu-item");
         if (item && this._panelHost.contains(item)) {
             if ((item as HTMLButtonElement).disabled || item.classList.contains("is-disabled")) {
                 e.preventDefault();
+                return;
+            }
+            if (this.options.mobileMenu === "accordion") {
+                if (item.getAttribute("aria-controls")) {
+                    e.preventDefault();
+                    toggleAccordion(this, item);
+                }
                 return;
             }
             if (item.dataset.target) {
@@ -448,11 +457,17 @@ export class Navalone {
             if (!panel) {
                 return;
             }
-            const items = Array.from(
+            let items = Array.from(
                 panel.querySelectorAll<HTMLElement>(
                     "li > button:not([disabled]):not(.is-disabled), li > a:not(.is-disabled)"
                 )
             );
+            if (this.options.mobileMenu === "accordion") {
+                // Skip rows inside a collapsed (inert) accordion panel.
+                items = items.filter(
+                    (el) => !el.closest('.nv-acc-panel[aria-hidden="true"]')
+                );
+            }
             if (!items.length) {
                 return;
             }

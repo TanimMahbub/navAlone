@@ -114,6 +114,12 @@ export function enhanceCodeBlocks(root: ParentNode = document): void {
         if (pre.dataset.enhanced) {
             return;
         }
+        // Skip the live editors' highlight overlay: it sits behind a transparent
+        // textarea, and wrapping/moving it (addCopyButton) would detach it from
+        // the textarea and make the caret drift out of sync with the text.
+        if (pre.closest(".code-editor")) {
+            return;
+        }
         pre.dataset.enhanced = "1";
         highlight(code);
         addCopyButton(pre, code);

@@ -35,12 +35,15 @@ export function buildDrawer(nv: Navalone): HTMLElement {
     head.appendChild(nv._drawerClose);
     drawer.appendChild(head);
 
-    // The drill-down container: this is where the Phase-1 sliding panels live
-    // and where the animated height (--mmHeight) is applied.
+    // The mobile menu container: hosts either the Phase-1 sliding drill-down
+    // panels (with the animated height, --mmHeight) or, in accordion mode, a
+    // single panel whose submenus expand inline.
+    const accordion = nv.options.mobileMenu === "accordion";
     nv._panelHost = document.createElement("div");
-    nv._panelHost.className = "nv-panels";
+    nv._panelHost.className = accordion ? "nv-panels nv-acc" : "nv-panels";
     nv._panelHost.id = uid("nv-panelhost");
-    renderConfig(nv, nv._model).forEach((panel) => {
+    const panels = accordion ? renderAccordion(nv, nv._model) : renderConfig(nv, nv._model);
+    panels.forEach((panel) => {
         nv._panelHost.appendChild(panel);
     });
     drawer.appendChild(nv._panelHost);
@@ -191,6 +194,138 @@ function buildHeader(): HTMLElement {
     header.appendChild(back);
     header.appendChild(title);
     return header;
+}
+
+/* ------------------ Mobile accordion rendering (inline) ------------------ */
+
+/**
+ * Render the accordion variant: a SINGLE `.menu-level` panel whose submenus are
+ * nested, inline collapsible regions (no sliding, no back button). Returned as a
+ * one-element array so it slots into the same `_panels` bookkeeping as the
+ * drill-down (where `setupPanels` treats the first panel as the root).
+ */
+export function renderAccordion(nv: Navalone, items: NavaloneItem[]): HTMLElement[] {
+    const root = document.createElement("div");
+    root.className = "menu-level level-1";
+    root.id = nv.options.rootId || uid("nv-main");
+    root.appendChild(buildAccList(nv, items));
+    return [root];
+}
+
+function buildAccList(nv: Navalone, items: NavaloneItem[]): HTMLElement {
+    const ul = document.createElement("ul");
+    items.forEach((item) => ul.appendChild(buildAccItem(nv, item)));
+    return ul;
+}
+
+function buildAccItem(nv: Navalone, item: NavaloneItem): HTMLElement {
+    const li = document.createElement("li");
+    const submenu = item.submenu || null;
+    if (submenu && !submenu.id) {
+        submenu.id = uid("nv-panel");
+    }
+    const hasChild = !!submenu;
+    const isLink = !hasChild && !!item.href;
+
+    const el = document.createElement(isLink ? "a" : "button");
+    el.className = "menu-item";
+    el.setAttribute("role", "menuitem");
+    if (isLink) {
+        const a = el as HTMLAnchorElement;
+        a.href = item.href as string;
+        if (item.linkTarget) {
+            a.target = item.linkTarget;
+        }
+    } else {
+        (el as HTMLButtonElement).type = "button";
+    }
+
+    if (hasChild) {
+        el.setAttribute("aria-haspopup", "true");
+        el.setAttribute("aria-expanded", "false");
+        el.setAttribute("aria-controls", submenu!.id as string);
+        if (submenu!.display) {
+            el.dataset.submenu = submenu!.display;
+        }
+    }
+
+    if (item.disabled) {
+        el.classList.add("is-disabled");
+        if (isLink) {
+            el.setAttribute("aria-disabled", "true");
+        } else {
+            (el as HTMLButtonElement).disabled = true;
+        }
+    }
+
+    fillRow(nv, el, item, {
+        hasChild,
+        thumbnails: nv.options.showThumbnails,
+        description: true,
+        arrow: hasChild ? "down" : null
+    });
+    el.dataset.nvReady = "1";
+    li.appendChild(el);
+
+    if (hasChild) {
+        li.classList.add("nv-acc-li");
+        const panel = document.createElement("div");
+        panel.className = "nv-acc-panel";
+        panel.id = submenu!.id as string;
+        panel.setAttribute("role", "menu");
+        const label = item.label || submenu!.title;
+        if (label) {
+            panel.setAttribute("aria-label", label);
+        }
+        panel.setAttribute("aria-hidden", "true");
+        panel.inert = true;
+
+        const inner = document.createElement("ul");
+        // Mega-menu columns flatten inline; each heading becomes a group label.
+        const groups: NavaloneColumn[] = Array.isArray(submenu!.columns)
+            ? submenu!.columns
+            : [{ items: submenu!.items || [] }];
+        groups.forEach((column) => {
+            if (column.heading) {
+                const heading = document.createElement("li");
+                heading.className = "nv-group";
+                heading.setAttribute("role", "presentation");
+                heading.textContent = column.heading;
+                inner.appendChild(heading);
+            }
+            (column.items || []).forEach((child) => inner.appendChild(buildAccItem(nv, child)));
+        });
+        panel.appendChild(inner);
+
+        el._nvPanel = panel;
+        li.appendChild(panel);
+    }
+    return li;
+}
+
+/** Expand/collapse an accordion submenu by its trigger row. */
+export function toggleAccordion(nv: Navalone, trigger: HTMLElement): void {
+    const panel = trigger._nvPanel;
+    if (!panel) {
+        return;
+    }
+    const open = trigger.getAttribute("aria-expanded") !== "true";
+    setAccordion(trigger, panel, open);
+    if (open) {
+        nv._emit("submenuopen", { id: panel.id, trigger, panel });
+    } else {
+        nv._emit("submenuclose", { id: panel.id, panel });
+    }
+}
+
+function setAccordion(trigger: HTMLElement, panel: HTMLElement, open: boolean): void {
+    trigger.setAttribute("aria-expanded", open ? "true" : "false");
+    const li = trigger.closest<HTMLElement>(".nv-acc-li");
+    if (li) {
+        li.classList.toggle("is-open", open);
+    }
+    panel.setAttribute("aria-hidden", open ? "false" : "true");
+    panel.inert = !open;
 }
 
 export function setupPanels(nv: Navalone): void {
@@ -362,6 +497,19 @@ export function closeDrawer(nv: Navalone): void {
 /* ------------------------------- Helpers --------------------------------- */
 
 export function resetToRoot(nv: Navalone): void {
+    if (nv.options.mobileMenu === "accordion") {
+        // Collapse every expanded accordion back to the top-level rows.
+        nv._panelHost
+            .querySelectorAll<HTMLElement>(".nv-acc-li.is-open")
+            .forEach((li) => {
+                const trigger = li.querySelector<HTMLElement>(":scope > .menu-item");
+                if (trigger && trigger._nvPanel) {
+                    setAccordion(trigger, trigger._nvPanel, false);
+                }
+            });
+        setActive(nv, nv._rootPanel);
+        return;
+    }
     nv._panels.forEach((panel) => {
         panel.style.transform = "";
     });

@@ -8,6 +8,14 @@ export type NavaloneDisplay = "dropdown" | "dropdown-lg" | "mega";
 export type NavaloneMenuAlign = "left" | "center" | "right";
 export type NavaloneOpenOn = "hover" | "click";
 export type NavaloneDrawerSide = "left" | "right";
+/**
+ * How submenus behave inside the mobile drawer:
+ *   - `"drilldown"` (default): tapping a row slides to a new panel (the
+ *     app-style sliding drill-down), with a back button to return.
+ *   - `"accordion"`: tapping a row expands its submenu inline on the same
+ *     screen; no sliding, no back button.
+ */
+export type NavaloneMobileMenu = "drilldown" | "accordion";
 
 /** A column inside a mega-menu submenu. Flattens to a group on mobile. */
 export interface NavaloneColumn {
@@ -137,6 +145,8 @@ export interface ResolvedNavaloneOptions {
     menuAlign: NavaloneMenuAlign;
     openOn: NavaloneOpenOn;
     drawerSide: NavaloneDrawerSide;
+    /** Mobile submenu behaviour: sliding drill-down (default) or inline accordion. */
+    mobileMenu: NavaloneMobileMenu;
     logo: NavaloneLogo | null;
     rightButtons: NavaloneButton[] | null;
     showRightButtons: boolean;

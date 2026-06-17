@@ -151,6 +151,17 @@ export const fullConfig: NavaloneOptions = {
     items: fullItems
 };
 
+/** Mobile drawer with inline accordion submenus instead of the sliding drill-down. */
+export const accordionConfig: NavaloneOptions = {
+    logo: { text: "Acme", href: "#" },
+    mobileMenu: "accordion",
+    rightButtons: [
+        { label: "Log in", href: "#login" },
+        { label: "Sign up", href: "#signup", variant: "primary" }
+    ],
+    items: fullItems
+};
+
 /** Right-side buttons that drop into the drawer footer on small screens. */
 export const footerButtonsConfig: NavaloneOptions = {
     logo: { text: "Acme", href: "#" },
