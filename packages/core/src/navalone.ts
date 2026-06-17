@@ -24,7 +24,7 @@ import type {
     NavaloneTarget,
     ResolvedNavaloneOptions
 } from "./types";
-import { toCssLength } from "./dom";
+import { toCssLength, findScrollParent, scrollTopOf } from "./dom";
 import { buildModel } from "./model";
 import {
     buildBar,
@@ -70,6 +70,11 @@ export class Navalone {
     _lastFocus: HTMLElement | null = null;
     _hoverCloseTimer: number | undefined; // debounced desktop hover-close
 
+    // `position: "smart"` auto-hide bookkeeping.
+    _smartScroller: HTMLElement | Window | null = null;
+    _smartLastY = 0;
+    _smartTicking = false;
+
     _mql!: MediaQueryList;
     _bar!: HTMLElement;
     _backdrop!: HTMLElement;
@@ -93,6 +98,7 @@ export class Navalone {
         onBack: null,
         // Phase 2
         breakpoint: 960,
+        position: "fixed",
         menuAlign: "center",
         openOn: "hover",
         drawerSide: "left",
@@ -162,6 +168,56 @@ export class Navalone {
         this._listen(this.root, "mouseleave", this._onLeave);
         this._listen(this.root, "focusout", this._onFocusOut);
         this._listen(document, "click", this._onDocClick);
+
+        if (this.options.position === "smart") {
+            this._setupSmartScroll();
+        }
+    }
+
+    /* ------------------------- Smart (auto-hide) bar --------------------- */
+
+    // `position: "smart"`: hide the bar when scrolling down past it, reveal it on
+    // any upward scroll. The transform is applied to the bar (not the root) so
+    // the off-canvas drawer's fixed-positioning containing block is never
+    // disturbed. Watches the nearest scroll container (window on a normal page).
+    _setupSmartScroll(): void {
+        const scroller = findScrollParent(this.root);
+        this._smartScroller = scroller;
+        this._smartLastY = scrollTopOf(scroller);
+        this._listen(scroller, "scroll", this._onSmartScroll);
+    }
+
+    _onSmartScroll = (): void => {
+        if (this._smartTicking) {
+            return;
+        }
+        this._smartTicking = true;
+        window.requestAnimationFrame(() => {
+            this._smartTicking = false;
+            if (!this._destroyed) {
+                this._updateSmart();
+            }
+        });
+    };
+
+    _updateSmart(): void {
+        // Never hide while the drawer is open (the hamburger lives in the bar).
+        if (this._drawerOpen) {
+            this.root.classList.remove("nv-hidden");
+            return;
+        }
+        const y = Math.max(scrollTopOf(this._smartScroller as HTMLElement | Window), 0);
+        const last = this._smartLastY;
+        const barH = this._bar ? this._bar.offsetHeight : 0;
+        if (y <= barH) {
+            // At (or above) the bar's resting spot — always visible.
+            this.root.classList.remove("nv-hidden");
+        } else if (y > last + 4) {
+            this.root.classList.add("nv-hidden"); // scrolling down
+        } else if (y < last - 4) {
+            this.root.classList.remove("nv-hidden"); // scrolling up
+        }
+        this._smartLastY = y;
     }
 
     _listen(target: EventTarget, type: string, handler: EventListener): void {
@@ -187,6 +243,7 @@ export class Navalone {
                 this.root.style.setProperty(key, theme[key]);
             });
         }
+        this.root.classList.add("nv-pos-" + (o.position || "fixed"));
         this.root.classList.add("nv-align-" + (o.menuAlign || "center"));
         this.root.classList.add("nv-side-" + (o.drawerSide || "left"));
         if (o.rightButtonsFooter) {

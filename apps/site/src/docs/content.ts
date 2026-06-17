@@ -193,34 +193,80 @@ export const pureHtmlSetup = /* html */ `
 </section>
 `;
 
-export const optionsReference = /* html */ `
-<section id="options">
-    <h2>Options <a class="anchor" href="#options" aria-label="Link">#</a></h2>
-    <p>Pass as the second argument: <code>new Navalone(target, options)</code>. Every field is
-    optional.</p>
-    <div class="table-wrap">
-    <table>
-        <thead><tr><th>Option</th><th>Type</th><th>Default</th><th>Description</th></tr></thead>
-        <tbody>
+/** Option rows, grouped into tabs by what they control. */
+const optionGroups: { id: string; label: string; rows: string }[] = [
+    {
+        id: "content",
+        label: "Content & data",
+        rows: /* html */ `
             <tr><td><code>items</code></td><td>NavaloneItem[]</td><td><code>null</code></td><td>The menu model. Falls back to declarative markup when omitted.</td></tr>
             <tr><td><code>logo</code></td><td>string | object</td><td><code>null</code></td><td>Brand text or <code>{ text, img, alt, href }</code>.</td></tr>
             <tr><td><code>rightButtons</code></td><td>NavaloneButton[]</td><td><code>null</code></td><td>Action buttons on the right of the bar (and, with <code>rightButtonsFooter</code>, in the drawer footer on small screens).</td></tr>
             <tr><td><code>showRightButtons</code></td><td>boolean</td><td><code>true</code></td><td>Toggle the right-side action area.</td></tr>
             <tr><td><code>rightButtonsFooter</code></td><td>boolean</td><td><code>false</code></td><td>Keep the right-side buttons on the bar at every width (<code>false</code>), or collapse them into the drawer footer on medium/small screens (<code>true</code>).</td></tr>
-            <tr><td><code>width</code></td><td>string | number</td><td><code>null</code></td><td>Drawer width (sets <code>--nv-width</code>).</td></tr>
-            <tr><td><code>animationDuration</code></td><td>string | number</td><td><code>null</code></td><td>Transition duration (sets <code>--nv-duration</code>).</td></tr>
-            <tr><td><code>theme</code></td><td>Record&lt;string,string&gt;</td><td><code>null</code></td><td>Map of <code>--nv-*</code> tokens applied inline to the root.</td></tr>
-            <tr><td><code>title</code></td><td>boolean | fn</td><td><code>true</code></td><td>Drawer panel title: derive from trigger or format it.</td></tr>
-            <tr><td><code>showThumbnails</code></td><td>boolean</td><td><code>true</code></td><td>Render item images as row thumbnails on mobile.</td></tr>
-            <tr><td><code>breakpoint</code></td><td>number</td><td><code>960</code></td><td>Max width (px) at which the bar collapses to the drawer.</td></tr>
+            <tr><td><code>showThumbnails</code></td><td>boolean</td><td><code>true</code></td><td>Render item images as row thumbnails on mobile.</td></tr>`
+    },
+    {
+        id: "layout",
+        label: "Layout & positioning",
+        rows: /* html */ `
+            <tr><td><code>position</code></td><td>"fixed" | "sticky" | "smart" | "static"</td><td><code>"fixed"</code></td><td>Where the bar sits as the page scrolls. <code>"fixed"</code> pins it to the top from the start; <code>"sticky"</code> starts in flow (e.g. below a top header) and pins once scrolled to; <code>"smart"</code> is sticky plus auto-hide on scroll-down and reveal on scroll-up; <code>"static"</code> leaves it in flow, never pinned.</td></tr>
             <tr><td><code>menuAlign</code></td><td>"left" | "center" | "right"</td><td><code>"center"</code></td><td>Alignment of the center menu in the bar.</td></tr>
-            <tr><td><code>openOn</code></td><td>"hover" | "click"</td><td><code>"hover"</code></td><td>How desktop dropdowns open.</td></tr>
+            <tr><td><code>breakpoint</code></td><td>number</td><td><code>960</code></td><td>Max width (px) at which the bar collapses to the drawer.</td></tr>
             <tr><td><code>drawerSide</code></td><td>"left" | "right"</td><td><code>"left"</code></td><td>Side the mobile drawer slides from.</td></tr>
+            <tr><td><code>width</code></td><td>string | number</td><td><code>null</code></td><td>Drawer width (sets <code>--nv-width</code>).</td></tr>`
+    },
+    {
+        id: "behaviour",
+        label: "Behaviour",
+        rows: /* html */ `
+            <tr><td><code>openOn</code></td><td>"hover" | "click"</td><td><code>"hover"</code></td><td>How desktop dropdowns open.</td></tr>
+            <tr><td><code>mobileMenu</code></td><td>"drilldown" | "accordion"</td><td><code>"drilldown"</code></td><td>How submenus behave inside the mobile drawer: sliding drill-down panels (default) or inline accordions that expand in place.</td></tr>`
+    },
+    {
+        id: "appearance",
+        label: "Appearance & accessibility",
+        rows: /* html */ `
+            <tr><td><code>theme</code></td><td>Record&lt;string,string&gt;</td><td><code>null</code></td><td>Map of <code>--nv-*</code> tokens applied inline to the root.</td></tr>
+            <tr><td><code>animationDuration</code></td><td>string | number</td><td><code>null</code></td><td>Transition duration (sets <code>--nv-duration</code>).</td></tr>
+            <tr><td><code>title</code></td><td>boolean | fn</td><td><code>true</code></td><td>Drawer panel title: derive from trigger or format it.</td></tr>
             <tr><td><code>drawerLabel</code></td><td>string</td><td><code>"Menu"</code></td><td>Accessible label for the drawer dialog.</td></tr>
-            <tr><td><code>rootId</code></td><td>string</td><td><code>null</code></td><td>Explicit id for the generated root (a11y wiring).</td></tr>
-            <tr><td><code>on*</code></td><td>function</td><td><code>null</code></td><td>Callbacks — see Events below.</td></tr>
-        </tbody>
-    </table>
+            <tr><td><code>rootId</code></td><td>string</td><td><code>null</code></td><td>Explicit id for the generated root (a11y wiring).</td></tr>`
+    },
+    {
+        id: "callbacks",
+        label: "Callbacks",
+        rows: /* html */ `
+            <tr><td><code>on*</code></td><td>function</td><td><code>null</code></td><td>Event callbacks — see Events below.</td></tr>`
+    }
+];
+
+export const optionsReference = /* html */ `
+<section id="options">
+    <h2>Options <a class="anchor" href="#options" aria-label="Link">#</a></h2>
+    <p>Pass as the second argument: <code>new Navalone(target, options)</code>. Every field is
+    optional. They're grouped into tabs by what they control.</p>
+    <div class="opt-tabs" data-opt-tabs>
+        <div class="opt-tablist" role="tablist" aria-label="Option categories">
+            ${optionGroups
+                .map(
+                    (g, i) => `<button type="button" class="opt-tab${i === 0 ? " is-active" : ""}" role="tab" id="opt-tab-${g.id}" aria-controls="opt-panel-${g.id}" aria-selected="${i === 0}" tabindex="${i === 0 ? "0" : "-1"}" data-opt-tab="${g.id}">${g.label}</button>`
+                )
+                .join("")}
+        </div>
+        ${optionGroups
+            .map(
+                (g, i) => `<div class="opt-panel${i === 0 ? " is-active" : ""}" role="tabpanel" id="opt-panel-${g.id}" aria-labelledby="opt-tab-${g.id}" data-opt-panel="${g.id}"${i === 0 ? "" : " hidden"}>
+            <div class="table-wrap">
+            <table>
+                <thead><tr><th>Option</th><th>Type</th><th>Default</th><th>Description</th></tr></thead>
+                <tbody>${g.rows}
+                </tbody>
+            </table>
+            </div>
+        </div>`
+            )
+            .join("")}
     </div>
 </section>
 `;

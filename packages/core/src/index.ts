@@ -21,6 +21,7 @@ export type {
     NavaloneMenuAlign,
     NavaloneOpenOn,
     NavaloneDrawerSide,
+    NavalonePosition,
     NavaloneTitleOption,
     NavaloneTitleContext,
     NavaloneEventType,

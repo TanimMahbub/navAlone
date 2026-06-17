@@ -20,10 +20,13 @@ import {
     footerButtonsConfig,
     fullConfig,
     megaConfig,
-    nestedConfig
+    nestedConfig,
+    positionFixedConfig,
+    positionSmartConfig,
+    positionStickyConfig
 } from "./data";
 
-const NAV = [
+const NAV: { href: string; label: string; group?: boolean }[] = [
     { href: "#getting-started", label: "Getting started" },
     { href: "#data-contract", label: "Data contract" },
     { href: "#pure-html", label: "Pure HTML setup" },
@@ -31,13 +34,19 @@ const NAV = [
     { href: "#options", label: "Options" },
     { href: "#methods", label: "Methods" },
     { href: "#events", label: "Events" },
-    { href: "#example-dropdown", label: "Example: dropdown" },
-    { href: "#example-dropdown-lg", label: "Example: dropdown-lg" },
-    { href: "#example-nested", label: "Example: nested flyout" },
-    { href: "#example-mega", label: "Example: mega" },
-    { href: "#example-drawer", label: "Example: mobile drawer" },
-    { href: "#example-accordion", label: "Example: mobile accordion" },
-    { href: "#example-footer-buttons", label: "Example: footer buttons" },
+    { href: "#examples-layouts", label: "Submenu layouts", group: true },
+    { href: "#example-dropdown", label: "Dropdown" },
+    { href: "#example-dropdown-lg", label: "Dropdown (large)" },
+    { href: "#example-nested", label: "Nested flyout" },
+    { href: "#example-mega", label: "Mega menu" },
+    { href: "#examples-mobile", label: "Mobile behaviour", group: true },
+    { href: "#example-drawer", label: "Mobile drawer" },
+    { href: "#example-accordion", label: "Mobile accordion" },
+    { href: "#example-footer-buttons", label: "Footer buttons" },
+    { href: "#examples-positioning", label: "Bar positioning", group: true },
+    { href: "#example-position-fixed", label: "Fixed (default)" },
+    { href: "#example-position-sticky", label: "Sticky" },
+    { href: "#example-position-smart", label: "Smart (auto-hide)" },
     { href: "#theming-playground", label: "Theming playground" },
     { href: "#wrappers", label: "Framework wrappers" }
 ];
@@ -57,7 +66,7 @@ app.innerHTML = `
     <div class="layout">
         <aside class="sidebar" id="sidebar">
             <nav aria-label="Documentation sections">
-                <ul>${NAV.map((n) => `<li><a href="${n.href}">${n.label}</a></li>`).join("")}</ul>
+                <ul>${NAV.map((n) => `<li${n.group ? ' class="nav-group"' : ""}><a href="${n.href}">${n.label}</a></li>`).join("")}</ul>
             </nav>
         </aside>
         <main id="content" class="content" tabindex="-1">
@@ -91,7 +100,25 @@ app.querySelector<HTMLElement>("[data-how-it-works]")!.replaceWith(createHtmlExa
 
 const examples = app.querySelector<HTMLElement>("[data-examples]")!;
 
+// A labelled divider that introduces a group of related examples, so the
+// options are easy to scan by what they control (layout / mobile / position).
+function exampleCategory(id: string, title: string, blurb: string): HTMLElement {
+    const el = document.createElement("div");
+    el.className = "example-category";
+    el.id = id;
+    el.innerHTML = `
+        <h3 class="example-category-title">${title}
+            <a class="anchor" href="#${id}" aria-label="Link to ${title}">#</a></h3>
+        <p class="example-category-blurb">${blurb}</p>`;
+    return el;
+}
+
 examples.append(
+    exampleCategory(
+        "examples-layouts",
+        "Desktop submenu layouts",
+        "How a submenu presents on the desktop bar — set per submenu with display."
+    ),
     createLiveExample({
         id: "example-dropdown",
         title: "Dropdown",
@@ -124,6 +151,11 @@ examples.append(
         config: megaConfig,
         actions: [{ label: "Open", method: "openSubmenu", args: ["resources"] }]
     }),
+    exampleCategory(
+        "examples-mobile",
+        "Mobile behaviour",
+        "How the menu collapses below the breakpoint and how submenus behave in the drawer."
+    ),
     createLiveExample({
         id: "example-drawer",
         title: "Mobile drawer",
@@ -157,11 +189,76 @@ examples.append(
         actions: [{ label: "Open drawer", method: "open" }],
         note: "Pick the Tablet or Mobile preset, then Open drawer — Log in / Sign up sit at the bottom of the drawer. Set rightButtonsFooter back to false and they stay on the bar."
     }),
+    exampleCategory(
+        "examples-positioning",
+        "Bar positioning",
+        "Where the bar lives as the page scrolls — set with the position option. Scroll inside each preview to see the difference."
+    ),
+    createLiveExample({
+        id: "example-position-fixed",
+        title: "Fixed (default)",
+        description:
+            "position: \"fixed\" pins the bar to the top of the page from the start, so it stays on top however far you scroll. Scroll the preview — the bar stays put.",
+        config: positionFixedConfig,
+        tallPreview: true,
+        note: "The default. In your own page, reserve room for it (e.g. padding-top on the body) so content isn't hidden behind the bar."
+    }),
+    createLiveExample({
+        id: "example-position-sticky",
+        title: "Sticky (below a top header)",
+        description:
+            "position: \"sticky\" leaves the bar in normal flow — here below a header strip with phone / email / social — and pins it to the top only once you scroll to it.",
+        config: positionStickyConfig,
+        tallPreview: true,
+        note: "Place the menu after your top header in the markup; it scrolls away with the header, then sticks to the top."
+    }),
+    createLiveExample({
+        id: "example-position-smart",
+        title: "Smart (auto-hide on scroll)",
+        description:
+            "position: \"smart\" behaves like sticky, but after you scroll down it slides up out of view, and reappears the instant you scroll back up. Scroll the preview down a bit, then up.",
+        config: positionSmartConfig,
+        tallPreview: true,
+        note: "Ideal for long pages — it maximises reading space while keeping the nav one upward scroll away."
+    }),
     createPlayground()
 );
 
 // Syntax-highlight every static code sample and add copy buttons.
 enhanceCodeBlocks(app);
+
+// Options reference: switch the category tabs (and support arrow-key navigation).
+const optTabs = app.querySelector<HTMLElement>("[data-opt-tabs]");
+if (optTabs) {
+    const tabs = [...optTabs.querySelectorAll<HTMLButtonElement>(".opt-tab")];
+    const select = (tab: HTMLButtonElement) => {
+        const id = tab.dataset.optTab!;
+        tabs.forEach((t) => {
+            const active = t === tab;
+            t.classList.toggle("is-active", active);
+            t.setAttribute("aria-selected", String(active));
+            t.tabIndex = active ? 0 : -1;
+        });
+        optTabs.querySelectorAll<HTMLElement>(".opt-panel").forEach((p) => {
+            const active = p.dataset.optPanel === id;
+            p.classList.toggle("is-active", active);
+            p.hidden = !active;
+        });
+    };
+    optTabs.addEventListener("click", (e) => {
+        const tab = (e.target as HTMLElement).closest<HTMLButtonElement>(".opt-tab");
+        if (tab) select(tab);
+    });
+    optTabs.addEventListener("keydown", (e) => {
+        if (e.key !== "ArrowRight" && e.key !== "ArrowLeft") return;
+        const i = tabs.indexOf(document.activeElement as HTMLButtonElement);
+        if (i < 0) return;
+        const next = tabs[(i + (e.key === "ArrowRight" ? 1 : tabs.length - 1)) % tabs.length];
+        select(next);
+        next.focus();
+        e.preventDefault();
+    });
+}
 
 /* ----------------------------- Page chrome ------------------------------ */
 
@@ -195,4 +292,6 @@ const observer = new IntersectionObserver(
     },
     { rootMargin: "-20% 0px -70% 0px" }
 );
-app.querySelectorAll("section[id], h2[id]").forEach((el) => observer.observe(el));
+app.querySelectorAll("section[id], h2[id], .example-category[id]").forEach((el) =>
+    observer.observe(el)
+);

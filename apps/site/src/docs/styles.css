@@ -143,6 +143,18 @@ a {
     border-left-color: var(--doc-accent);
     background: var(--doc-surface);
 }
+/* Category labels in the sidebar (the "group: true" entries). */
+.sidebar .nav-group {
+    margin-top: 10px;
+}
+.sidebar .nav-group a {
+    color: var(--doc-text);
+    font-size: 0.74rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    opacity: 0.85;
+}
 
 .content {
     padding: 24px 0 80px;
@@ -305,6 +317,59 @@ tbody tr {
 tbody tr:hover {
     background: rgba(128, 203, 196, 0.06);
 }
+/* Category sub-headers inside the Options table. */
+.opt-group th {
+    color: var(--doc-accent);
+    background: var(--doc-bg);
+    font-size: 0.74rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.09em;
+    border-bottom: 1px solid var(--doc-border);
+}
+.opt-group:hover {
+    background: none;
+}
+
+/* Options reference tabs — categories become tab buttons above the table. */
+.opt-tablist {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-bottom: 14px;
+    border-bottom: 1px solid var(--doc-border);
+}
+.opt-tab {
+    appearance: none;
+    border: 0;
+    background: none;
+    cursor: pointer;
+    padding: 8px 14px;
+    margin-bottom: -1px;
+    font: inherit;
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: var(--doc-text);
+    border-bottom: 2px solid transparent;
+    border-radius: 6px 6px 0 0;
+    transition: color 0.15s ease, background 0.15s ease, border-color 0.15s ease;
+}
+.opt-tab:hover {
+    color: var(--doc-accent);
+    border-bottom-color: var(--doc-accent);
+}
+.opt-tab.is-active {
+    color: var(--doc-title);
+    background: rgba(128, 203, 196, 0.06);
+	border-bottom-color: var(--doc-accent);
+}
+.opt-tab:focus-visible {
+    outline: 2px solid var(--doc-accent);
+    outline-offset: 2px;
+}
+.opt-panel[hidden] {
+    display: none;
+}
 
 /* Live examples */
 .example {
@@ -318,6 +383,30 @@ tbody tr:hover {
        the sidebar; only the right side extends. */
     margin-right: calc(-1 * max((100vw - var(--doc-max)) / 2, 0px));
 }
+/* Category divider that introduces a group of related examples. */
+.example-category {
+    margin-top: 52px;
+    padding-bottom: 4px;
+    border-bottom: 1px solid var(--doc-border);
+}
+.example-category-title {
+    margin: 0;
+    font-size: 0.82rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--doc-accent);
+}
+.example-category-blurb {
+    margin: 6px 0 0;
+    color: var(--doc-muted);
+    font-size: 0.92rem;
+}
+/* The first example after a divider sits closer to its heading. */
+.example-category + .example {
+    margin-top: 20px;
+}
+
 /* Editor (left, narrower) + preview (right, wider), side by side. */
 .example-grid {
     display: grid;
@@ -562,6 +651,11 @@ button:hover {
     transition: none;
     user-select: none;
 }
+/* Scroll-driven demos (bar positioning) need more vertical room to show the
+   pin / auto-hide behaviour as the page scrolls. */
+.preview-frame.is-tall {
+    height: 600px;
+}
 .preview-frame iframe {
     width: 100%;
     height: 100%;
@@ -579,6 +673,11 @@ button:hover {
     overflow: visible;
     position: relative;
     box-shadow: 0 24px 60px -34px rgba(0, 0, 0, 0.85);
+    /* The default `position: "fixed"` bar would otherwise pin to the docs page
+       top and escape this card. Layout containment makes the surface the
+       containing block for the fixed bar (and drawer) without clipping dropdown
+       panels, so the inline preview stays inside its own box. */
+    contain: layout;
 }
 .preview-handle {
     position: absolute;

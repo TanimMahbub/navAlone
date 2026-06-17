@@ -172,3 +172,25 @@ export const footerButtonsConfig: NavaloneOptions = {
     ],
     items: fullItems
 };
+
+/* ------------------------------ Positioning ------------------------------ */
+
+/** Pinned to the top of the page from the start — the default. */
+export const positionFixedConfig: NavaloneOptions = {
+    position: "fixed",
+    logo: { text: "Acme", href: "#" },
+    rightButtons: [{ label: "Sign up", href: "#signup", variant: "primary" }],
+    items: fullItems
+};
+
+/** Sits below a top info header and pins to the top once you scroll to it. */
+export const positionStickyConfig: NavaloneOptions = {
+    ...positionFixedConfig,
+    position: "sticky"
+};
+
+/** Sticky, but hides on scroll-down and reappears the moment you scroll up. */
+export const positionSmartConfig: NavaloneOptions = {
+    ...positionFixedConfig,
+    position: "smart"
+};

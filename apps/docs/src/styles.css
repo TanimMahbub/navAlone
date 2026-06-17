@@ -415,6 +415,11 @@ button:hover {
     padding-bottom: 40px;
     overflow: visible;
     position: relative;
+    /* The default `position: "fixed"` bar would otherwise pin to the page top
+       and escape this card. Layout containment makes the surface the containing
+       block for the fixed bar (and drawer) without clipping dropdown panels, so
+       each inline preview stays inside its own box. */
+    contain: layout;
 }
 .preview-menu {
     color: #222;

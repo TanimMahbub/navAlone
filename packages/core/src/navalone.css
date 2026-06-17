@@ -100,6 +100,45 @@ body.nv-scroll-lock {
 	color: var(--nv-bar-color);
 }
 
+/* ---------------------------------------------------------------------- */
+/* Bar positioning (`position` option)                                    */
+/*   fixed  — pinned to the top from the start (default)                  */
+/*   sticky — in normal flow (can start below a header), pins on scroll   */
+/*   smart  — sticky + auto-hide on scroll-down, reveal on scroll-up      */
+/*   static — stays in normal flow and scrolls away                       */
+/* NB: positioning is applied to the ROOT, never via `transform` on it —  */
+/* a transformed root would become the containing block for the          */
+/* position:fixed drawer/backdrop and break them. The smart auto-hide     */
+/* therefore transforms the .nv-bar (a sibling of the drawer) instead.    */
+/* ---------------------------------------------------------------------- */
+.nv-pos-fixed.mm.navalone {
+	position: fixed;
+	top: 0;
+	left: 0;
+	right: 0;
+	z-index: var(--nv-z);
+}
+
+.nv-pos-sticky.mm.navalone,
+.nv-pos-smart.mm.navalone {
+	position: sticky;
+	top: 0;
+	z-index: var(--nv-z);
+}
+
+.nv-pos-static.mm.navalone {
+	position: relative;
+}
+
+/* Smart auto-hide: slide the bar up out of view and back. */
+.nv-pos-smart .nv-bar {
+	transition: transform var(--nv-duration) ease;
+}
+
+.nv-pos-smart.nv-hidden .nv-bar {
+	transform: translateY(-100%);
+}
+
 /* ====================================================================== */
 /* Desktop bar                                                            */
 /* ====================================================================== */

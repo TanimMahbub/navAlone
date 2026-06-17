@@ -29,6 +29,8 @@ export interface LiveExampleOptions {
     actions?: LiveExampleAction[];
     /** Note shown under the preview. */
     note?: string;
+    /** Give the preview frame extra height — for scroll-driven demos (positioning). */
+    tallPreview?: boolean;
 }
 
 /** Device presets: label + frame width ("100%" or a pixel number). */
@@ -70,7 +72,7 @@ export function createLiveExample(opts: LiveExampleOptions): HTMLElement {
                     <span class="preview-size" aria-live="polite"><span data-size>—</span> px</span>
                 </div>
                 <div class="preview-shell">
-                    <div class="preview-frame" data-frame>
+                    <div class="preview-frame${opts.tallPreview ? " is-tall" : ""}" data-frame>
                         <iframe data-preview src="/demo/preview/"
                             title="Live preview of ${opts.title} — resize to watch it collapse from desktop bar to mobile drawer"
                             loading="lazy"></iframe>

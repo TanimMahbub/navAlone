@@ -244,7 +244,32 @@ change future copy/build work on `apps/site` (landing + the merged `/docs`):
   "Navalone vs mmenu.js" to **"Doing it by hand" vs "With Navalone"**. (Note: root
   `package.json` + READMEs still say "alternative to mmenu.js" — those are plugin/repo
   metadata, left untouched this pass; revisit if owner wants them scrubbed too.)
-- **Theme = Material Dark, accent teal `#80cbc4`.** Stray indigo/blue (`#6366f1`, `#3a7afe`,
+- **Bar positioning option (`position`, added 2026-06-17, owner-driven):** new core option
+`position: "fixed" | "sticky" | "smart" | "static"`, **default `"fixed"`** (changed the bar
+from the old in-flow default — pins to the top of the page from the start). `"sticky"` =
+`position:sticky;top:0` (starts in flow, e.g. below a top header strip, pins when scrolled
+to); `"smart"` = sticky + auto-hide (scroll down hides, scroll up reveals); `"static"` =
+old in-flow, never pinned. Applied as a `nv-pos-<value>` class on the root in `_applyOptions`.
+**Two non-obvious gotchas:** (1) positioning is applied to the ROOT but the smart auto-hide
+`transform: translateY(-100%)` is on the **`.nv-bar`** (a sibling of the drawer), never the
+root — a transformed root becomes the containing block for the `position:fixed` drawer/backdrop
+and breaks them (same class of bug as [[drawer-blank-panel-rootcause]]). (2) smart watches the
+nearest scroll parent (`findScrollParent` in `dom.ts`, falls back to `window`); rAF-throttled,
+guarded so it never hides while the drawer is open. React inherits `position` via
+`extends NavaloneOptions`; Vue/Angular wrappers had to list it explicitly (they enumerate props
+— and still omit `mobileMenu`/`rightButtonsFooter`, a pre-existing gap). Docs (apps/site
+`/docs` only — the owner uses that, apps/docs is the deprecated dup): added 3 positioning live
+examples (fixed/sticky/smart) + grouped the Options table AND the live examples by category
+(Content/Layout & positioning/Behaviour/Appearance/Callbacks). The shared preview iframe
+`demo/preview.astro` reads `config.position` and swaps in a tall faux page (so there's room to
+scroll) + a faux top header for sticky/smart; **it must use `overflow-x: clip` (not `hidden`)
+in positioning mode** — `hidden` forces overflow-y to auto and makes the body its own scroll
+container, which breaks `position:sticky`. apps/docs `.preview-surface` got a defensive
+`contain: layout` so the now-fixed-by-default inline previews don't escape their card. Verified
+all 3 modes in real Chrome via `scripts/verify-positioning.mjs` (CDP, scroll the iframe, assert
+barTop/nv-hidden) — 10/10 checks; 64 unit tests pass (core 51, +4 positioning).
+
+**Theme = Material Dark, accent teal `#80cbc4`.** Stray indigo/blue (`#6366f1`, `#3a7afe`,
   `rgba(99,102,241,…)`) were replaced with teal: hero preset buttons, the hero preview
   box-shadow (now dark `rgba(8,12,14,.75)`), and the `demo/responsive.astro` chrome + its
   Navalone `theme` tokens (`--nv-action-primary-bg`/`focus-color`/`badge-bg`). Docs live

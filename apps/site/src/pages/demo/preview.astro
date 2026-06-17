@@ -16,6 +16,29 @@ import "navalone/css";
         <title>Navalone — live preview</title>
     </head>
     <body>
+        <!-- A faux "top header" carrying other site info (phone / email /
+             social). Shown only for the sticky + smart positioning demos, so the
+             menu can start a little down from the top and pin once scrolled to. -->
+        <div class="pg-topbar" aria-hidden="true">
+            <div class="pg-topbar-inner">
+                <span class="pg-ti">
+                    <svg viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.13.96.36 1.9.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.91.34 1.85.57 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+                    <span>+1 (555) 012-3456</span>
+                </span>
+                <span class="pg-ti">
+                    <svg viewBox="0 0 24 24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+                    <span>hello@acme.com</span>
+                </span>
+                <span class="pg-grow"></span>
+                <span class="pg-hours">Mon–Fri · 9–6</span>
+                <span class="pg-social">
+                    <a class="pg-soc" href="#" aria-label="Facebook">f</a>
+                    <a class="pg-soc" href="#" aria-label="X">X</a>
+                    <a class="pg-soc" href="#" aria-label="LinkedIn">in</a>
+                </span>
+            </div>
+        </div>
+
         <menu class="mm" id="preview-menu"></menu>
 
         <main class="pg" aria-hidden="true">
@@ -26,6 +49,48 @@ import "navalone/css";
                 <div class="pg-card"></div>
                 <div class="pg-card"></div>
             </div>
+        </main>
+
+        <!-- A taller faux page used only by the positioning demos, so there is
+             plenty to scroll — that is what makes fixed / sticky / smart show. -->
+        <main class="pg pg-tall" aria-hidden="true">
+            <div class="pg-line pg-line--lg"></div>
+            <div class="pg-line"></div>
+            <div class="pg-line pg-line--sm"></div>
+            <div class="pg-cards">
+                <div class="pg-card"></div>
+                <div class="pg-card"></div>
+            </div>
+            <div class="pg-line pg-line--lg"></div>
+            <div class="pg-line"></div>
+            <div class="pg-line"></div>
+            <div class="pg-line pg-line--sm"></div>
+            <div class="pg-cards">
+                <div class="pg-card"></div>
+                <div class="pg-card"></div>
+            </div>
+            <div class="pg-line pg-line--lg"></div>
+            <div class="pg-line"></div>
+            <div class="pg-line pg-line--sm"></div>
+            <div class="pg-line"></div>
+            <div class="pg-cards">
+                <div class="pg-card"></div>
+                <div class="pg-card"></div>
+            </div>
+            <div class="pg-line pg-line--lg"></div>
+            <div class="pg-line"></div>
+            <div class="pg-line"></div>
+            <div class="pg-line pg-line--sm"></div>
+            <div class="pg-cards">
+                <div class="pg-card"></div>
+                <div class="pg-card"></div>
+            </div>
+            <div class="pg-line pg-line--lg"></div>
+            <div class="pg-line"></div>
+            <div class="pg-line pg-line--sm"></div>
+            <div class="pg-line"></div>
+            <div class="pg-line"></div>
+            <div class="pg-line pg-line--sm"></div>
         </main>
 
         <style>
@@ -98,6 +163,102 @@ import "navalone/css";
                 background: linear-gradient(160deg, #ffffff, #eef1fa);
                 border: 1px solid #e6e8f2;
             }
+
+            /* The faux top header + the tall page are positioning-demo only. */
+            .pg-topbar,
+            .pg-tall {
+                display: none;
+            }
+            /* A slim, professional utility strip above the menu. */
+            .pg-topbar {
+                background: #1f2a30;
+                color: #b9c6cd;
+                font-size: 12.5px;
+                box-shadow: inset 0 -1px 0 rgba(0, 0, 0, 0.25);
+            }
+            .pg-topbar-inner {
+                display: flex;
+                align-items: center;
+                gap: 20px;
+                width: 100%;
+                max-width: 1100px;
+                margin: 0 auto;
+                padding: 9px 22px;
+            }
+            .pg-ti {
+                display: inline-flex;
+                align-items: center;
+                gap: 7px;
+                white-space: nowrap;
+            }
+            .pg-ti svg {
+                width: 14px;
+                height: 14px;
+                fill: none;
+                stroke: #80cbc4;
+                stroke-width: 2;
+                stroke-linecap: round;
+                stroke-linejoin: round;
+            }
+            .pg-grow {
+                flex: 1 1 auto;
+            }
+            .pg-hours {
+                color: #7d8b92;
+                white-space: nowrap;
+            }
+            .pg-social {
+                display: inline-flex;
+                align-items: center;
+                gap: 8px;
+            }
+            .pg-soc {
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                width: 23px;
+                height: 23px;
+                border-radius: 999px;
+                background: rgba(255, 255, 255, 0.08);
+                color: #cdd8de;
+                font-size: 11px;
+                font-weight: 600;
+                line-height: 1;
+                text-decoration: none;
+                transition:
+                    background 0.15s ease,
+                    color 0.15s ease;
+            }
+            .pg-soc:hover {
+                background: #80cbc4;
+                color: #102e2b;
+            }
+
+            /* Positioning-demo layout: swap the short faux page for the tall one,
+               and reveal the top header for the modes that start below it. */
+            body.is-positioning {
+                /* `overflow-x: hidden` would force overflow-y to auto and make
+                   the body its own scroll container, breaking position: sticky.
+                   `clip` clips the same but does NOT create a scroll container,
+                   so sticky/smart track the viewport as they would on a real
+                   page. */
+                overflow-x: clip;
+            }
+            body.is-positioning .pg {
+                display: none;
+            }
+            body.is-positioning .pg-tall {
+                display: block;
+            }
+            body.demo-sticky .pg-topbar,
+            body.demo-smart .pg-topbar {
+                display: flex;
+            }
+            /* A fixed bar is pulled out of flow and overlays the page top, so
+               reserve room for it (sticky/smart sit in flow below the header). */
+            body.demo-fixed .pg-tall {
+                padding-top: calc(var(--nv-bar-height, 60px) + 28px);
+            }
         </style>
 
         <script>
@@ -114,9 +275,27 @@ import "navalone/css";
                 );
             }
 
+            const POSITIONS = ["fixed", "sticky", "smart", "static"] as const;
+
+            // Swap in the tall faux page (and, for sticky/smart, the top header)
+            // whenever the edited config opts into a positioning mode, so the
+            // bar actually has something to pin against and scroll past.
+            function applyDemoChrome(config: NavaloneOptions): void {
+                const pos = config.position;
+                const body = document.body;
+                body.classList.remove(
+                    "is-positioning",
+                    ...POSITIONS.map((p) => "demo-" + p)
+                );
+                if (pos && POSITIONS.includes(pos)) {
+                    body.classList.add("is-positioning", "demo-" + pos);
+                }
+            }
+
             function build(config: NavaloneOptions): void {
                 instance?.destroy();
                 el.innerHTML = "";
+                applyDemoChrome(config);
                 try {
                     // Default the breakpoint low enough that the "Desktop" preset
                     // (full pane width — narrower than a real desktop here) still

@@ -28,6 +28,7 @@ import {
     type NavaloneMenuAlign,
     type NavaloneOpenOn,
     type NavaloneDrawerSide,
+    type NavalonePosition,
     type NavaloneTitleOption,
     type NavaloneNavigateDetail,
     type NavaloneBackDetail,
@@ -57,6 +58,7 @@ export class NavaloneComponent implements AfterViewInit, OnChanges, OnDestroy {
     @Input() title?: NavaloneTitleOption;
     @Input() showThumbnails?: boolean;
     @Input() breakpoint?: number;
+    @Input() position?: NavalonePosition;
     @Input() menuAlign?: NavaloneMenuAlign;
     @Input() openOn?: NavaloneOpenOn;
     @Input() drawerSide?: NavaloneDrawerSide;
@@ -86,6 +88,7 @@ export class NavaloneComponent implements AfterViewInit, OnChanges, OnDestroy {
         "title",
         "showThumbnails",
         "breakpoint",
+        "position",
         "menuAlign",
         "openOn",
         "drawerSide",

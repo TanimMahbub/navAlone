@@ -29,6 +29,7 @@ import {
     type NavaloneMenuAlign,
     type NavaloneOpenOn,
     type NavaloneDrawerSide,
+    type NavalonePosition,
     type NavaloneTitleOption
 } from "navalone";
 
@@ -77,6 +78,7 @@ const navaloneProps = {
     title: { type: [Boolean, Function] as PropType<NavaloneTitleOption>, default: undefined },
     showThumbnails: { type: Boolean, default: undefined },
     breakpoint: { type: Number, default: undefined },
+    position: { type: String as PropType<NavalonePosition>, default: undefined },
     menuAlign: { type: String as PropType<NavaloneMenuAlign>, default: undefined },
     openOn: { type: String as PropType<NavaloneOpenOn>, default: undefined },
     drawerSide: { type: String as PropType<NavaloneDrawerSide>, default: undefined },

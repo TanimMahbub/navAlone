@@ -212,25 +212,50 @@ buttons. Both are parsed into the same model that drives the desktop bar and mob
 
 ### Options
 
+Every option is optional. They're grouped below by what they control.
+
+**Content & data**
+
 | Option              | Default     | Description                                                                 |
 | ------------------- | ----------- | --------------------------------------------------------------------------- |
-| `width`             | `"320px"`   | Menu width. Number → px. Sets the `--nv-width` custom property.             |
-| `animationDuration` | `300`       | Number → ms. Wired to CSS via `--nv-duration` (not duplicated in rules).    |
-| `theme`             | `null`      | Map of CSS custom properties applied to the root, e.g. `{ "--nv-header-bg": "#222" }`. |
 | `items`             | `null`      | Config-driven items array. When omitted, existing declarative markup is used. |
-| `rootId`            | `null`      | Id for the generated top-level panel (config mode).                         |
-| `title`             | `true`      | Sub-panel title behavior: `true` derives it from the triggering item, `false` keeps the static title, or pass a function `({ label, panelId, trigger }) => string`. |
-| `showThumbnails`    | `true`      | Render an item's `image` thumbnail in its row on mobile.                    |
-| `breakpoint`        | `960`       | px. At/below this width the bar collapses to the hamburger + off-canvas drawer (via `matchMedia`). |
-| `menuAlign`         | `"center"`  | Desktop center-menu alignment: `"left"`, `"center"` or `"right"`.          |
-| `openOn`            | `"hover"`   | Desktop submenu trigger: `"hover"` (click also works) or `"click"`.        |
-| `drawerSide`        | `"left"`    | Side the mobile drawer slides in from: `"left"` or `"right"`.              |
-| `mobileMenu`        | `"drilldown"` | How submenus behave in the mobile drawer: `"drilldown"` (tap slides to a new panel, with a back button) or `"accordion"` (tap expands the submenu inline on the same screen). |
 | `logo`              | `null`      | `string`, or `{ text \| img, alt, href }`.                                 |
 | `rightButtons`      | `null`      | Array of `{ label, href, icon, variant, linkTarget }` CTAs.                |
 | `showRightButtons`  | `true`      | Toggle the right CTA region (bar + drawer footer).                         |
 | `rightButtonsFooter`| `false`     | `false` keeps the right buttons on the bar at every size; `true` collapses them into the drawer footer on medium/small screens. |
+| `showThumbnails`    | `true`      | Render an item's `image` thumbnail in its row on mobile.                    |
+
+**Layout & positioning**
+
+| Option              | Default     | Description                                                                 |
+| ------------------- | ----------- | --------------------------------------------------------------------------- |
+| `position`          | `"fixed"`   | Where the bar sits as the page scrolls: `"fixed"` pins it to the top from the start; `"sticky"` starts in flow (e.g. below a top header) and pins once scrolled to; `"smart"` is sticky plus auto-hide on scroll-down and reveal on scroll-up; `"static"` leaves it in flow, never pinned. |
+| `menuAlign`         | `"center"`  | Desktop center-menu alignment: `"left"`, `"center"` or `"right"`.          |
+| `breakpoint`        | `960`       | px. At/below this width the bar collapses to the hamburger + off-canvas drawer (via `matchMedia`). |
+| `drawerSide`        | `"left"`    | Side the mobile drawer slides in from: `"left"` or `"right"`.              |
+| `width`             | `"320px"`   | Drawer width. Number → px. Sets the `--nv-width` custom property.          |
+
+**Behaviour**
+
+| Option              | Default       | Description                                                               |
+| ------------------- | ------------- | ------------------------------------------------------------------------- |
+| `openOn`            | `"hover"`     | Desktop submenu trigger: `"hover"` (click also works) or `"click"`.       |
+| `mobileMenu`        | `"drilldown"` | How submenus behave in the mobile drawer: `"drilldown"` (tap slides to a new panel, with a back button) or `"accordion"` (tap expands the submenu inline on the same screen). |
+
+**Appearance & accessibility**
+
+| Option              | Default     | Description                                                                 |
+| ------------------- | ----------- | --------------------------------------------------------------------------- |
+| `theme`             | `null`      | Map of CSS custom properties applied to the root, e.g. `{ "--nv-header-bg": "#222" }`. |
+| `animationDuration` | `300`       | Number → ms. Wired to CSS via `--nv-duration` (not duplicated in rules).    |
+| `title`             | `true`      | Sub-panel title behavior: `true` derives it from the triggering item, `false` keeps the static title, or pass a function `({ label, panelId, trigger }) => string`. |
 | `drawerLabel`       | `"Menu"`    | `aria-label` for the drawer dialog.                                        |
+| `rootId`            | `null`      | Id for the generated top-level panel (config mode).                         |
+
+**Callbacks**
+
+| Option              | Default     | Description                                                                 |
+| ------------------- | ----------- | --------------------------------------------------------------------------- |
 | `onNavigate`        | `null`      | Callback `(detail) => void` when drilling into a mobile panel.             |
 | `onBack`            | `null`      | Callback `(detail) => void` when going back.                               |
 | `onOpen` / `onClose`| `null`      | Callbacks when the drawer opens / closes.                                  |

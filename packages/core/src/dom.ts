@@ -25,3 +25,28 @@ export function durationMs(value: string | number | null): number {
 export function escapeId(id: string): string {
     return window.CSS && window.CSS.escape ? window.CSS.escape(id) : id;
 }
+
+/**
+ * Nearest scrollable ancestor of `el`, or `window` when the page itself is the
+ * scroller (the common case). Used by the `"smart"` auto-hide bar to know which
+ * element's scroll position to watch — so it works on a normal page AND inside a
+ * scrolling container (e.g. the docs preview iframe).
+ */
+export function findScrollParent(el: HTMLElement): HTMLElement | Window {
+    let node: HTMLElement | null = el.parentElement;
+    while (node && node !== document.body && node !== document.documentElement) {
+        const oy = getComputedStyle(node).overflowY;
+        if (oy === "auto" || oy === "scroll" || oy === "overlay") {
+            return node;
+        }
+        node = node.parentElement;
+    }
+    return window;
+}
+
+/** Current vertical scroll offset of a `window`-or-element scroll source. */
+export function scrollTopOf(target: HTMLElement | Window): number {
+    return target === window
+        ? window.scrollY || document.documentElement.scrollTop || 0
+        : (target as HTMLElement).scrollTop;
+}

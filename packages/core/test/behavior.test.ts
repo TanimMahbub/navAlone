@@ -124,6 +124,44 @@ describe("responsive mode switching", () => {
     });
 });
 
+describe("bar positioning (`position`)", () => {
+    it("defaults to fixed", () => {
+        const { root } = mount();
+        expect(root.classList.contains("nv-pos-fixed")).toBe(true);
+    });
+
+    it("applies the nv-pos-<value> class for each mode", () => {
+        for (const pos of ["fixed", "sticky", "smart", "static"] as const) {
+            const { root } = mount(sampleOptions({ position: pos }));
+            expect(root.classList.contains("nv-pos-" + pos)).toBe(true);
+        }
+    });
+
+    it("smart mode wires a scroll listener that toggles nv-hidden", () => {
+        const { root, menu } = mount(sampleOptions({ position: "smart" }));
+        expect(root.classList.contains("nv-pos-smart")).toBe(true);
+        expect(menu._smartScroller).not.toBeNull();
+
+        // Drive the update against a stand-in scroll source we can move.
+        const fake = { scrollTop: 0 };
+        menu._smartScroller = fake as unknown as HTMLElement;
+        menu._smartLastY = 0;
+
+        fake.scrollTop = 500; // scrolled down past the bar
+        menu._updateSmart();
+        expect(root.classList.contains("nv-hidden")).toBe(true);
+
+        fake.scrollTop = 400; // scrolled back up
+        menu._updateSmart();
+        expect(root.classList.contains("nv-hidden")).toBe(false);
+    });
+
+    it("non-smart modes do not set up the smart scroller", () => {
+        const { menu } = mount(sampleOptions({ position: "sticky" }));
+        expect(menu._smartScroller).toBeNull();
+    });
+});
+
 describe("destroy()", () => {
     it("reverts the DOM, classes and removes listeners (incl. matchMedia)", () => {
         const { root, menu } = mount();

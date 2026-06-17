@@ -16,6 +16,19 @@ export type NavaloneDrawerSide = "left" | "right";
  *     screen; no sliding, no back button.
  */
 export type NavaloneMobileMenu = "drilldown" | "accordion";
+/**
+ * How the menu bar is positioned on the page:
+ *   - `"fixed"` (default): pinned to the top of the viewport from the start, so
+ *     it always stays on top as the page scrolls.
+ *   - `"sticky"`: sits in normal document flow (so it can start a little down
+ *     from the top — below a header strip with phone/email/social, say) and pins
+ *     to the top once you scroll to its position.
+ *   - `"smart"`: like `"sticky"`, but after you scroll down a while it slides up
+ *     out of view, and reappears the moment you scroll back up (auto-hide).
+ *   - `"static"`: stays in normal flow and scrolls away with the page — never
+ *     pinned.
+ */
+export type NavalonePosition = "fixed" | "sticky" | "smart" | "static";
 
 /** A column inside a mega-menu submenu. Flattens to a group on mobile. */
 export interface NavaloneColumn {
@@ -142,6 +155,8 @@ export interface ResolvedNavaloneOptions {
     onBack: ((detail: NavaloneBackDetail) => void) | null;
     // Phase 2
     breakpoint: number;
+    /** How the bar is positioned on the page. Defaults to `"fixed"`. */
+    position: NavalonePosition;
     menuAlign: NavaloneMenuAlign;
     openOn: NavaloneOpenOn;
     drawerSide: NavaloneDrawerSide;
