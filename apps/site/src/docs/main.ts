@@ -23,7 +23,9 @@ import {
     nestedConfig,
     positionFixedConfig,
     positionSmartConfig,
-    positionStickyConfig
+    positionStickyConfig,
+    responsiveDynamicConfig,
+    responsiveStaticConfig
 } from "./data";
 
 const NAV: { href: string; label: string; group?: boolean }[] = [
@@ -47,6 +49,9 @@ const NAV: { href: string; label: string; group?: boolean }[] = [
     { href: "#example-position-fixed", label: "Fixed (default)" },
     { href: "#example-position-sticky", label: "Sticky" },
     { href: "#example-position-smart", label: "Smart (auto-hide)" },
+    { href: "#examples-responsive", label: "Responsive collapsing", group: true },
+    { href: "#example-responsive-dynamic", label: "Dynamic (default)" },
+    { href: "#example-responsive-static", label: "Static breakpoints" },
     { href: "#theming-playground", label: "Theming playground" },
     { href: "#wrappers", label: "Framework wrappers" }
 ];
@@ -220,6 +225,27 @@ examples.append(
         config: positionSmartConfig,
         tallPreview: true,
         note: "Ideal for long pages — it maximises reading space while keeping the nav one upward scroll away."
+    }),
+    exampleCategory(
+        "examples-responsive",
+        "Responsive collapsing",
+        "How the bar decides to fold — measured against its own content (dynamic) or fixed pixel breakpoints (static). Set with the responsive option."
+    ),
+    createLiveExample({
+        id: "example-responsive-dynamic",
+        title: "Dynamic (default)",
+        description:
+            "responsive: \"dynamic\" measures the center menu and folds it exactly when it would overlap the logo/buttons — no breakpoint to guess. Drag the handle slowly: the menu first condenses (smaller font, tighter spacing), then collapses to the hamburger.",
+        config: responsiveDynamicConfig,
+        note: "Try adding or removing items in the JSON — the fold points shift to match the content, at any screen size."
+    }),
+    createLiveExample({
+        id: "example-responsive-static",
+        title: "Static breakpoints",
+        description:
+            "responsive: \"static\" uses fixed widths instead. Here breakpoint: 400 collapses to the drawer and condenseBreakpoint: 540 tightens the bar first. Resize the preview past each width to see the steps. (On a real full-width site you'd usually pick larger values.)",
+        config: responsiveStaticConfig,
+        note: "Use static when you want the fold to happen at exact, predictable widths regardless of how much menu content there is."
     }),
     createPlayground()
 );

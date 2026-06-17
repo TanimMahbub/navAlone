@@ -49,6 +49,14 @@
 	--nv-bar-shadow: 0 1px 0 rgba(0, 0, 0, 0.08), 0 2px 12px -6px rgba(0, 0, 0, 0.25);
 	--nv-logo-size: 22px;
 
+	/* Condensed bar — the tightened layout the dynamic responsive mode steps
+	   through before collapsing (and that static mode uses at condenseBreakpoint).
+	   Only the menu's own metrics shrink, so the logo/buttons stay put. */
+	--nv-condensed-item-font-size: 14px;
+	--nv-condensed-bar-item-padding: 7px 9px;
+	--nv-condensed-bar-gap: 2px;
+	--nv-condensed-bar-item-gap: 4px;
+
 	--nv-hover-bg: rgba(0, 0, 0, 0.05);
 	--nv-z: 1000;
 
@@ -214,6 +222,19 @@ body.nv-scroll-lock {
 .nv-bar-item:hover,
 .nv-bar-item[aria-expanded="true"] {
 	background: var(--nv-hover-bg);
+}
+
+/* Condensed bar: tighten the center menu (font, gaps, padding) so it fits a
+   little longer before collapsing to the drawer. Scoped to the menubar — the
+   logo and right-side buttons keep their size and position. */
+.nv-condensed .nv-menubar {
+	gap: var(--nv-condensed-bar-gap);
+}
+
+.nv-condensed .nv-bar-item {
+	font-size: var(--nv-condensed-item-font-size);
+	padding: var(--nv-condensed-bar-item-padding);
+	gap: var(--nv-condensed-bar-item-gap);
 }
 
 .nv-bar-item .nv-arrow {

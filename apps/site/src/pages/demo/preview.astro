@@ -297,10 +297,13 @@ import "navalone/css";
                 el.innerHTML = "";
                 applyDemoChrome(config);
                 try {
-                    // Default the breakpoint low enough that the "Desktop" preset
-                    // (full pane width — narrower than a real desktop here) still
-                    // reads as desktop, while Tablet/Mobile collapse to the
-                    // drawer. An explicit breakpoint in the edited JSON still wins.
+                    // The default responsive mode is "dynamic": the menu is
+                    // measured and folds exactly when it would overlap the logo/
+                    // buttons, so the preview collapses correctly at any frame
+                    // width with no breakpoint to tune. The `breakpoint` here is a
+                    // sensible fallback only for configs that opt into
+                    // responsive: "static" without giving one; an explicit value
+                    // in the edited JSON still wins.
                     instance = new Navalone(el, { breakpoint: 460, ...config });
                     reply({ type: "status", ok: true, message: "Updated ✓" });
                 } catch (err) {

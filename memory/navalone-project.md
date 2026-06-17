@@ -269,6 +269,46 @@ container, which breaks `position:sticky`. apps/docs `.preview-surface` got a de
 all 3 modes in real Chrome via `scripts/verify-positioning.mjs` (CDP, scroll the iframe, assert
 barTop/nv-hidden) — 10/10 checks; 64 unit tests pass (core 51, +4 positioning).
 
+**Responsive mode option (`responsive`, added 2026-06-18, owner-driven):** new core
+option `responsive: "dynamic" | "static"`, **default `"dynamic"`** (changed the collapse
+mechanism from the old breakpoint-only one). Fixes "Live Example previews don't collapse even
+when the center menu overlaps the logo/right buttons" — the old default was matchMedia at a
+fixed `breakpoint`, so a content-heavy bar at a width above the breakpoint overlapped without
+folding. **Dynamic** = content-aware via `ResizeObserver` on `.nv-bar`: measures the menu's
+intrinsic width (sum of `.nv-menubar` children `getBoundingClientRect().width` + inter-item
+gaps — independent of the squeezed track since items `white-space:nowrap`) and compares to
+`barWidth - _chrome` where `_chrome = bar.clientWidth - menubar.clientWidth` (logo + buttons +
+bar gaps/padding, stable across condense). Three states picked from cached naturals
+(`_natFull`/`_natCond`/`_chrome`, refreshed each desktop pass; cache lets it decide even while
+mobile, where the menubar is `display:none` and unmeasurable): full → **condensed**
+(`nv-condensed` class tightens ONLY the menubar — `--nv-condensed-item-font-size`/`-bar-item-padding`/`-bar-gap`/`-bar-item-gap`, logo/buttons untouched so `_chrome` stays constant)
+→ **mobile** (collapse to drawer). No flapping since thresholds are cached constants, not
+state-dependent. **Static** = the old matchMedia path, now also supporting an optional
+`condenseBreakpoint` (px, above `breakpoint`) for a condense step. Refactor: the old
+`_onModeChange` body became `_setMode(mode)` (shared by both paths; drops condense + remeasures
+drawer on the way to mobile, collapses open drawer on the way to desktop); `_initStatic`/
+`_applyStatic` + `_initDynamic`/`_applyDynamic`/`_measureNaturals`/`_menuNeed`/`_setCondensed`
+are the new methods; `destroy()` disconnects the RO. **Gotchas:** (1) with `position:"fixed"`
+(default) the bar spans the viewport, so dynamic measures against the viewport (correct) — to
+test against a *container* width use `position:"static"`. (2) jsdom has no layout/RO: test
+setup gained a no-op `ResizeObserver` stub and a width-aware `matchMedia` mock
+(`setWidth(px)` + `setViewport(bool)`, parses `max-width`); `sampleOptions()` now forces
+`responsive:"static"` so the matchMedia-based mode tests stay deterministic, dynamic logic is
+unit-tested by stubbing `clientWidth`/naturals (`test/dynamic.test.ts`, +6 → core 57). (3) the
+docs preview iframe is narrow (~591px) and shows a vertical scrollbar that shaves ~20px off
+`clientWidth`, folding ~20px earlier than a clean page — the "Responsive collapsing" demo
+configs (`apps/site/src/docs/data.ts` `responsiveDynamicConfig`/`responsiveStaticConfig`) use 3
+short items + 1 button and static `breakpoint:400`/`condenseBreakpoint:540` so all three steps
+show within the preview range. Wrappers: React inherits via `extends NavaloneOptions`;
+Vue/Angular got explicit `responsive`+`condenseBreakpoint` props/inputs. Docs (apps/site
+`/docs`): options table rows + a new "Responsive collapsing" example category (dynamic +
+static). The hero `demo/responsive.astro` dropped its explicit `breakpoint:820` to showcase the
+dynamic default. apps/docs (deprecated dup) left untouched. Verified in real Chrome:
+`scripts/verify-dynamic-responsive.mjs` (sweep a container full→condensed→collapsed) +
+`scripts/verify-docs-responsive.mjs` (both docs examples step correctly); positioning +
+live-examples + responsive-hero verifiers still pass (live-examples assertion updated — the
+content-heavy drawer example now correctly collapses at the narrow Desktop preset).
+
 **Theme = Material Dark, accent teal `#80cbc4`.** Stray indigo/blue (`#6366f1`, `#3a7afe`,
   `rgba(99,102,241,…)`) were replaced with teal: hero preset buttons, the hero preview
   box-shadow (now dark `rgba(8,12,14,.75)`), and the `demo/responsive.astro` chrome + its

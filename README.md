@@ -82,9 +82,12 @@ The IIFE bundle assigns `window.Navalone`, with no auto-running side effects.
 `new Navalone(target, options)` accepts a CSS selector string or an element. A runnable demo
 lives in [`packages/core/example/index.html`](packages/core/example/index.html).
 
-Above the `breakpoint` it renders a horizontal desktop bar; below it, the bar collapses to
-a hamburger that opens an off-canvas drawer containing the sliding drill-down. **Both views
-are driven by the same `items` data** — there is no markup or config duplication.
+While there's room it renders a horizontal desktop bar; once the center menu would overlap
+the logo/buttons it condenses and then collapses to a hamburger that opens an off-canvas
+drawer containing the sliding drill-down. **Both views are driven by the same `items` data**
+— there is no markup or config duplication. By default the fold is content-aware
+(`responsive: "dynamic"`); set `responsive: "static"` to fold at fixed pixel breakpoints
+instead.
 
 ### The desktop bar
 
@@ -231,7 +234,9 @@ Every option is optional. They're grouped below by what they control.
 | ------------------- | ----------- | --------------------------------------------------------------------------- |
 | `position`          | `"fixed"`   | Where the bar sits as the page scrolls: `"fixed"` pins it to the top from the start; `"sticky"` starts in flow (e.g. below a top header) and pins once scrolled to; `"smart"` is sticky plus auto-hide on scroll-down and reveal on scroll-up; `"static"` leaves it in flow, never pinned. |
 | `menuAlign`         | `"center"`  | Desktop center-menu alignment: `"left"`, `"center"` or `"right"`.          |
-| `breakpoint`        | `960`       | px. At/below this width the bar collapses to the hamburger + off-canvas drawer (via `matchMedia`). |
+| `responsive`        | `"dynamic"` | How collapsing is decided. `"dynamic"` (default) measures the center menu and folds it exactly when it would overlap the logo/buttons — at any screen size: it first *condenses* (smaller font, tighter spacing), then *collapses* to the drawer. `"static"` uses the fixed `breakpoint` / `condenseBreakpoint` pixel thresholds instead. |
+| `breakpoint`        | `960`       | Static mode only. px; at/below this width the bar collapses to the hamburger + off-canvas drawer (via `matchMedia`). Ignored when `responsive: "dynamic"`. |
+| `condenseBreakpoint`| `null`      | Static mode only. px; at/below this width (but above `breakpoint`) the bar condenses before it collapses. `null` skips the condense step. Ignored when `responsive: "dynamic"` (which condenses automatically). |
 | `drawerSide`        | `"left"`    | Side the mobile drawer slides in from: `"left"` or `"right"`.              |
 | `width`             | `"320px"`   | Drawer width. Number → px. Sets the `--nv-width` custom property.          |
 
@@ -304,9 +309,15 @@ document.querySelector("#mm").addEventListener("navalone:submenuopen", (e) => {
 
 ### Responsive behavior
 
-A `matchMedia('(max-width: <breakpoint>px)')` query switches between the two views and is
-cleaned up by `destroy()`. Growing back to desktop collapses any open drawer; shrinking to
-mobile re-measures the drill-down height without animating from a stale value.
+By default (`responsive: "dynamic"`) a `ResizeObserver` measures the center menu's real
+width against the space the bar can give it: the first time it would overflow, the bar
+*condenses* (smaller font, tighter gaps/padding); if it still won't fit, it *collapses* to
+the drawer — so it folds exactly when it would otherwise overlap, at any screen size. With
+`responsive: "static"` a `matchMedia('(max-width: <breakpoint>px)')` query switches the two
+views at a fixed width instead (plus an optional `condenseBreakpoint`). Either way the
+observer/listener is cleaned up by `destroy()`. Growing back to desktop collapses any open
+drawer; shrinking to mobile re-measures the drill-down height without animating from a stale
+value.
 
 The mobile drawer is a true off-canvas panel: it slides in from `drawerSide`, dims the page
 with a backdrop, locks body scroll, traps focus while open, and closes on the backdrop, the

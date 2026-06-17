@@ -1,7 +1,11 @@
 /**
- * Verify the docs Live Examples are now real, responsive iframe previews:
- *   - the embedded menu starts in DESKTOP mode at the 100% preset,
- *   - clicking "Mobile" collapses the SAME instance to the hamburger,
+ * Verify the docs Live Examples are real, responsive iframe previews. With the
+ * default DYNAMIC responsive mode the embedded menu folds based on its own
+ * content vs. the (narrow) preview width, so:
+ *   - a light menu (the dropdown example) stays on the desktop bar at 100%,
+ *   - a content-heavy menu collapses to the hamburger once it would overlap —
+ *     this is the fix for "previews didn't collapse even while overlapping",
+ *   - the Mobile preset always collapses the SAME instance to the hamburger,
  *   - the action buttons drive the live instance (drawer opens),
  *   - dropdown actions open a desktop dropdown panel.
  * Screenshots land in scripts/.phase4-shots/.
@@ -72,8 +76,12 @@ try{
 
  ws.close();
 
- // Summary assertions.
- const ok = drawerInitial.mode==="desktop" && drawerMobile.mode==="mobile" && drawerMobile.hamburger && drawerOpened.open && ddOpened.dropdownOpen;
+ // Summary assertions. Under dynamic mode the content-heavy drawer example may
+ // already be collapsed at the narrow Desktop preset (it would overlap) — that's
+ // the intended fix — so we assert the meaningful invariants instead of forcing
+ // it to read "desktop" at 591px: the light dropdown example stays desktop and
+ // opens a panel, while the heavy menu collapses + opens its drawer on Mobile.
+ const ok = ddInitial.mode==="desktop" && ddOpened.dropdownOpen && drawerMobile.mode==="mobile" && drawerMobile.hamburger && drawerOpened.open;
  console.log("\nPASS:", ok);
  if(!ok) process.exitCode = 1;
 }finally{try{execSync(`taskkill /PID ${child.pid} /T /F`,{stdio:"ignore"});}catch{child.kill("SIGKILL");}server.close();}

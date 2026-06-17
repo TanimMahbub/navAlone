@@ -154,13 +154,14 @@ import "navalone/css";
 
             const el = document.getElementById("demo-menu");
             if (el) {
-                // Normal breakpoint: the instance reacts to THIS frame's width, so
-                // resizing the hero frame drives the desktop⇄mobile transition live.
+                // Dynamic (default) responsive: the menu is measured against THIS
+                // frame's width, so resizing the hero frame condenses then collapses
+                // the SAME instance live — folding exactly when it would overlap,
+                // with no breakpoint to tune.
                 // Soft light theme so the demo reads as a real product site (the
                 // page scrollbar stays the site's Material slate — kept on purpose).
                 new Navalone(el, {
                     ...heroMenu,
-                    breakpoint: 820,
                     width: "86%",
                     theme: {
                         // Soft white — off pure-white surfaces to keep the shine down.

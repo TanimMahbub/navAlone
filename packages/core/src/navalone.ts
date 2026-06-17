@@ -66,9 +66,21 @@ export class Navalone {
     _cleanups: Array<() => void> = []; // listener removers, run on destroy()
     _drawerOpen = false;
     _mode: "mobile" | "desktop" | null = null;
+    _condensed = false; // desktop bar in its condensed (tightened) layout
     _destroyed = false;
     _lastFocus: HTMLElement | null = null;
     _hoverCloseTimer: number | undefined; // debounced desktop hover-close
+
+    // `responsive: "dynamic"` content-measurement bookkeeping. Natural widths are
+    // cached (so transitions can be decided even while in mobile mode, where the
+    // menubar is hidden and cannot be measured) and refreshed whenever the bar is
+    // measurable. `_chrome` is the non-menu width (logo + buttons + gaps/padding).
+    _ro: ResizeObserver | null = null;
+    _condenseMql: MediaQueryList | null = null; // static-mode condense threshold
+    _dynTicking = false;
+    _natFull = 0; // menu's natural content width, full size
+    _natCond = 0; // menu's natural content width, condensed
+    _chrome = 0; // bar width consumed by everything except the menu track
 
     // `position: "smart"` auto-hide bookkeeping.
     _smartScroller: HTMLElement | Window | null = null;
@@ -97,7 +109,9 @@ export class Navalone {
         onNavigate: null,
         onBack: null,
         // Phase 2
+        responsive: "dynamic",
         breakpoint: 960,
+        condenseBreakpoint: null,
         position: "fixed",
         menuAlign: "center",
         openOn: "hover",
@@ -157,10 +171,11 @@ export class Navalone {
         initHeight(this);
 
         // Responsive switching. Decide the initial mode without animating.
-        this._mql = window.matchMedia("(max-width: " + this.options.breakpoint + "px)");
-        this._mode = this._mql.matches ? "mobile" : "desktop";
-        this.root.classList.add(this._mode === "mobile" ? "nv-mode-mobile" : "nv-mode-desktop");
-        this._listen(this._mql, "change", this._onModeChange);
+        if (this.options.responsive === "static") {
+            this._initStatic();
+        } else {
+            this._initDynamic();
+        }
 
         this._listen(this.root, "click", this._onClick);
         this._listen(this.root, "keydown", this._onKeydown);
@@ -171,6 +186,184 @@ export class Navalone {
 
         if (this.options.position === "smart") {
             this._setupSmartScroll();
+        }
+    }
+
+    /* ----------------------- Responsive: static -------------------------- */
+
+    // Classic breakpoint-driven collapsing via matchMedia: collapse at
+    // `breakpoint`, optionally condense at `condenseBreakpoint` first.
+    _initStatic(): void {
+        this._mql = window.matchMedia("(max-width: " + this.options.breakpoint + "px)");
+        this._listen(this._mql, "change", this._onModeChange);
+        const cb = this.options.condenseBreakpoint;
+        if (cb != null) {
+            this._condenseMql = window.matchMedia("(max-width: " + cb + "px)");
+            this._listen(this._condenseMql, "change", this._onModeChange);
+        }
+        this._applyStatic();
+    }
+
+    _applyStatic(): void {
+        const mobile = this._mql.matches;
+        // Condense only while still on the desktop bar and only between the two
+        // thresholds (`condenseBreakpoint` must sit above `breakpoint`).
+        const condensed = !mobile && !!this._condenseMql && this._condenseMql.matches;
+        this._setCondensed(condensed);
+        this._setMode(mobile ? "mobile" : "desktop");
+    }
+
+    _onModeChange = (): void => {
+        this._applyStatic();
+    };
+
+    /* ----------------------- Responsive: dynamic ------------------------- */
+
+    // Content-aware collapsing. Measure the menu's natural width against the
+    // space the bar can give it; condense first, collapse second.
+    _initDynamic(): void {
+        // Measure while the bar is in its pristine desktop layout (no mode class
+        // added yet, so the menubar is visible and measurable).
+        this._measureNaturals();
+        // Default to desktop, then let the first measurement pass refine it. In a
+        // layout-less environment (jsdom) measurement is 0 and we simply stay on
+        // the desktop bar — matching the previous default-desktop behaviour.
+        this._mode = "desktop";
+        this.root.classList.add("nv-mode-desktop");
+        this._applyDynamic();
+
+        if (typeof ResizeObserver === "function") {
+            this._ro = new ResizeObserver(this._onBarResize);
+            this._ro.observe(this._bar);
+        }
+        // Re-measure once web fonts settle (they change the menu's real width).
+        if (document.fonts && document.fonts.ready) {
+            document.fonts.ready.then(() => {
+                if (!this._destroyed) {
+                    this._applyDynamic();
+                }
+            });
+        }
+    }
+
+    _onBarResize = (): void => {
+        if (this._dynTicking) {
+            return;
+        }
+        this._dynTicking = true;
+        window.requestAnimationFrame(() => {
+            this._dynTicking = false;
+            if (!this._destroyed) {
+                this._applyDynamic();
+            }
+        });
+    };
+
+    _applyDynamic(): void {
+        const barWidth = this._bar.clientWidth;
+        if (!barWidth) {
+            return; // not laid out yet (or hidden) — keep the current state
+        }
+        // Keep the cached natural widths fresh whenever the bar is measurable
+        // (desktop mode); in mobile mode the menubar is hidden, so reuse the
+        // last good measurement to decide whether there is room to expand.
+        if (this._mode === "desktop") {
+            this._measureNaturals();
+        }
+        const available = barWidth - this._chrome;
+        let mode: "mobile" | "desktop";
+        let condensed: boolean;
+        if (this._natFull <= available) {
+            mode = "desktop";
+            condensed = false;
+        } else if (this._natCond <= available) {
+            mode = "desktop";
+            condensed = true;
+        } else {
+            mode = "mobile";
+            condensed = false;
+        }
+        this._setCondensed(condensed);
+        this._setMode(mode);
+    }
+
+    // Sum of the menubar items' widths plus the inter-item gaps — the menu's
+    // intrinsic width, independent of the track it is currently squeezed into
+    // (the items never wrap), so it is comparable across condensed/full states.
+    _menuNeed(): number {
+        const kids = this._menubar.children;
+        let width = 0;
+        for (let i = 0; i < kids.length; i++) {
+            width += (kids[i] as HTMLElement).getBoundingClientRect().width;
+        }
+        if (kids.length > 1) {
+            const cs = getComputedStyle(this._menubar);
+            const gap = parseFloat(cs.columnGap || cs.gap || "0") || 0;
+            width += gap * (kids.length - 1);
+        }
+        return width;
+    }
+
+    // Cache the menu's natural widths (full + condensed) and the chrome width.
+    // Toggles the condensed class to read both, then restores the prior state.
+    // No-op when the menubar is not measurable (collapsed/hidden).
+    _measureNaturals(): void {
+        const bar = this._bar;
+        const menubar = this._menubar;
+        if (!bar.clientWidth || menubar.offsetParent === null) {
+            return;
+        }
+        const wasCondensed = this.root.classList.contains("nv-condensed");
+        this.root.classList.remove("nv-condensed");
+        this._natFull = this._menuNeed();
+        // chrome = everything that isn't the menu track (logo, buttons, the bar's
+        // outer gaps and horizontal padding); stable across condense toggles since
+        // condensing only tightens the menubar itself.
+        this._chrome = bar.clientWidth - menubar.clientWidth;
+        this.root.classList.add("nv-condensed");
+        this._natCond = this._menuNeed();
+        if (!wasCondensed) {
+            this.root.classList.remove("nv-condensed");
+        }
+    }
+
+    /* --------------------- Mode / condense transitions ------------------- */
+
+    _setCondensed(condensed: boolean): void {
+        if (condensed === this._condensed) {
+            return;
+        }
+        this._condensed = condensed;
+        this.root.classList.toggle("nv-condensed", condensed);
+    }
+
+    _setMode(mode: "mobile" | "desktop"): void {
+        if (mode === this._mode) {
+            return;
+        }
+        if (this._mode === "desktop") {
+            closeDesktopAll(this);
+        }
+        this._mode = mode;
+        const isMobile = mode === "mobile";
+        this.root.classList.toggle("nv-mode-mobile", isMobile);
+        this.root.classList.toggle("nv-mode-desktop", !isMobile);
+
+        if (isMobile) {
+            // Condensing is a desktop-only concern; drop it on the way to mobile.
+            this._setCondensed(false);
+            // Re-measure the drill-down height without animating from the stale
+            // desktop value.
+            remeasure(this);
+        } else if (this._drawerOpen) {
+            // Collapse the drawer state when growing to desktop.
+            this._drawerOpen = false;
+            this.root.classList.remove("nv-open");
+            document.body.classList.remove("nv-scroll-lock");
+            this._backdrop.hidden = true;
+            if (this._hamburger) {
+                this._hamburger.setAttribute("aria-expanded", "false");
+            }
         }
     }
 
@@ -313,6 +506,10 @@ export class Navalone {
         }
         this._cleanups.forEach((fn) => fn());
         this._cleanups = [];
+        if (this._ro) {
+            this._ro.disconnect();
+            this._ro = null;
+        }
         window.clearTimeout(this._hoverCloseTimer);
         document.body.classList.remove("nv-scroll-lock");
 
@@ -451,35 +648,6 @@ export class Navalone {
         // Focus genuinely left the bar (relatedTarget outside it).
         if (to) {
             closeDesktopAll(this);
-        }
-    };
-
-    _onModeChange = (): void => {
-        const isMobile = this._mql.matches;
-        const mode = isMobile ? "mobile" : "desktop";
-        if (mode === this._mode) {
-            return;
-        }
-        if (this._mode === "desktop") {
-            closeDesktopAll(this);
-        }
-        this._mode = mode;
-        this.root.classList.toggle("nv-mode-mobile", isMobile);
-        this.root.classList.toggle("nv-mode-desktop", !isMobile);
-
-        if (isMobile) {
-            // Re-measure the drill-down height without animating from the stale
-            // desktop value.
-            remeasure(this);
-        } else if (this._drawerOpen) {
-            // Collapse the drawer state when growing to desktop.
-            this._drawerOpen = false;
-            this.root.classList.remove("nv-open");
-            document.body.classList.remove("nv-scroll-lock");
-            this._backdrop.hidden = true;
-            if (this._hamburger) {
-                this._hamburger.setAttribute("aria-expanded", "false");
-            }
         }
     };
 

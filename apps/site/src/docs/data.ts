@@ -194,3 +194,34 @@ export const positionSmartConfig: NavaloneOptions = {
     ...positionFixedConfig,
     position: "smart"
 };
+
+/* ------------------------------ Responsive ------------------------------- */
+
+/** A handful of top-level items so the condense → collapse steps are visible as
+ *  you drag the (narrow) preview frame narrower. */
+const busyItems: NavaloneItem[] = [
+    { label: "Products", href: "#products" },
+    { label: "Pricing", href: "#pricing" },
+    { label: "Company", href: "#company" }
+];
+
+/** Dynamic (default): the menu is measured and folds exactly when it would
+ *  overlap the logo/buttons — condensing first, then collapsing. */
+export const responsiveDynamicConfig: NavaloneOptions = {
+    logo: { text: "Acme", href: "#" },
+    responsive: "dynamic",
+    rightButtons: [{ label: "Sign up", href: "#signup", variant: "primary" }],
+    items: busyItems
+};
+
+/** Static: classic pixel breakpoints — condense at 540, collapse at 400.
+ *  (Kept inside the preview's width range so both steps are easy to see; on a
+ *  real full-width page you'd typically use larger values.) */
+export const responsiveStaticConfig: NavaloneOptions = {
+    logo: { text: "Acme", href: "#" },
+    responsive: "static",
+    breakpoint: 400,
+    condenseBreakpoint: 540,
+    rightButtons: [{ label: "Sign up", href: "#signup", variant: "primary" }],
+    items: busyItems
+};

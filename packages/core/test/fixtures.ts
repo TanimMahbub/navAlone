@@ -75,8 +75,13 @@ export const sampleItems: NavaloneItem[] = [
 ];
 
 export function sampleOptions(extra: NavaloneOptions = {}): NavaloneOptions {
+    // Default to the breakpoint-driven ("static") responsive mode so the
+    // matchMedia-based mode-switch tests are deterministic in jsdom (the default
+    // "dynamic" mode measures real layout, which jsdom doesn't provide). Tests
+    // that exercise dynamic mode pass `responsive: "dynamic"` explicitly.
     return {
         logo: { text: "Navalone", href: "#" },
+        responsive: "static",
         rightButtons: [
             { label: "Log in", href: "#login" },
             { label: "Sign up", href: "#signup", variant: "primary" }

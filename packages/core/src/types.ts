@@ -29,6 +29,20 @@ export type NavaloneMobileMenu = "drilldown" | "accordion";
  *     pinned.
  */
 export type NavalonePosition = "fixed" | "sticky" | "smart" | "static";
+/**
+ * How the bar decides when to collapse from the desktop layout to the mobile
+ * drawer:
+ *   - `"dynamic"` (default): content-aware. The center menu's real width is
+ *     measured and compared against the space left between the logo and the
+ *     right-side buttons — regardless of screen size. The first time the menu no
+ *     longer fits it is *condensed* (smaller font, tighter gaps/padding); if it
+ *     still doesn't fit it *collapses* to the hamburger drawer. No breakpoint to
+ *     guess at — it folds exactly when it would otherwise overlap.
+ *   - `"static"`: classic, breakpoint-driven. The bar collapses at `breakpoint`
+ *     (and optionally condenses at `condenseBreakpoint`), independent of how much
+ *     menu content there is.
+ */
+export type NavaloneResponsive = "dynamic" | "static";
 
 /** A column inside a mega-menu submenu. Flattens to a group on mobile. */
 export interface NavaloneColumn {
@@ -154,7 +168,24 @@ export interface ResolvedNavaloneOptions {
     onNavigate: ((detail: NavaloneNavigateDetail) => void) | null;
     onBack: ((detail: NavaloneBackDetail) => void) | null;
     // Phase 2
+    /**
+     * How collapsing is decided. `"dynamic"` (default) measures the menu and
+     * folds it exactly when it would overlap the logo/buttons; `"static"` uses
+     * the `breakpoint` / `condenseBreakpoint` pixel thresholds.
+     */
+    responsive: NavaloneResponsive;
+    /**
+     * Static-mode collapse width (px): at or below this viewport width the bar
+     * collapses to the drawer. Ignored when `responsive` is `"dynamic"`.
+     */
     breakpoint: number;
+    /**
+     * Static-mode condense width (px): at or below this viewport width (but
+     * above `breakpoint`) the desktop bar condenses — smaller font and tighter
+     * spacing — before it collapses. `null` (default) disables the condense step.
+     * Ignored when `responsive` is `"dynamic"` (which condenses automatically).
+     */
+    condenseBreakpoint: number | null;
     /** How the bar is positioned on the page. Defaults to `"fixed"`. */
     position: NavalonePosition;
     menuAlign: NavaloneMenuAlign;

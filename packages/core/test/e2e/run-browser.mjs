@@ -54,6 +54,7 @@ const html = `<!DOCTYPE html>
             '<text x="32" y="42" font-size="28" text-anchor="middle" fill="#fff">' + t + '</text></svg>');
     };
     var menu = new Navalone("#mm", {
+        responsive: "static",
         logo: { text: "Navalone", href: "#" },
         rightButtons: [
             { label: "Log in", href: "#login" },
