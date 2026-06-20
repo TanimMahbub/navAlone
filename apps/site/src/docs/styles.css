@@ -73,18 +73,24 @@ a {
     left: 0;
 }
 
-/* Topbar */
+/* Topbar — the bar (background + divider) spans the viewport, but its content is
+   constrained to the same container width as the page body below, so the brand
+   lines up with the sidebar and the links with the content's right edge. */
 .topbar {
     position: sticky;
     top: 0;
     z-index: 50;
+    background: rgba(38, 50, 56, 0.85);
+    backdrop-filter: blur(8px);
+    border-bottom: 1px solid var(--doc-border);
+}
+.topbar-inner {
+    max-width: var(--doc-max);
+    margin: 0 auto;
     display: flex;
     align-items: center;
     gap: 16px;
     padding: 12px 20px;
-    background: rgba(38, 50, 56, 0.85);
-    backdrop-filter: blur(8px);
-    border-bottom: 1px solid var(--doc-border);
 }
 .brand {
     font-weight: 700;

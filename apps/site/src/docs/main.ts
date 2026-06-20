@@ -62,13 +62,15 @@ const app = document.querySelector<HTMLElement>("#app")!;
 
 app.innerHTML = `
     <header class="topbar">
-        <a class="brand" href="#getting-started">Navalone <span>docs</span></a>
-        <nav class="topbar-links" aria-label="External">
-            <a href="/">Home</a>
-            <a href="https://www.npmjs.com/package/navalone">npm</a>
-            <a href="https://github.com/">GitHub</a>
-        </nav>
-        <button class="nav-toggle" aria-expanded="false" aria-controls="sidebar">Menu</button>
+        <div class="topbar-inner">
+            <a class="brand" href="#getting-started">Navalone <span>docs</span></a>
+            <nav class="topbar-links" aria-label="External">
+                <a href="/">Home</a>
+                <a href="https://www.npmjs.com/package/navalone">npm</a>
+                <a href="https://github.com/">GitHub</a>
+            </nav>
+            <button class="nav-toggle" aria-expanded="false" aria-controls="sidebar">Menu</button>
+        </div>
     </header>
     <div class="layout">
         <aside class="sidebar" id="sidebar">

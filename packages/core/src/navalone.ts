@@ -82,6 +82,7 @@ export class Navalone {
     _natFull = 0; // menu's natural content width, full size
     _natCond = 0; // menu's natural content width, condensed
     _chrome = 0; // bar width consumed by everything except the menu track
+    _panelNeed = 0; // widest top-level submenu panel's natural (unclamped) width
 
     // `position: "smart"` auto-hide bookkeeping.
     _smartScroller: HTMLElement | Window | null = null;
@@ -284,6 +285,17 @@ export class Navalone {
             mode = "mobile";
             condensed = false;
         }
+        // Panel-aware collapse: the bar fitting is necessary but not sufficient.
+        // A tiny bar (e.g. one "Categories" item) easily fits a narrow screen, yet
+        // its dropdown/mega/mega-tabs panel may be far wider — staying on the
+        // desktop bar would only show that panel clamped and crowded. So if the
+        // widest panel can't open at its natural width (within the same 16px
+        // viewport gutter the panel CSS reserves), fold to the drawer instead,
+        // where the same content drills down comfortably.
+        if (mode === "desktop" && this._panelNeed > barWidth - 16) {
+            mode = "mobile";
+            condensed = false;
+        }
         this._setCondensed(condensed);
         this._setMode(mode);
     }
@@ -326,6 +338,62 @@ export class Navalone {
         if (!wasCondensed) {
             this.root.classList.remove("nv-condensed");
         }
+        this._measurePanels();
+    }
+
+    // Cache the widest top-level submenu panel's natural width — the width it
+    // wants laid out *un-crowded*: mega columns side by side (not wrapped) and the
+    // category rail at full width. That is the "looks good" width; below it the
+    // panel can only show clamped/wrapped, which is the cue to fold to the drawer.
+    //
+    // Panels are `visibility: hidden` (not `display: none`), so they are laid out
+    // and measurable while closed. We temporarily lift the panel's viewport cap,
+    // stop the mega grids from wrapping, and uncap the rail, read the width, then
+    // restore everything — invisibly, within this synchronous pass (no paint in
+    // between). Only panels that open straight from the bar count (a
+    // `.nv-bar-li`'s own panel); nested flyouts have their own narrow fall-back.
+    _measurePanels(): void {
+        const panels = this._menubar.querySelectorAll<HTMLElement>(".nv-bar-li > .nv-panel");
+        let max = 0;
+        panels.forEach((panel) => {
+            const restore: Array<() => void> = [];
+            // Save a single inline style property and queue its exact restoration.
+            const set = (el: HTMLElement, prop: string, val: string) => {
+                const prev = el.style.getPropertyValue(prop);
+                el.style.setProperty(prop, val);
+                restore.push(() =>
+                    prev ? el.style.setProperty(prop, prev) : el.style.removeProperty(prop)
+                );
+            };
+            // Lift the panel's viewport cap so it can grow to its content width.
+            set(panel, "max-width", "none");
+            // `.nv-mega` is both the plain mega panel itself and each mega-tabs
+            // content grid. Stop its columns wrapping and pin each to its basis
+            // (no grow/shrink) so we read the full side-by-side span rather than
+            // the shrunk-to-fit width the live cap would produce.
+            const megas: HTMLElement[] = [];
+            if (panel.classList.contains("nv-mega")) {
+                megas.push(panel);
+            }
+            panel.querySelectorAll<HTMLElement>(".nv-mega").forEach((m) => megas.push(m));
+            megas.forEach((m) => {
+                set(m, "flex-wrap", "nowrap");
+                Array.from(m.children).forEach((c) => {
+                    const col = c as HTMLElement;
+                    if (col.classList.contains("nv-col")) {
+                        set(col, "flex-grow", "0");
+                        set(col, "flex-shrink", "0");
+                    }
+                });
+            });
+            // Uncap the e-commerce rail so it counts at its full width too.
+            panel
+                .querySelectorAll<HTMLElement>(".nv-mt-nav")
+                .forEach((rail) => set(rail, "max-width", "none"));
+            max = Math.max(max, panel.getBoundingClientRect().width);
+            restore.forEach((fn) => fn());
+        });
+        this._panelNeed = max;
     }
 
     /* --------------------- Mode / condense transitions ------------------- */

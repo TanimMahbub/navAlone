@@ -67,6 +67,23 @@ describe("responsive: dynamic", () => {
         expect(root.classList.contains("nv-condensed")).toBe(false);
     });
 
+    it("collapses when a submenu panel is too wide to open, even if the bar fits", () => {
+        const { root, menu } = mount(sampleOptions({ responsive: "dynamic" }));
+        // Tiny bar (think one "Categories" item) that fits any screen, fronting a
+        // much wider mega/mega-tabs panel.
+        const nat = { full: 90, cond: 70, chrome: 40 };
+        menu._panelNeed = 600;
+
+        // Bar fits with room to spare (available 360 ≥ 90), but the 600px panel
+        // can't open within 480 − 16: fold to the drawer rather than crowd it.
+        drive(menu, 480, nat);
+        expect(root.classList.contains("nv-mode-mobile")).toBe(true);
+
+        // Wide enough for the panel too (600 ≤ 700 − 16): back to the desktop bar.
+        drive(menu, 700, nat);
+        expect(root.classList.contains("nv-mode-desktop")).toBe(true);
+    });
+
     it("ignores the matchMedia breakpoint (no static listener wired)", () => {
         const { root } = mount(sampleOptions({ responsive: "dynamic", breakpoint: 960 }));
         setWidth(0); // would force mobile under the static breakpoint
