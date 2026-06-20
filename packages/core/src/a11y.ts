@@ -68,15 +68,34 @@ export function focusPanel(panel: HTMLElement, preferred?: HTMLElement | null): 
     }
 }
 
-/** Rows that belong directly to a desktop panel (excludes nested flyout rows). */
+/**
+ * Rows that belong directly to a desktop panel (excludes nested flyout rows).
+ * In an e-commerce mega (`.nv-mega-tabs`) the rows live in stacked panes, so
+ * rows of an inactive (hidden) pane are excluded — roving stays in view.
+ */
 export function desktopRows(panel: HTMLElement): HTMLElement[] {
-    return Array.from(panel.querySelectorAll<HTMLElement>(".nv-d-item")).filter(
-        (row) => row.closest(".nv-panel") === panel && !row.classList.contains("is-disabled")
-    );
+    return Array.from(panel.querySelectorAll<HTMLElement>(".nv-d-item")).filter((row) => {
+        if (row.closest(".nv-panel") !== panel || row.classList.contains("is-disabled")) {
+            return false;
+        }
+        const pane = row.closest<HTMLElement>(".nv-mt-pane");
+        return !pane || pane.classList.contains("is-active");
+    });
 }
 
-/** Focus (and make tabbable) the first enabled row of a desktop panel. */
+/**
+ * Focus (and make tabbable) the entry point of a desktop panel: the first
+ * category in an e-commerce mega rail, otherwise the first enabled row.
+ */
 export function focusFirstDesktop(panel: HTMLElement): void {
+    if (panel.classList.contains("nv-mega-tabs")) {
+        const cat = panel.querySelector<HTMLElement>(".nv-mt-cat:not(.is-disabled)");
+        if (cat) {
+            cat.tabIndex = 0;
+            cat.focus();
+        }
+        return;
+    }
     const first = desktopRows(panel)[0];
     if (first) {
         first.tabIndex = 0;

@@ -20,6 +20,7 @@ import {
     footerButtonsConfig,
     fullConfig,
     megaConfig,
+    megaTabsConfig,
     nestedConfig,
     positionFixedConfig,
     positionSmartConfig,
@@ -41,6 +42,7 @@ const NAV: { href: string; label: string; group?: boolean }[] = [
     { href: "#example-dropdown-lg", label: "Dropdown (large)" },
     { href: "#example-nested", label: "Nested flyout" },
     { href: "#example-mega", label: "Mega menu" },
+    { href: "#example-mega-tabs", label: "E-commerce mega" },
     { href: "#examples-mobile", label: "Mobile behaviour", group: true },
     { href: "#example-drawer", label: "Mobile drawer" },
     { href: "#example-accordion", label: "Mobile accordion" },
@@ -155,6 +157,14 @@ examples.append(
         description: "Columns with headings. Flattens to grouped panels on mobile.",
         config: megaConfig,
         actions: [{ label: "Open", method: "openSubmenu", args: ["resources"] }]
+    }),
+    createLiveExample({
+        id: "example-mega-tabs",
+        title: "E-commerce mega menu",
+        description:
+            "Set submenu.display to \"mega-tabs\" for a category rail that switches the content panes on the right — built for big catalogue navs. Each category is an item whose own submenu (a mega grid) fills its pane; hover or arrow-key through the categories. On mobile the same data drills down: tap a category, its columns flatten to grouped rows.",
+        config: megaTabsConfig,
+        actions: [{ label: "Open", method: "openSubmenu", args: ["shop"] }]
     }),
     exampleCategory(
         "examples-mobile",

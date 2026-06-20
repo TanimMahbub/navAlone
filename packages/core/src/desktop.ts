@@ -5,7 +5,7 @@
  * flyouts flip/shift to stay on screen.
  */
 import type { Navalone } from "./navalone";
-import type { NavaloneItem, NavaloneSubmenu } from "./types";
+import type { NavaloneColumn, NavaloneItem, NavaloneSubmenu } from "./types";
 import { escapeId, uid } from "./dom";
 import { buildActions, buildLogo, fillRow } from "./render";
 import {
@@ -111,25 +111,13 @@ function buildDesktopPanel(nv: Navalone, submenu: NavaloneSubmenu, level: number
     }
 
     const display = submenu.display || "dropdown";
-    if (display === "mega" && Array.isArray(submenu.columns)) {
+    if (display === "mega-tabs") {
+        // E-commerce mega: a left category rail switching right-hand content panes.
+        panel.className = "nv-panel nv-mega-tabs";
+        buildMegaTabs(nv, panel, submenu, level);
+    } else if (display === "mega" && Array.isArray(submenu.columns)) {
         panel.className = "nv-panel nv-mega";
-        submenu.columns.forEach((column) => {
-            const col = document.createElement("div");
-            col.className = "nv-col";
-            if (column.heading) {
-                const head = document.createElement("div");
-                head.className = "nv-col-head";
-                head.textContent = column.heading;
-                col.appendChild(head);
-            }
-            const ul = document.createElement("ul");
-            ul.setAttribute("role", "none");
-            (column.items || []).forEach((child) => {
-                ul.appendChild(buildDesktopRow(nv, child, "mega", level, panel));
-            });
-            col.appendChild(ul);
-            panel.appendChild(col);
-        });
+        appendMegaColumns(nv, panel, submenu.columns, level, panel);
     } else {
         panel.className =
             "nv-panel " + (display === "dropdown-lg" ? "nv-dropdown-lg" : "nv-dropdown");
@@ -141,6 +129,138 @@ function buildDesktopPanel(nv: Navalone, submenu: NavaloneSubmenu, level: number
         panel.appendChild(ul);
     }
     return panel;
+}
+
+// Append `.nv-col` columns (heading + rows) into a mega host. Shared by the
+// plain mega grid and each `mega-tabs` content pane. `parentPanel` is the
+// `.nv-panel` the rows belong to (so any deeper flyouts chain to it).
+function appendMegaColumns(
+    nv: Navalone,
+    host: HTMLElement,
+    columns: NavaloneColumn[],
+    level: number,
+    parentPanel: HTMLElement
+): void {
+    (columns || []).forEach((column) => {
+        const col = document.createElement("div");
+        col.className = "nv-col";
+        if (column.heading) {
+            const head = document.createElement("div");
+            head.className = "nv-col-head";
+            head.textContent = column.heading;
+            col.appendChild(head);
+        }
+        const ul = document.createElement("ul");
+        ul.setAttribute("role", "none");
+        (column.items || []).forEach((child) => {
+            ul.appendChild(buildDesktopRow(nv, child, "mega", level, parentPanel));
+        });
+        col.appendChild(ul);
+        host.appendChild(col);
+    });
+}
+
+// Build the e-commerce mega: a left rail of category buttons (`submenu.items`)
+// and a stack of content panes — one per category — of which only the active
+// one shows. Hovering / focusing a category reveals its pane. Each category's
+// own nested `submenu` provides the pane content (a mega grid or a list).
+function buildMegaTabs(
+    nv: Navalone,
+    panel: HTMLElement,
+    submenu: NavaloneSubmenu,
+    level: number
+): void {
+    const nav = document.createElement("div");
+    nav.className = "nv-mt-nav";
+    nav.setAttribute("role", "none");
+    const panes = document.createElement("div");
+    panes.className = "nv-mt-panes";
+
+    (submenu.items || []).forEach((cat, i) => {
+        const sub = cat.submenu || null;
+        const first = i === 0;
+        const isLink = !sub && !!cat.href;
+
+        // Left rail button (or link for a navigable category).
+        const btn = document.createElement(isLink ? "a" : "button");
+        btn.className = "nv-mt-cat" + (first ? " is-active" : "");
+        btn.setAttribute("role", "menuitem");
+        btn.tabIndex = first ? 0 : -1;
+        btn.dataset.mtIndex = String(i);
+        if (isLink) {
+            const a = btn as HTMLAnchorElement;
+            a.href = cat.href as string;
+            if (cat.linkTarget) {
+                a.target = cat.linkTarget;
+            }
+        } else {
+            (btn as HTMLButtonElement).type = "button";
+        }
+        if (cat.disabled) {
+            btn.classList.add("is-disabled");
+            btn.setAttribute("aria-disabled", "true");
+            if (!isLink) {
+                (btn as HTMLButtonElement).disabled = true;
+            }
+        }
+        // Show the category's icon/thumbnail in the rail (the visual anchor of an
+        // e-commerce mega), with the chevron hinting at the content it reveals.
+        fillRow(nv, btn, cat, {
+            hasChild: !!sub,
+            thumbnails: true,
+            description: false,
+            arrow: sub ? "right" : null
+        });
+        if (sub) {
+            btn.setAttribute("aria-haspopup", "true");
+        }
+        btn.setAttribute("aria-selected", first ? "true" : "false");
+        nav.appendChild(btn);
+
+        // Right content pane fed by the category's own submenu.
+        const pane = document.createElement("div");
+        pane.className = "nv-mt-pane" + (first ? " is-active" : "");
+        pane.dataset.mtIndex = String(i);
+        if (sub) {
+            const subDisplay = sub.display || "dropdown";
+            if (subDisplay === "mega" && Array.isArray(sub.columns)) {
+                const grid = document.createElement("div");
+                grid.className = "nv-mega nv-mt-grid";
+                appendMegaColumns(nv, grid, sub.columns, level + 1, panel);
+                pane.appendChild(grid);
+            } else {
+                const variant = subDisplay === "dropdown-lg" ? "dropdown-lg" : "dropdown";
+                const ul = document.createElement("ul");
+                ul.setAttribute("role", "none");
+                (sub.items || []).forEach((child) => {
+                    ul.appendChild(buildDesktopRow(nv, child, variant, level + 1, panel));
+                });
+                pane.appendChild(ul);
+            }
+        }
+        panes.appendChild(pane);
+    });
+
+    panel.appendChild(nav);
+    panel.appendChild(panes);
+}
+
+// Reveal one category's pane (and mark its rail button selected). Pure DOM —
+// called from hover, click and keyboard.
+export function activateMegaTab(cat: HTMLElement): void {
+    const panel = cat.closest<HTMLElement>(".nv-mega-tabs");
+    if (!panel) {
+        return;
+    }
+    const idx = cat.dataset.mtIndex;
+    panel.querySelectorAll<HTMLElement>(".nv-mt-cat").forEach((c) => {
+        const active = c === cat;
+        c.classList.toggle("is-active", active);
+        c.setAttribute("aria-selected", active ? "true" : "false");
+    });
+    panel.querySelectorAll<HTMLElement>(".nv-mt-pane").forEach((p) => {
+        p.classList.toggle("is-active", p.dataset.mtIndex === idx);
+    });
 }
 
 function buildDesktopRow(
@@ -224,8 +344,11 @@ export function closeDesktop(nv: Navalone, panel: HTMLElement): void {
             closeDesktop(nv, p);
         }
     });
-    panel.classList.remove("is-open", "nv-flip-x", "nv-flip-y");
-    panel.style.left = panel.style.right = panel.style.top = "";
+    // Only flip the open state — leave the resolved position (left/top, flip-x,
+    // below, scroll cap) untouched so the panel fades out exactly where it sits.
+    // Stripping those synchronously made the still-visible panel jump mid-fade.
+    // positionPanel() fully re-resets everything when the panel is next opened.
+    panel.classList.remove("is-open");
     if (panel._nvTrigger) {
         panel._nvTrigger.setAttribute("aria-expanded", "false");
     }
@@ -258,11 +381,14 @@ export function toggleDesktop(nv: Navalone, trigger: HTMLElement, panel: HTMLEle
 }
 
 // Edge-aware positioning. Top-level panels clamp horizontally within the
-// viewport; flyouts open to the side and flip when they would overflow.
+// viewport; flyouts open to the side, flip when they would overflow, and drop
+// in-flow below their parent row when there is no room on either side. Any
+// panel that would run off the bottom of the screen is height-capped to scroll
+// internally so it always fits.
 export function positionPanel(panel: HTMLElement, trigger: HTMLElement): void {
     const margin = 8;
-    panel.style.left = panel.style.right = panel.style.top = "";
-    panel.classList.remove("nv-flip-x", "nv-flip-y");
+    panel.style.left = panel.style.right = panel.style.top = panel.style.maxHeight = "";
+    panel.classList.remove("nv-flip-x", "nv-flip-y", "nv-flyout-below", "nv-scroll");
 
     const vw = document.documentElement.clientWidth;
     const vh = document.documentElement.clientHeight;
@@ -271,12 +397,18 @@ export function positionPanel(panel: HTMLElement, trigger: HTMLElement): void {
         // Default opens to the right of the parent row.
         let rect = panel.getBoundingClientRect();
         if (rect.right > vw - margin) {
+            // No room on the right — try opening to the left.
             panel.classList.add("nv-flip-x");
-        }
-        rect = panel.getBoundingClientRect();
-        if (rect.bottom > vh - margin) {
-            const shift = vh - margin - rect.bottom;
-            panel.style.top = shift + "px";
+            rect = panel.getBoundingClientRect();
+            if (rect.left < margin) {
+                // No room on either side — drill in place: drop the nested panel
+                // in-flow below its parent row instead of flying off-screen.
+                panel.classList.remove("nv-flip-x");
+                panel.classList.add("nv-flyout-below");
+                // The now in-flow panel grew its ancestor panels; re-cap them so
+                // they keep fitting the viewport.
+                capAncestors(panel, vh, margin);
+            }
         }
     } else {
         // Top-level: clamp horizontally relative to the trigger's li.
@@ -291,6 +423,35 @@ export function positionPanel(panel: HTMLElement, trigger: HTMLElement): void {
             left = margin - liRect.left;
         }
         panel.style.left = left + "px";
+    }
+
+    capVertical(panel, vh, margin);
+}
+
+// Keep a panel within the viewport's height: shift a side-flyout up first, then
+// cap the height (scrolling internally) if it still runs past the bottom edge.
+function capVertical(panel: HTMLElement, vh: number, margin: number): void {
+    let rect = panel.getBoundingClientRect();
+    const sideFlyout =
+        panel.classList.contains("nv-flyout") &&
+        !panel.classList.contains("nv-flyout-below");
+    if (sideFlyout && rect.bottom > vh - margin) {
+        panel.style.top = vh - margin - rect.bottom + "px";
+        rect = panel.getBoundingClientRect();
+    }
+    const avail = vh - margin - rect.top;
+    if (rect.height > avail + 1) {
+        panel.style.maxHeight = Math.max(avail, 80) + "px";
+        panel.classList.add("nv-scroll");
+    }
+}
+
+// Re-cap every ancestor panel after an in-flow (below) flyout grows them.
+function capAncestors(panel: HTMLElement, vh: number, margin: number): void {
+    let p = panel._nvParentPanel;
+    while (p) {
+        capVertical(p, vh, margin);
+        p = p._nvParentPanel;
     }
 }
 
@@ -331,6 +492,12 @@ export function hoverSync(nv: Navalone, target: HTMLElement): void {
         return;
     }
 
+    // Hovering a category in the e-commerce rail reveals its content pane.
+    const mtCat = target.closest<HTMLElement>(".nv-mt-cat");
+    if (mtCat && !mtCat.classList.contains("is-disabled")) {
+        activateMegaTab(mtCat);
+    }
+
     const keep: HTMLElement[] = [];
     let p: HTMLElement | null | undefined = overPanel;
     while (p) {
@@ -356,9 +523,55 @@ export function desktopKeys(
     nv: Navalone,
     e: KeyboardEvent,
     barItem: HTMLElement | null,
-    dItem: HTMLElement | null
+    dItem: HTMLElement | null,
+    mtCat: HTMLElement | null
 ): void {
     const key = e.key;
+
+    // Category rail of the e-commerce mega: Up/Down move (and reveal) categories;
+    // Right/Enter step into the active pane; Left/Escape close back to the bar.
+    if (mtCat) {
+        const tabs = mtCat.closest<HTMLElement>(".nv-mega-tabs");
+        const panel = mtCat.closest<HTMLElement>(".nv-panel");
+        if (!tabs || !panel) {
+            return;
+        }
+        const cats = Array.from(tabs.querySelectorAll<HTMLElement>(".nv-mt-cat")).filter(
+            (c) => !c.classList.contains("is-disabled")
+        );
+        const idx = cats.indexOf(mtCat);
+        if (key === "ArrowDown" || key === "ArrowUp") {
+            e.preventDefault();
+            let n = idx + (key === "ArrowDown" ? 1 : -1);
+            if (n < 0) {
+                n = cats.length - 1;
+            }
+            if (n >= cats.length) {
+                n = 0;
+            }
+            mtCat.tabIndex = -1;
+            cats[n].tabIndex = 0;
+            cats[n].focus();
+            activateMegaTab(cats[n]);
+        } else if (key === "ArrowRight" || key === "Enter" || key === " ") {
+            // Step into the revealed pane (first enabled row of the active pane).
+            const row = desktopRows(panel)[0];
+            if (row) {
+                e.preventDefault();
+                row.tabIndex = 0;
+                row.focus();
+            }
+        } else if (key === "ArrowLeft" || key === "Escape") {
+            e.preventDefault();
+            closeDesktop(nv, panel);
+            if (panel._nvTrigger) {
+                panel._nvTrigger.tabIndex = 0;
+                panel._nvTrigger.focus();
+            }
+        }
+        return;
+    }
+
     if (barItem) {
         const items = menubarItems(nv._menubar);
         const idx = items.indexOf(barItem);
@@ -397,7 +610,25 @@ export function desktopKeys(
             openDesktop(nv, item, item._nvPanel);
             focusFirstDesktop(item._nvPanel);
         }
-    } else if (key === "ArrowLeft" || key === "Escape") {
+    } else if (key === "ArrowLeft") {
+        e.preventDefault();
+        // Inside an e-commerce mega pane, Left returns to the category rail
+        // rather than closing the whole panel.
+        const cat = panel.classList.contains("nv-mega-tabs")
+            ? panel.querySelector<HTMLElement>(".nv-mt-cat.is-active")
+            : null;
+        if (cat) {
+            item.tabIndex = -1;
+            cat.tabIndex = 0;
+            cat.focus();
+        } else {
+            closeDesktop(nv, panel);
+            if (panel._nvTrigger) {
+                panel._nvTrigger.tabIndex = 0;
+                panel._nvTrigger.focus();
+            }
+        }
+    } else if (key === "Escape") {
         e.preventDefault();
         closeDesktop(nv, panel);
         if (panel._nvTrigger) {

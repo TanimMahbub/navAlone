@@ -10,6 +10,121 @@ export const heroMenu: NavaloneOptions = {
     ],
     items: [
         {
+            // The e-commerce mega ("mega-tabs"): a category rail switching content
+            // panes — the same data drills down in the mobile drawer.
+            label: "Shop",
+            submenu: {
+                id: "shop",
+                display: "mega-tabs",
+                items: [
+                    {
+                        label: "Electronics",
+                        image: thumbIcon("monitor", "#22d3ee"),
+                        submenu: {
+                            id: "cat-electronics",
+                            display: "mega",
+                            columns: [
+                                {
+                                    heading: "Computers",
+                                    items: [
+                                        { label: "Laptops", href: "#" },
+                                        { label: "Desktops", href: "#" },
+                                        { label: "Monitors", href: "#" }
+                                    ]
+                                },
+                                {
+                                    heading: "Mobile",
+                                    items: [
+                                        { label: "Phones", href: "#" },
+                                        { label: "Tablets", href: "#" },
+                                        { label: "Wearables", href: "#", badge: "New" }
+                                    ]
+                                }
+                            ]
+                        }
+                    },
+                    {
+                        label: "Fashion",
+                        image: thumbIcon("bag", "#ec4899"),
+                        submenu: {
+                            id: "cat-fashion",
+                            display: "mega",
+                            columns: [
+                                {
+                                    heading: "Men",
+                                    items: [
+                                        { label: "Shirts", href: "#" },
+                                        { label: "Shoes", href: "#" },
+                                        { label: "Watches", href: "#" }
+                                    ]
+                                },
+                                {
+                                    heading: "Women",
+                                    items: [
+                                        { label: "Dresses", href: "#" },
+                                        { label: "Bags", href: "#" },
+                                        { label: "Jewelry", href: "#" }
+                                    ]
+                                }
+                            ]
+                        }
+                    },
+                    {
+                        label: "Home & Garden",
+                        image: thumbIcon("home", "#10b981"),
+                        submenu: {
+                            id: "cat-home",
+                            display: "mega",
+                            columns: [
+                                {
+                                    heading: "Living",
+                                    items: [
+                                        { label: "Furniture", href: "#" },
+                                        { label: "Lighting", href: "#" },
+                                        { label: "Decor", href: "#" }
+                                    ]
+                                },
+                                {
+                                    heading: "Outdoor",
+                                    items: [
+                                        { label: "Plants", href: "#" },
+                                        { label: "Grills", href: "#" },
+                                        { label: "Tools", href: "#" }
+                                    ]
+                                }
+                            ]
+                        }
+                    },
+                    {
+                        label: "Books & Media",
+                        image: thumbIcon("book", "#f59e0b"),
+                        submenu: {
+                            id: "cat-books",
+                            display: "mega",
+                            columns: [
+                                {
+                                    heading: "Books",
+                                    items: [
+                                        { label: "Fiction", href: "#" },
+                                        { label: "Non-fiction", href: "#" },
+                                        { label: "Kids", href: "#" }
+                                    ]
+                                },
+                                {
+                                    heading: "Media",
+                                    items: [
+                                        { label: "Movies", href: "#" },
+                                        { label: "Music", href: "#" },
+                                        { label: "Games", href: "#" }
+                                    ]
+                                }
+                            ]
+                        }
+                    }
+                ]
+            }
+        },
+        {
             label: "Product",
             submenu: {
                 id: "product",

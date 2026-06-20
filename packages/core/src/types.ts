@@ -4,7 +4,7 @@
  * compiled away; vanilla `<script>` consumers never see them.
  */
 
-export type NavaloneDisplay = "dropdown" | "dropdown-lg" | "mega";
+export type NavaloneDisplay = "dropdown" | "dropdown-lg" | "mega" | "mega-tabs";
 export type NavaloneMenuAlign = "left" | "center" | "right";
 export type NavaloneOpenOn = "hover" | "click";
 export type NavaloneDrawerSide = "left" | "right";
@@ -50,13 +50,25 @@ export interface NavaloneColumn {
     items?: NavaloneItem[];
 }
 
-/** A nested panel. Use `items` for dropdowns/flyouts, `columns` for mega menus. */
+/**
+ * A nested panel. Use `items` for dropdowns/flyouts and the e-commerce
+ * `"mega-tabs"` rail, `columns` for the `"mega"` grid.
+ *
+ * For `display: "mega-tabs"` (the "E-commerce mega menu") each entry in `items`
+ * is a *category*: its `label`/`icon` becomes a button in the left rail, and its
+ * own nested `submenu` (a `"mega"` grid of columns, or a plain list) renders in
+ * the right-hand pane that the category reveals on hover/focus. The same data
+ * collapses to the mobile drawer as a normal drill-down (tap a category → its
+ * columns flatten to grouped rows).
+ */
 export interface NavaloneSubmenu {
     id?: string;
     title?: string;
     /** Desktop presentation hint. Defaults to `"dropdown"`. */
     display?: NavaloneDisplay;
+    /** Rows for dropdowns/flyouts; categories for the `"mega-tabs"` rail. */
     items?: NavaloneItem[];
+    /** Columns for the `"mega"` grid. */
     columns?: NavaloneColumn[];
 }
 

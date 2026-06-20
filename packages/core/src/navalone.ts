@@ -27,6 +27,7 @@ import type {
 import { toCssLength, findScrollParent, scrollTopOf } from "./dom";
 import { buildModel } from "./model";
 import {
+    activateMegaTab,
     buildBar,
     closeDesktopAll,
     closeSubmenuById,
@@ -559,6 +560,18 @@ export class Navalone {
             return;
         }
 
+        // E-commerce mega: clicking a category reveals its pane (keeps the panel
+        // open even with openOn: "click", where there is no hover to switch on).
+        // A navigable category (rendered as a link) is left to follow its href.
+        const mtCat = target.closest<HTMLElement>(".nv-mt-cat");
+        if (mtCat && this.root.contains(mtCat) && !mtCat.classList.contains("is-disabled")) {
+            if (mtCat.tagName !== "A") {
+                e.preventDefault();
+            }
+            activateMegaTab(mtCat);
+            return;
+        }
+
         // Desktop triggers (bar + dropdown rows).
         const desktopTrigger = target.closest<HTMLElement>(".nv-bar-item, .nv-d-item");
         if (desktopTrigger && this.root.contains(desktopTrigger)) {
@@ -656,8 +669,9 @@ export class Navalone {
         const target = ev.target as HTMLElement;
         const barItem = target.closest<HTMLElement>(".nv-bar-item");
         const dItem = target.closest<HTMLElement>(".nv-d-item");
-        if (this._mode === "desktop" && (barItem || dItem)) {
-            desktopKeys(this, ev, barItem, dItem);
+        const mtCat = target.closest<HTMLElement>(".nv-mt-cat");
+        if (this._mode === "desktop" && (barItem || dItem || mtCat)) {
+            desktopKeys(this, ev, barItem, dItem, mtCat);
             return;
         }
 

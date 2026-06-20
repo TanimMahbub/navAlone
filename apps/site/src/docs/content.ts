@@ -61,13 +61,17 @@ export const dataContract = /* html */ `
 interface NavaloneSubmenu {
     id?: string;
     title?: string;
-    display?: "dropdown" | "dropdown-lg" | "mega";  // desktop presentation
-    items?: NavaloneItem[];     // dropdowns / flyouts
+    display?: "dropdown" | "dropdown-lg" | "mega" | "mega-tabs";  // desktop presentation
+    items?: NavaloneItem[];     // dropdowns / flyouts / mega-tabs categories
     columns?: { heading?: string; items?: NavaloneItem[] }[];  // mega menus
 }</code></pre>
-    <p>On desktop, <code>display</code> chooses the presentation; any item with its own
-    <code>submenu</code> becomes a nested flyout at arbitrary depth. On mobile the same data
-    collapses to the drill-down drawer (mega columns flatten to grouped panels).</p>
+    <p>On desktop, <code>display</code> chooses the presentation: <code>"dropdown"</code>,
+    <code>"dropdown-lg"</code>, <code>"mega"</code> (a grid of <code>columns</code>) or
+    <code>"mega-tabs"</code> — an e-commerce mega where each <code>items</code> entry is a
+    category whose own <code>submenu</code> fills the pane it reveals. Any item with its own
+    <code>submenu</code> otherwise becomes a nested flyout at arbitrary depth. On mobile the same
+    data collapses to the drill-down drawer (mega columns flatten to grouped panels; mega-tabs
+    categories drill down).</p>
 </section>
 `;
 
@@ -176,7 +180,7 @@ export const pureHtmlSetup = /* html */ `
             <tr><td><code>.menu-level.level-1</code></td><td>The top bar. Its <code>&lt;ul&gt;</code> becomes the horizontal menu. (Plain <code>.menu-level</code> is used if no <code>.level-1</code> is found.)</td></tr>
             <tr><td><code>.menu-level</code> + <code>id</code></td><td>A submenu panel, located by its <code>id</code>.</td></tr>
             <tr><td><code>data-target</code> ↔ <code>id</code></td><td>The pairing: a trigger's <code>data-target</code> opens the <code>.menu-level</code> whose <code>id</code> matches. Nest to any depth.</td></tr>
-            <tr><td><code>data-submenu</code></td><td>On a panel — its desktop shape: <code>"dropdown"</code> (default), <code>"dropdown-lg"</code> or <code>"mega"</code>.</td></tr>
+            <tr><td><code>data-submenu</code></td><td>On a panel — its desktop shape: <code>"dropdown"</code> (default), <code>"dropdown-lg"</code>, <code>"mega"</code> or <code>"mega-tabs"</code>. For <code>"mega-tabs"</code> each top-level row of the panel is a category that points (via <code>data-target</code>) at its own <code>"mega"</code> panel.</td></tr>
             <tr><td><code>.nv-group</code></td><td>Inside a <code>mega</code> panel, a heading <code>&lt;li&gt;</code> that starts a new column.</td></tr>
             <tr><td><code>[data-nv-logo]</code></td><td>The brand — text, or an <code>&lt;img&gt;</code>; an <code>href</code> links it.</td></tr>
             <tr><td><code>[data-nv-actions]</code></td><td>Container whose <code>&lt;a&gt;</code>/<code>&lt;button&gt;</code> become right-side actions; <code>data-variant="primary"</code> highlights one.</td></tr>

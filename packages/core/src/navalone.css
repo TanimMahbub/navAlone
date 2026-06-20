@@ -331,6 +331,9 @@ body.nv-scroll-lock {
 	top: calc(100% + 4px);
 	left: 0;
 	z-index: calc(var(--nv-z) + 10);
+	/* Never let a panel grow wider than the screen — the JS clamp can only slide
+	   a panel that already fits the viewport. */
+	max-width: calc(100vw - 16px);
 	background: var(--nv-panel-bg);
 	color: var(--nv-text-color);
 	border: var(--nv-border);
@@ -397,16 +400,35 @@ body.nv-scroll-lock {
 	width: var(--nv-dropdown-lg-width);
 }
 
-/* Mega: columns laid out side by side */
+/* Mega: columns laid out side by side. `width: max-content` sizes the panel to
+   its columns (it is absolutely positioned, so without this it would shrink to
+   the narrow trigger <li> and stack everything). `max-width` then caps it to the
+   viewport and `flex-wrap` drops one column at a time as the screen narrows —
+   3/4 columns on large screens, fewer as it shrinks, a single stacked column
+   only as the last step before the bar itself collapses. */
 .nv-mega {
 	display: flex;
+	flex-wrap: wrap;
 	gap: 8px;
+	width: max-content;
 	max-width: calc(100vw - 16px);
 }
 
 .nv-col {
 	flex: 1 1 var(--nv-mega-col-width);
 	min-width: var(--nv-mega-col-width);
+	/* Let the last/only column shrink below its basis on a very narrow panel so
+	   the single-column fallback still fits the screen. */
+	max-width: 100%;
+}
+
+/* Tall panels (a wrapped mega, a long list) that would run off the bottom of
+   the screen scroll internally. The JS adds this only when needed and only on
+   panels that aren't currently hosting a side-flyout, so nested side panels are
+   never clipped. */
+.nv-panel.nv-scroll {
+	overflow-y: auto;
+	overflow-x: hidden;
 }
 
 .nv-col-head {
@@ -416,6 +438,88 @@ body.nv-scroll-lock {
 	letter-spacing: 0.08em;
 	color: var(--nv-muted-color);
 	padding: 8px 10px 4px;
+}
+
+/* E-commerce mega ("mega-tabs"): a category rail on the left switching content
+   panes on the right. The panel sizes to its content but is capped to the
+   viewport (like the plain mega); a tall pane scrolls internally via .nv-scroll. */
+.nv-mega-tabs {
+	display: flex;
+	align-items: stretch;
+	gap: var(--nv-mt-gap, 10px);
+	width: max-content;
+	max-width: calc(100vw - 16px);
+}
+
+.nv-mt-nav {
+	flex: 0 0 auto;
+	width: var(--nv-mt-nav-width, 224px);
+	display: flex;
+	flex-direction: column;
+	gap: 1px;
+	border-right: var(--nv-border);
+	padding-right: var(--nv-mt-gap, 10px);
+}
+
+/* Rail buttons mirror the desktop row look, with the chevron pinned right. */
+.nv-mt-cat {
+	display: flex;
+	align-items: center;
+	gap: var(--nv-row-gap);
+	width: 100%;
+	font-family: var(--nv-font);
+	font-size: 15px;
+	color: var(--nv-text-color);
+	background: none;
+	border: none;
+	border-radius: 6px;
+	padding: var(--nv-item-padding);
+	text-align: left;
+	text-decoration: none;
+	cursor: pointer;
+}
+
+.nv-mt-cat .nv-arrow {
+	margin-left: auto;
+	opacity: 0.55;
+}
+
+.nv-mt-cat:hover,
+.nv-mt-cat:focus-visible,
+.nv-mt-cat.is-active {
+	background: var(--nv-hover-bg);
+}
+
+.nv-mt-cat.is-active {
+	font-weight: 600;
+}
+
+.nv-mt-cat.is-disabled {
+	opacity: 0.5;
+	cursor: default;
+}
+
+/* The content panes share a slot: only the active one shows. */
+.nv-mt-panes {
+	flex: 1 1 auto;
+	min-width: 0;
+	display: grid;
+}
+
+.nv-mt-pane {
+	grid-area: 1 / 1;
+	min-width: 0;
+}
+
+.nv-mt-pane:not(.is-active) {
+	display: none;
+}
+
+/* The grid inside a pane is already viewport-capped by its parent panel, so it
+   fills the pane (no second max-width clamp) and still wraps columns. */
+.nv-mt-grid {
+	width: auto;
+	max-width: none;
 }
 
 /* Flyout (nested) panels open to the side of their parent row. */
@@ -435,6 +539,25 @@ body.nv-scroll-lock {
 	right: 100%;
 	margin-left: 0;
 	margin-right: 4px;
+}
+
+/* Narrow-screen fallback: when there is no room for a nested flyout on either
+   side of its parent row, drop it in-flow directly below the row (a "drill in
+   place"). It pushes the rows beneath it down rather than flying off-screen. */
+.nv-flyout.nv-flyout-below {
+	position: static;
+	margin: 4px 0 0;
+	transform: none;
+	width: auto;
+	max-width: 100%;
+}
+
+.nv-flyout.nv-flyout-below:not(.is-open) {
+	display: none;
+}
+
+.nv-flyout.nv-flyout-below.is-open {
+	display: block;
 }
 
 /* Desktop rows */

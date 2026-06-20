@@ -134,6 +134,103 @@ export const megaConfig: NavaloneOptions = {
     ]
 };
 
+/** An e-commerce mega ("mega-tabs"): a category rail that switches the content
+ *  panes on the right. Each category is an item whose own submenu (a mega grid)
+ *  fills the pane; on mobile the same data drills down category → groups. */
+export const megaTabsConfig: NavaloneOptions = {
+    logo,
+    items: [
+        {
+            label: "Categories",
+            submenu: {
+                id: "shop",
+                display: "mega-tabs",
+                items: [
+                    {
+                        label: "Electronics",
+                        image: thumbIcon("settings", "#22d3ee"),
+                        submenu: {
+                            id: "cat-electronics",
+                            display: "mega",
+                            columns: [
+                                {
+                                    heading: "Computers",
+                                    items: [
+                                        { label: "Laptops", href: "#laptops" },
+                                        { label: "Desktops", href: "#desktops" },
+                                        { label: "Monitors", href: "#monitors" }
+                                    ]
+                                },
+                                {
+                                    heading: "Mobile",
+                                    items: [
+                                        { label: "Phones", href: "#phones" },
+                                        { label: "Tablets", href: "#tablets" },
+                                        { label: "Wearables", href: "#wearables", badge: "New" }
+                                    ]
+                                }
+                            ]
+                        }
+                    },
+                    {
+                        label: "Fashion",
+                        image: thumbIcon("edit", "#ec4899"),
+                        submenu: {
+                            id: "cat-fashion",
+                            display: "mega",
+                            columns: [
+                                {
+                                    heading: "Men",
+                                    items: [
+                                        { label: "Shirts", href: "#shirts" },
+                                        { label: "Shoes", href: "#shoes" },
+                                        { label: "Watches", href: "#watches" }
+                                    ]
+                                },
+                                {
+                                    heading: "Women",
+                                    items: [
+                                        { label: "Dresses", href: "#dresses" },
+                                        { label: "Bags", href: "#bags" },
+                                        { label: "Jewelry", href: "#jewelry" }
+                                    ]
+                                }
+                            ]
+                        }
+                    },
+                    {
+                        label: "Home & Garden",
+                        image: thumbIcon("chart", "#10b981"),
+                        submenu: {
+                            id: "cat-home",
+                            display: "mega",
+                            columns: [
+                                {
+                                    heading: "Living",
+                                    items: [
+                                        { label: "Furniture", href: "#furniture" },
+                                        { label: "Lighting", href: "#lighting" },
+                                        { label: "Decor", href: "#decor" }
+                                    ]
+                                },
+                                {
+                                    heading: "Outdoor",
+                                    items: [
+                                        { label: "Plants", href: "#plants" },
+                                        { label: "Grills", href: "#grills" },
+                                        { label: "Tools", href: "#tools" }
+                                    ]
+                                }
+                            ]
+                        }
+                    }
+                ]
+            }
+        },
+        { label: "Deals", href: "#deals" }
+    ]
+};
+
 /** The full menu used for the drawer + theming examples. */
 export const fullItems: NavaloneItem[] = [
     ...(megaConfig.items as NavaloneItem[]).slice(0, 1),
