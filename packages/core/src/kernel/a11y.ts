@@ -1,7 +1,10 @@
 /**
  * Pure accessibility / focus helpers. These operate only on the elements passed
- * to them (no plugin state), so they are trivially unit-testable.
+ * to them (no plugin state), so they are trivially unit-testable. Feature
+ * modules refine two of them through the registry: `desktopRows` (row vetoes)
+ * and `focusFirstDesktop` (panel entry points).
  */
+import { registry } from "./registry";
 
 /** Move roving tabindex/focus within a list, wrapping at both ends. */
 export function rove(list: HTMLElement[], current: number, dir: number): void {
@@ -70,31 +73,28 @@ export function focusPanel(panel: HTMLElement, preferred?: HTMLElement | null): 
 
 /**
  * Rows that belong directly to a desktop panel (excludes nested flyout rows).
- * In an e-commerce mega (`.nv-mega-tabs`) the rows live in stacked panes, so
- * rows of an inactive (hidden) pane are excluded — roving stays in view.
+ * Features can veto rows via `filterDesktopRow` hooks — e.g. the e-commerce
+ * mega excludes rows of an inactive (hidden) pane so roving stays in view.
  */
 export function desktopRows(panel: HTMLElement): HTMLElement[] {
     return Array.from(panel.querySelectorAll<HTMLElement>(".nv-d-item")).filter((row) => {
         if (row.closest(".nv-panel") !== panel || row.classList.contains("is-disabled")) {
             return false;
         }
-        const pane = row.closest<HTMLElement>(".nv-mt-pane");
-        return !pane || pane.classList.contains("is-active");
+        return registry.rowFilters.every((keep) => keep(row));
     });
 }
 
 /**
- * Focus (and make tabbable) the entry point of a desktop panel: the first
- * category in an e-commerce mega rail, otherwise the first enabled row.
+ * Focus (and make tabbable) the entry point of a desktop panel. Features get
+ * first refusal via `focusFirstPanel` hooks (e.g. the e-commerce mega focuses
+ * its first rail category); the default is the first enabled row.
  */
 export function focusFirstDesktop(panel: HTMLElement): void {
-    if (panel.classList.contains("nv-mega-tabs")) {
-        const cat = panel.querySelector<HTMLElement>(".nv-mt-cat:not(.is-disabled)");
-        if (cat) {
-            cat.tabIndex = 0;
-            cat.focus();
+    for (const hook of registry.focusFirst) {
+        if (hook(panel)) {
+            return;
         }
-        return;
     }
     const first = desktopRows(panel)[0];
     if (first) {

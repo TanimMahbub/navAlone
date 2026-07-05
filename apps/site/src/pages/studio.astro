@@ -1,0 +1,731 @@
+---
+// Navalone Studio — a nav builder over the core's real feature chunks. The
+// option groups for submenu flavors / drawer engines / responsive strategies
+// are rendered client-side from the chunk manifest (src/studio/main.ts), so a
+// feature added to the core surfaces here automatically. The preview iframe
+// runs the exact composed bundle the ZIP ships.
+import Layout from "../layouts/Layout.astro";
+---
+
+<Layout
+    title="Navalone Studio — compose your nav, download only what you pick"
+    description="Compose exactly the navigation you need — pick submenu flavors, drawer engine and responsive behaviour, preview it live, and download a bundle with only the code you selected.">
+    <div class="studio">
+        <header class="studio-top">
+            <div class="wrap studio-top-inner">
+                <a class="studio-home" href="/">← Navalone</a>
+                <nav class="studio-topnav" aria-label="Site">
+                    <a href="/docs/">Docs</a>
+                    <a href="https://github.com/" rel="noopener">GitHub</a>
+                </nav>
+            </div>
+        </header>
+
+        <section class="studio-hero">
+            <div class="wrap">
+                <p class="eyebrow">Navalone Studio</p>
+                <h1>Compose your nav.<br /><span class="title-accent">Ship only what you pick.</span></h1>
+                <p class="studio-sub">
+                    Toggle the features you want, watch the live preview, and download a working
+                    bundle that contains exactly the code you selected — not a byte more.
+                </p>
+            </div>
+        </section>
+
+        <div class="wrap">
+            <div class="studio-grid">
+                <!-- ============================ Options ============================ -->
+                <aside class="studio-options" aria-label="Nav options">
+                    <section class="opt-group">
+                        <h2>Submenu flavors</h2>
+                        <p class="opt-hint">Pick any combination — each adds its own JS + CSS chunk.</p>
+                        <div class="opt-cards" data-flavor-list></div>
+                    </section>
+
+                    <section class="opt-group">
+                        <h2>Responsive collapse</h2>
+                        <div class="opt-cards" data-responsive-list></div>
+                        <div class="opt-row" data-breakpoint-row hidden>
+                            <label for="bp-input">Collapse at</label>
+                            <span class="opt-num">
+                                <input id="bp-input" data-breakpoint type="number" min="320" max="1600" step="10" value="960" />
+                                <span aria-hidden="true">px</span>
+                            </span>
+                        </div>
+                    </section>
+
+                    <section class="opt-group">
+                        <h2>Mobile drawer</h2>
+                        <div class="opt-cards" data-drawer-list></div>
+                        <div class="opt-row">
+                            <span id="lbl-side">Drawer side</span>
+                            <div class="seg" role="radiogroup" aria-labelledby="lbl-side">
+                                <label><input type="radio" name="drawer-side" value="left" checked /><span>Left</span></label>
+                                <label><input type="radio" name="drawer-side" value="right" /><span>Right</span></label>
+                            </div>
+                        </div>
+                    </section>
+
+                    <section class="opt-group">
+                        <h2>Behaviour</h2>
+                        <div class="opt-row">
+                            <span id="lbl-open">Open submenus on</span>
+                            <div class="seg" role="radiogroup" aria-labelledby="lbl-open">
+                                <label><input type="radio" name="open-on" value="hover" checked /><span>Hover</span></label>
+                                <label><input type="radio" name="open-on" value="click" /><span>Click</span></label>
+                            </div>
+                        </div>
+                        <div class="opt-row">
+                            <span id="lbl-pos">Bar position</span>
+                            <div class="seg" role="radiogroup" aria-labelledby="lbl-pos">
+                                <label><input type="radio" name="position" value="fixed" checked /><span>Fixed</span></label>
+                                <label><input type="radio" name="position" value="sticky" /><span>Sticky</span></label>
+                                <label><input type="radio" name="position" value="smart" /><span>Smart</span></label>
+                                <label><input type="radio" name="position" value="static" /><span>Static</span></label>
+                            </div>
+                        </div>
+                        <div class="opt-row">
+                            <span id="lbl-align">Menu alignment</span>
+                            <div class="seg" role="radiogroup" aria-labelledby="lbl-align">
+                                <label><input type="radio" name="menu-align" value="left" /><span>Left</span></label>
+                                <label><input type="radio" name="menu-align" value="center" checked /><span>Center</span></label>
+                                <label><input type="radio" name="menu-align" value="right" /><span>Right</span></label>
+                            </div>
+                        </div>
+                        <label class="opt-toggle">
+                            <input type="checkbox" data-opt-logo checked />
+                            <span class="toggle-track" aria-hidden="true"></span>
+                            <span>Logo</span>
+                        </label>
+                        <label class="opt-toggle">
+                            <input type="checkbox" data-opt-buttons checked />
+                            <span class="toggle-track" aria-hidden="true"></span>
+                            <span>Right-side buttons</span>
+                        </label>
+                    </section>
+                </aside>
+
+                <!-- ======================= Preview + export ======================= -->
+                <div class="studio-side">
+                    <section class="studio-preview" aria-label="Live preview">
+                        <div class="preview-head">
+                            <h2>Live preview</h2>
+                            <div class="seg seg--sm" role="group" aria-label="Preview viewport">
+                                <button type="button" class="is-active" data-viewport="desktop">Desktop</button>
+                                <button type="button" data-viewport="phone">Mobile</button>
+                            </div>
+                        </div>
+                        <div class="preview-shell" data-preview-shell>
+                            <div class="preview-stage" data-preview-stage>
+                                <iframe data-preview title="Live preview of your composed Navalone nav"></iframe>
+                            </div>
+                        </div>
+                        <p class="preview-note">
+                            The preview runs the exact bundle you'll download — open a submenu, or
+                            switch to Mobile and tap the hamburger to try the drawer.
+                        </p>
+                    </section>
+
+                    <section class="studio-export" aria-label="Download">
+                        <div class="export-size">
+                            <span class="export-kb" data-size-readout>—</span>
+                            <span class="export-vs" data-size-savings></span>
+                        </div>
+                        <p class="export-included" data-included></p>
+                        <button type="button" class="btn btn--primary export-btn" data-download>
+                            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                            <span>Download ZIP</span>
+                        </button>
+                        <p class="export-note">index.html · app.js · navalone.custom.css · navalone.custom.js — unzip and open index.html, it works offline.</p>
+                    </section>
+                </div>
+            </div>
+
+            <!-- ========================= Generated code ========================= -->
+            <section class="studio-code" aria-label="Generated code">
+                <h2>The code you're downloading</h2>
+                <p class="opt-hint">Regenerated on every change. Copy a block, or grab the ZIP above.</p>
+
+                <div class="code-file-block">
+                    <h3><code>index.html</code></h3>
+                    <pre><code data-code-html class="language-xml"></code></pre>
+                </div>
+                <div class="code-file-block">
+                    <h3><code>app.js</code></h3>
+                    <pre><code data-code-app class="language-typescript"></code></pre>
+                </div>
+                <details class="code-file-block code-file-block--long">
+                    <summary><h3><code>navalone.custom.css</code></h3><span class="opt-hint">your composed stylesheet — click to expand</span></summary>
+                    <pre><code data-code-css class="language-css"></code></pre>
+                </details>
+                <details class="code-file-block code-file-block--long">
+                    <summary><h3><code>navalone.custom.js</code></h3><span class="opt-hint">your composed plugin — click to expand</span></summary>
+                    <pre><code data-code-js class="language-typescript"></code></pre>
+                </details>
+            </section>
+        </div>
+    </div>
+</Layout>
+
+<script>
+    import "../studio/main.ts";
+</script>
+
+<style is:global>
+    /* ============================== Studio ============================== */
+    .studio {
+        padding-bottom: 120px;
+    }
+
+    /* Top strip */
+    .studio-top {
+        border-bottom: 1px solid var(--border);
+        background: rgba(38, 50, 56, 0.7);
+        backdrop-filter: blur(8px);
+        position: sticky;
+        top: 0;
+        z-index: 50;
+    }
+    .studio-top-inner {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        height: 56px;
+    }
+    .studio-home {
+        text-decoration: none;
+        font-weight: 700;
+        color: var(--title);
+    }
+    .studio-home:hover {
+        color: var(--accent);
+    }
+    .studio-topnav {
+        display: flex;
+        gap: 20px;
+    }
+    .studio-topnav a {
+        text-decoration: none;
+        color: var(--muted);
+        font-size: 0.92rem;
+    }
+    .studio-topnav a:hover {
+        color: var(--text);
+    }
+
+    /* Hero */
+    .studio-hero {
+        padding: 64px 0 40px;
+        text-align: left;
+    }
+    .studio-hero h1 {
+        font-size: clamp(2rem, 5vw, 3.4rem);
+        line-height: 1.05;
+        margin: 14px 0 16px;
+        font-weight: 800;
+        letter-spacing: -0.02em;
+        color: var(--title);
+    }
+    .studio-hero .title-accent {
+        color: var(--accent);
+    }
+    .studio-sub {
+        max-width: 62ch;
+        margin: 0;
+        color: var(--text);
+        font-size: 1.08rem;
+    }
+
+    /* Layout: options left, sticky preview/export right; stacks on mobile. */
+    .studio-grid {
+        display: grid;
+        grid-template-columns: minmax(320px, 400px) minmax(0, 1fr);
+        gap: 28px;
+        align-items: start;
+        margin-top: 28px;
+    }
+    .studio-side {
+        position: sticky;
+        top: 72px;
+        display: grid;
+        gap: 18px;
+    }
+    @media (max-width: 980px) {
+        .studio-grid {
+            grid-template-columns: 1fr;
+        }
+        .studio-side {
+            position: static;
+        }
+    }
+
+    /* ------------------------------ Options ----------------------------- */
+    .studio-options {
+        display: grid;
+        gap: 18px;
+    }
+    .opt-group {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 14px;
+        padding: 18px;
+    }
+    .opt-group h2 {
+        margin: 0 0 4px;
+        font-size: 1rem;
+        color: var(--title);
+        letter-spacing: 0.01em;
+    }
+    .opt-hint {
+        margin: 0 0 12px;
+        font-size: 0.82rem;
+        color: var(--muted);
+    }
+    .opt-cards {
+        display: grid;
+        gap: 8px;
+    }
+
+    /* Feature cards (checkbox / radio) */
+    .opt-card {
+        display: flex;
+        gap: 10px;
+        align-items: flex-start;
+        padding: 10px 12px;
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        background: var(--bg-2);
+        cursor: pointer;
+        transition: border-color 0.15s ease, background 0.15s ease, transform 0.15s ease;
+    }
+    .opt-card:hover {
+        border-color: #4a5f6a;
+    }
+    .opt-card:has(input:checked) {
+        border-color: var(--accent);
+        background: rgba(128, 203, 196, 0.07);
+    }
+    .opt-card:has(input:focus-visible) {
+        outline: 2px solid var(--accent);
+        outline-offset: 2px;
+    }
+    .opt-card.is-locked {
+        opacity: 0.75;
+        cursor: default;
+    }
+    .opt-card input {
+        margin-top: 3px;
+        accent-color: var(--accent);
+        flex: 0 0 auto;
+    }
+    .opt-card-body {
+        display: grid;
+        gap: 2px;
+        min-width: 0;
+    }
+    .opt-card-title {
+        color: var(--title);
+        font-weight: 600;
+        font-size: 0.92rem;
+        display: flex;
+        align-items: baseline;
+        gap: 8px;
+    }
+    .opt-kb {
+        font-size: 0.72rem;
+        font-weight: 500;
+        color: var(--muted);
+        font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    }
+    .opt-card-desc {
+        font-size: 0.8rem;
+        color: var(--muted);
+        line-height: 1.45;
+    }
+    .opt-card-req {
+        font-size: 0.74rem;
+        color: var(--accent);
+    }
+
+    /* Label + control rows */
+    .opt-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        flex-wrap: wrap;
+        margin-top: 12px;
+        font-size: 0.88rem;
+        color: var(--text);
+    }
+    .opt-row[hidden] {
+        display: none;
+    }
+    .opt-num {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        color: var(--muted);
+        font-size: 0.82rem;
+    }
+    .opt-num input {
+        width: 82px;
+        padding: 6px 8px;
+        border-radius: 8px;
+        border: 1px solid var(--border);
+        background: var(--bg-2);
+        color: var(--text);
+        font: inherit;
+        font-variant-numeric: tabular-nums;
+    }
+    .opt-num input:focus-visible {
+        outline: 2px solid var(--accent);
+        outline-offset: 1px;
+    }
+
+    /* Segmented controls */
+    .seg {
+        display: inline-flex;
+        gap: 3px;
+        padding: 3px;
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid var(--border);
+        border-radius: 9px;
+    }
+    .seg label {
+        position: relative;
+        cursor: pointer;
+    }
+    .seg input {
+        position: absolute;
+        inset: 0;
+        opacity: 0;
+        cursor: pointer;
+    }
+    .seg span,
+    .seg button {
+        display: inline-block;
+        padding: 5px 11px;
+        border-radius: 6px;
+        border: 0;
+        background: none;
+        color: var(--muted);
+        font: inherit;
+        font-size: 0.8rem;
+        cursor: pointer;
+        transition: background 0.15s ease, color 0.15s ease;
+    }
+    .seg label:hover span,
+    .seg button:hover {
+        color: var(--text);
+    }
+    .seg input:checked + span,
+    .seg button.is-active {
+        background: rgba(128, 203, 196, 0.22);
+        color: var(--accent);
+    }
+    .seg input:focus-visible + span,
+    .seg button:focus-visible {
+        outline: 2px solid var(--accent);
+        outline-offset: 1px;
+    }
+
+    /* Toggle switches */
+    .opt-toggle {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-top: 12px;
+        font-size: 0.88rem;
+        cursor: pointer;
+        width: fit-content;
+    }
+    .opt-toggle input {
+        position: absolute;
+        opacity: 0;
+        width: 1px;
+        height: 1px;
+    }
+    .toggle-track {
+        width: 34px;
+        height: 20px;
+        border-radius: 999px;
+        background: var(--border);
+        position: relative;
+        transition: background 0.18s ease;
+        flex: 0 0 auto;
+    }
+    .toggle-track::after {
+        content: "";
+        position: absolute;
+        top: 3px;
+        left: 3px;
+        width: 14px;
+        height: 14px;
+        border-radius: 50%;
+        background: #cfd8dc;
+        transition: transform 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .opt-toggle input:checked + .toggle-track {
+        background: var(--accent);
+    }
+    .opt-toggle input:checked + .toggle-track::after {
+        transform: translateX(14px);
+        background: #15252b;
+    }
+    .opt-toggle input:focus-visible + .toggle-track {
+        outline: 2px solid var(--accent);
+        outline-offset: 2px;
+    }
+
+    /* ------------------------------ Preview ----------------------------- */
+    .studio-preview,
+    .studio-export {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 14px;
+        padding: 16px;
+    }
+    .preview-head {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        margin-bottom: 12px;
+    }
+    .preview-head h2 {
+        margin: 0;
+        font-size: 1rem;
+        color: var(--title);
+    }
+    .preview-shell {
+        display: flex;
+        justify-content: center;
+        background:
+            radial-gradient(rgba(255, 255, 255, 0.06) 1px, transparent 1px) 0 0 / 14px 14px,
+            #1d262b;
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 14px;
+    }
+    /* The stage clips a possibly-scaled iframe: on narrow columns the preview
+       document renders at ~1000px virtual width and is scaled down to fit, so
+       "Desktop" genuinely shows the desktop bar. The iframe is absolutely
+       positioned so its (large, pre-transform) layout size can never widen the
+       page. */
+    .preview-stage {
+        position: relative;
+        width: 100%;
+        height: 460px;
+        overflow: hidden;
+    }
+    .preview-stage iframe {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 460px;
+        border: 0;
+        border-radius: 8px;
+        background: #fff;
+        box-shadow: 0 24px 60px -24px rgba(8, 12, 14, 0.8);
+        transform-origin: top left;
+    }
+    .preview-note {
+        margin: 10px 0 0;
+        font-size: 0.8rem;
+        color: var(--muted);
+    }
+
+    /* ------------------------------ Export ------------------------------ */
+    .export-size {
+        display: flex;
+        align-items: baseline;
+        gap: 10px;
+        flex-wrap: wrap;
+    }
+    .export-kb {
+        font-size: 1.7rem;
+        font-weight: 800;
+        color: var(--accent);
+        font-variant-numeric: tabular-nums;
+        letter-spacing: -0.01em;
+    }
+    .export-vs {
+        font-size: 0.84rem;
+        color: var(--muted);
+    }
+    .export-included {
+        margin: 6px 0 14px;
+        font-size: 0.8rem;
+        color: var(--muted);
+        line-height: 1.5;
+    }
+    .export-btn {
+        width: 100%;
+        justify-content: center;
+        font-size: 1rem;
+        gap: 10px;
+        transition: transform 0.15s ease, box-shadow 0.15s ease, background 0.2s ease;
+    }
+    .export-btn:hover {
+        box-shadow: 0 10px 30px -10px rgba(128, 203, 196, 0.55);
+    }
+    .export-btn:active {
+        transform: translateY(0) scale(0.98);
+    }
+    .export-btn.is-done {
+        background: #34d399;
+    }
+    .export-note {
+        margin: 10px 0 0;
+        font-size: 0.76rem;
+        color: var(--muted);
+        text-align: center;
+    }
+
+    /* --------------------------- Generated code -------------------------- */
+    .studio-code {
+        margin-top: 44px;
+    }
+    .studio-code > h2 {
+        margin: 0 0 4px;
+        font-size: 1.3rem;
+        color: var(--title);
+    }
+    .code-file-block {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 14px;
+        margin-top: 16px;
+        overflow: hidden;
+    }
+    .code-file-block > h3,
+    .code-file-block summary {
+        margin: 0;
+        padding: 12px 16px;
+        border-bottom: 1px solid var(--border);
+        font-size: 0.9rem;
+        color: var(--title);
+        display: flex;
+        align-items: baseline;
+        gap: 12px;
+    }
+    .code-file-block summary {
+        cursor: pointer;
+        list-style: none;
+    }
+    .code-file-block summary::-webkit-details-marker {
+        display: none;
+    }
+    .code-file-block summary h3 {
+        margin: 0;
+        font-size: 0.9rem;
+    }
+    .code-file-block summary::before {
+        content: "▸";
+        color: var(--muted);
+        transition: transform 0.15s ease;
+        display: inline-block;
+    }
+    .code-file-block[open] summary::before {
+        transform: rotate(90deg);
+    }
+    .code-file-block summary .opt-hint {
+        margin: 0;
+    }
+    .code-file-block summary:focus-visible {
+        outline: 2px solid var(--accent);
+        outline-offset: -2px;
+    }
+    .code-file-block h3 code,
+    .code-file-block summary code {
+        font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+        color: var(--accent);
+        background: none;
+        font-size: 0.86rem;
+    }
+    .code-file-block pre {
+        margin: 0;
+        padding: 16px;
+        max-height: 420px;
+        overflow: auto;
+        font-size: 0.82rem;
+        line-height: 1.6;
+        background: var(--code-bg);
+        font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    }
+    .code-file-block--long pre {
+        max-height: 360px;
+    }
+    .code-file-block pre code {
+        white-space: pre;
+    }
+    .code-file-block--long pre code[data-code-js] {
+        white-space: pre-wrap;
+        word-break: break-all;
+    }
+
+    /* code.ts enhancer chrome (.code-block wrapper + copy button), themed to
+       the landing tokens. The wrapper wraps our <pre> inside the card. */
+    .studio-code .code-block {
+        position: relative;
+        margin: 0;
+    }
+    .studio-code .code-block pre code.hljs {
+        background: transparent;
+        padding: 0;
+    }
+    .studio-code .copy-btn {
+        position: absolute;
+        top: 10px;
+        right: 14px;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 5px 10px;
+        font-size: 0.74rem;
+        font-family: inherit;
+        color: var(--muted);
+        background: rgba(29, 38, 43, 0.9);
+        border: 1px solid var(--border);
+        border-radius: 7px;
+        cursor: pointer;
+        opacity: 0;
+        transition: opacity 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+    }
+    .studio-code .code-block:hover .copy-btn,
+    .studio-code .copy-btn:focus-visible {
+        opacity: 1;
+    }
+    .studio-code .copy-btn:hover {
+        color: var(--text);
+        border-color: var(--accent);
+    }
+    .studio-code .copy-btn.is-copied {
+        color: #34d399;
+        border-color: #34d399;
+        opacity: 1;
+    }
+    .studio-code .copy-btn svg {
+        display: block;
+    }
+    @media (hover: none) {
+        .studio-code .copy-btn {
+            opacity: 1;
+        }
+    }
+
+    @media (max-width: 640px) {
+        .studio-hero {
+            padding-top: 40px;
+        }
+        .preview-shell iframe {
+            height: 420px;
+        }
+        .preview-shell.is-phone iframe {
+            width: 100%;
+            max-width: 380px;
+        }
+    }
+</style>

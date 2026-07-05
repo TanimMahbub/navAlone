@@ -4,7 +4,7 @@
  * (thumbnail/icon · text · badge · arrow).
  */
 import type { Navalone } from "./navalone";
-import type { NavaloneItem, NavaloneLogoConfig } from "./types";
+import type { NavaloneItem, NavaloneLogoConfig } from "../types";
 
 export interface FillRowOptions {
     hasChild?: boolean;

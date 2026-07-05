@@ -1,0 +1,8 @@
+/* Feature: dropdown — the simple submenu panel. */
+:root {
+	--nv-dropdown-width: 240px;
+}
+
+.nv-dropdown {
+	width: var(--nv-dropdown-width);
+}

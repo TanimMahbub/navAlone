@@ -11,6 +11,7 @@
         "astro": "astro"
     },
     "dependencies": {
+        "fflate": "^0.8.2",
         "highlight.js": "^11.11.1",
         "navalone": "workspace:*"
     },

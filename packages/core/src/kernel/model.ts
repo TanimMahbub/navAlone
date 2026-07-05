@@ -6,7 +6,8 @@
  */
 import type { Navalone } from "./navalone";
 import { escapeId } from "./dom";
-import type { NavaloneColumn, NavaloneDisplay, NavaloneItem } from "./types";
+import { registry } from "./registry";
+import type { NavaloneColumn, NavaloneDisplay, NavaloneItem } from "../types";
 
 export function buildModel(nv: Navalone): NavaloneItem[] {
     return Array.isArray(nv.options.items) ? nv.options.items : parseDeclarative(nv);
@@ -128,9 +129,11 @@ function parseItem(nv: Navalone, li: HTMLElement): NavaloneItem | null {
                 id: targetId,
                 display,
                 title: sub.dataset.title,
-                // Mega panels collect their rows into columns (delimited by
-                // `.nv-group` headings); every other display is a flat list.
-                ...(display === "mega"
+                // Column displays (the mega grid) collect their rows into
+                // columns delimited by `.nv-group` headings; every other
+                // display is a flat list. Features declare which displays are
+                // column-based via the registry.
+                ...(registry.columnDisplays.indexOf(display) >= 0
                     ? { columns: parseColumns(nv, sub) }
                     : { items: parseList(nv, sub) })
             };

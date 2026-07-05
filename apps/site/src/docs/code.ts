@@ -8,6 +8,7 @@ import typescript from "highlight.js/lib/languages/typescript";
 import xml from "highlight.js/lib/languages/xml";
 import bash from "highlight.js/lib/languages/bash";
 import json from "highlight.js/lib/languages/json";
+import css from "highlight.js/lib/languages/css";
 import "../styles/hljs-material.css";
 import { svgIcon } from "./icons";
 
@@ -15,6 +16,7 @@ hljs.registerLanguage("typescript", typescript);
 hljs.registerLanguage("xml", xml);
 hljs.registerLanguage("bash", bash);
 hljs.registerLanguage("json", json);
+hljs.registerLanguage("css", css);
 
 const SUBSET = ["typescript", "xml", "bash", "json"];
 
@@ -106,6 +108,21 @@ export function enhanceCodeEditor(
     render();
 
     return render;
+}
+
+/**
+ * Re-highlight a live code block after a programmatic content change (the
+ * Studio regenerates its blocks on every option change). Very large payloads
+ * (the composed minified bundle) skip tokenising and render as plain text —
+ * highlighting a 40 KB one-liner buys nothing and costs main-thread time.
+ */
+export function highlightInto(code: HTMLElement, text: string, lang: string): void {
+    if (text.length > 80_000 || !hljs.getLanguage(lang)) {
+        code.textContent = text;
+    } else {
+        code.innerHTML = hljs.highlight(text, { language: lang }).value;
+    }
+    code.classList.add("hljs");
 }
 
 export function enhanceCodeBlocks(root: ParentNode = document): void {

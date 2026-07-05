@@ -1,0 +1,99 @@
+/* Feature: drawer-drilldown — the sliding drill-down inside the drawer:
+   absolutely-stacked levels sliding via transform, with the animated
+   `--mmHeight` host and the Back header. */
+.menu-level {
+	position: absolute;
+	top: 0;
+	left: 0;
+	opacity: 0;
+	visibility: hidden;
+	transition: transform var(--nv-duration) ease,
+		opacity var(--nv-duration) ease,
+		visibility 0s linear var(--nv-duration);
+}
+
+.nv-panels.no-transition .menu-level {
+	transition: none;
+}
+
+.active-menu {
+	opacity: 1;
+	visibility: visible;
+	transition: transform var(--nv-duration) ease,
+		opacity var(--nv-duration) ease,
+		visibility 0s;
+}
+
+.level-1 {
+	transform: translateX(0);
+}
+
+.menu-level:not(.level-1) {
+	transform: translateX(100%);
+}
+
+/* ---------------------------------------------------------------------- */
+/* Sub-panel header                                                       */
+/* ---------------------------------------------------------------------- */
+.menu-header {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 12px;
+	background: var(--nv-header-bg);
+	color: var(--nv-header-color);
+	border-bottom: var(--nv-border);
+	padding: 10px 14px;
+	position: relative;
+	z-index: 1;
+}
+
+/* Back button: chevron + label, sits on the left. */
+.menu-header .back-button {
+	display: inline-flex;
+	align-items: center;
+	gap: 6px;
+	flex: 0 0 auto;
+	color: var(--nv-back-color);
+	font-family: var(--nv-font);
+	font-size: 14px;
+	font-weight: 600;
+	line-height: 1;
+	background: none;
+	border: none;
+	cursor: pointer;
+	padding: 7px 10px 7px 8px;
+	margin: -4px 0 -4px -6px;
+	border-radius: var(--nv-radius);
+	transition: background var(--nv-duration) ease, color var(--nv-duration) ease;
+}
+
+.menu-header .back-button:hover {
+	background: rgba(255, 255, 255, 0.12);
+	color: var(--nv-header-color);
+}
+
+.menu-header .back-button .nv-chevron {
+	width: 18px;
+	height: 18px;
+}
+
+.menu-header .back-button:focus-visible {
+	outline: 2px solid var(--nv-focus-color);
+	outline-offset: -2px;
+}
+
+/* The parent level's name, on the right. */
+.menu-header .menu-title {
+	flex: 1 1 auto;
+	min-width: 0;
+	text-align: right;
+	font-family: var(--nv-font);
+	font-weight: 600;
+	font-size: 15px;
+	color: var(--nv-header-color);
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+	pointer-events: none;
+}

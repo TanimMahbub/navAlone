@@ -1,0 +1,35 @@
+/* Feature: mega — the column-grid mega menu. */
+:root {
+	--nv-mega-col-width: 220px;
+}
+
+/* Mega: columns laid out side by side. `width: max-content` sizes the panel to
+   its columns (it is absolutely positioned, so without this it would shrink to
+   the narrow trigger <li> and stack everything). `max-width` then caps it to the
+   viewport and `flex-wrap` drops one column at a time as the screen narrows —
+   3/4 columns on large screens, fewer as it shrinks, a single stacked column
+   only as the last step before the bar itself collapses. */
+.nv-mega {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 8px;
+	width: max-content;
+	max-width: calc(100vw - 16px);
+}
+
+.nv-col {
+	flex: 1 1 var(--nv-mega-col-width);
+	min-width: var(--nv-mega-col-width);
+	/* Let the last/only column shrink below its basis on a very narrow panel so
+	   the single-column fallback still fits the screen. */
+	max-width: 100%;
+}
+
+.nv-col-head {
+	font-size: 11px;
+	font-weight: bold;
+	text-transform: uppercase;
+	letter-spacing: 0.08em;
+	color: var(--nv-muted-color);
+	padding: 8px 10px 4px;
+}

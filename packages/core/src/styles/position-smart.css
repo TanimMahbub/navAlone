@@ -1,0 +1,17 @@
+/* Feature: position-smart — the auto-hide bar (`position: "smart"`): sticky
+   like `sticky`, sliding up out of view on scroll-down and back on scroll-up.
+   The transform is applied to the bar, never the root (a transformed root
+   would become the containing block for the fixed drawer/backdrop). */
+.nv-pos-smart.mm.navalone {
+	position: sticky;
+	top: 0;
+	z-index: var(--nv-z);
+}
+
+.nv-pos-smart .nv-bar {
+	transition: transform var(--nv-duration) ease;
+}
+
+.nv-pos-smart.nv-hidden .nv-bar {
+	transform: translateY(-100%);
+}

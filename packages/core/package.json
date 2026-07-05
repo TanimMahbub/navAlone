@@ -20,7 +20,10 @@
     "type": "module",
     "sideEffects": [
         "**/*.css",
-        "./dist/navalone.global.js"
+        "./dist/navalone.global.js",
+        "./dist/index.mjs",
+        "./dist/index.cjs",
+        "./src/index.ts"
     ],
     "main": "./dist/index.cjs",
     "module": "./dist/index.mjs",
@@ -34,6 +37,17 @@
             "import": "./dist/index.mjs",
             "require": "./dist/index.cjs"
         },
+        "./kernel": {
+            "types": "./dist/kernel.d.ts",
+            "import": "./dist/kernel.mjs",
+            "require": "./dist/kernel.cjs"
+        },
+        "./features/*": {
+            "types": "./dist/features/*.d.ts",
+            "import": "./dist/features/*.mjs",
+            "require": "./dist/features/*.cjs"
+        },
+        "./studio/*": "./dist/studio/*",
         "./css": "./dist/navalone.css",
         "./navalone.css": "./dist/navalone.css",
         "./global": "./dist/navalone.global.js",
@@ -45,8 +59,8 @@
         "README.md"
     ],
     "scripts": {
-        "build": "tsup && node scripts/copy-css.mjs",
-        "dev": "tsup --watch --onSuccess \"node scripts/copy-css.mjs\"",
+        "build": "tsup && node scripts/build-dist.mjs",
+        "dev": "tsup --watch --onSuccess \"node scripts/build-dist.mjs\"",
         "test": "vitest run",
         "test:watch": "vitest",
         "test:e2e": "node test/e2e/run-browser.mjs",

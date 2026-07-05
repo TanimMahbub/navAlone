@@ -1,0 +1,8 @@
+/* Feature: dropdown-lg — the wide dropdown variant (rich rows). */
+:root {
+	--nv-dropdown-lg-width: 320px;
+}
+
+.nv-dropdown-lg {
+	width: var(--nv-dropdown-lg-width);
+}

@@ -1,0 +1,47 @@
+/* Feature: drawer-accordion — inline expand/collapse inside the drawer
+   (`mobileMenu: "accordion"`). */
+/* The host flows naturally (no animated --mmHeight) and scrolls as a whole;
+   the single panel is laid out in normal flow rather than absolute-stacked. */
+.nv-panels.nv-acc {
+	height: auto;
+	min-height: 0;
+}
+
+.nv-panels.nv-acc > .menu-level {
+	position: relative;
+	opacity: 1;
+	visibility: visible;
+	transform: none;
+	transition: none;
+}
+
+/* Each submenu is a collapsible region animated via grid-template-rows
+   (0fr → 1fr): the inner <ul> clips its overflow so the row count animates
+   smoothly without measuring heights in JS. */
+.nv-acc-panel {
+	display: grid;
+	grid-template-rows: 0fr;
+	transition: grid-template-rows var(--nv-duration) ease;
+}
+
+.nv-panels.no-transition .nv-acc-panel {
+	transition: none;
+}
+
+.nv-acc-panel > ul {
+	overflow: hidden;
+	min-height: 0;
+}
+
+.nv-acc-li.is-open > .nv-acc-panel {
+	grid-template-rows: 1fr;
+}
+
+/* The trigger chevron points down and flips up when its submenu is open. */
+.nv-acc-li > .menu-item .nv-arrow {
+	transition: transform var(--nv-duration) ease;
+}
+
+.nv-acc-li.is-open > .menu-item .nv-arrow {
+	transform: rotate(180deg);
+}

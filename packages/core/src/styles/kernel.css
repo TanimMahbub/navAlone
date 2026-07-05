@@ -4,6 +4,7 @@
 /* Theme tokens. Every Navalone rule reads these custom properties — set   */
 /* them per instance via the `theme`, `width` and `animationDuration`      */
 /* options (applied inline on the root element) or override them in CSS.   */
+/* Feature chunks add their own tokens in their own :root blocks.          */
 /* ---------------------------------------------------------------------- */
 :root {
 	--nv-width: 320px;
@@ -39,7 +40,7 @@
 
 	--nv-scrollbar-color: #333333;
 
-	/* Phase 2 — desktop bar */
+	/* Desktop bar */
 	--nv-bar-bg: #ffffff;
 	--nv-bar-color: #222222;
 	--nv-bar-height: 60px;
@@ -49,9 +50,9 @@
 	--nv-bar-shadow: 0 1px 0 rgba(0, 0, 0, 0.08), 0 2px 12px -6px rgba(0, 0, 0, 0.25);
 	--nv-logo-size: 22px;
 
-	/* Condensed bar — the tightened layout the dynamic responsive mode steps
-	   through before collapsing (and that static mode uses at condenseBreakpoint).
-	   Only the menu's own metrics shrink, so the logo/buttons stay put. */
+	/* Condensed bar — the tightened layout the responsive strategies step
+	   through before collapsing. Only the menu's own metrics shrink, so the
+	   logo/buttons stay put. */
 	--nv-condensed-item-font-size: 14px;
 	--nv-condensed-bar-item-padding: 7px 9px;
 	--nv-condensed-bar-gap: 2px;
@@ -60,15 +61,12 @@
 	--nv-hover-bg: rgba(0, 0, 0, 0.05);
 	--nv-z: 1000;
 
-	/* Phase 2 — desktop panels */
+	/* Desktop panels */
 	--nv-panel-shadow: 0 8px 30px -8px rgba(0, 0, 0, 0.35);
-	--nv-dropdown-width: 240px;
-	--nv-dropdown-lg-width: 320px;
-	--nv-mega-col-width: 220px;
 	--nv-panel-gap: 2px;
 	--nv-panel-pad: 6px;
 
-	/* Phase 2 — right buttons */
+	/* Right buttons */
 	--nv-action-padding: 8px 16px;
 	--nv-action-radius: 6px;
 	--nv-action-gap: 8px;
@@ -78,7 +76,7 @@
 	--nv-action-primary-bg: #3a7afe;
 	--nv-action-primary-color: #ffffff;
 
-	/* Phase 2 — drawer */
+	/* Drawer */
 	--nv-backdrop-bg: rgba(0, 0, 0, 0.45);
 	--nv-drawer-head-bg: var(--nv-header-bg);
 	--nv-drawer-head-color: var(--nv-header-color);
@@ -112,12 +110,11 @@ body.nv-scroll-lock {
 /* Bar positioning (`position` option)                                    */
 /*   fixed  — pinned to the top from the start (default)                  */
 /*   sticky — in normal flow (can start below a header), pins on scroll   */
-/*   smart  — sticky + auto-hide on scroll-down, reveal on scroll-up      */
 /*   static — stays in normal flow and scrolls away                       */
+/*   (the auto-hide variant's rules live in its own feature chunk)        */
 /* NB: positioning is applied to the ROOT, never via `transform` on it —  */
 /* a transformed root would become the containing block for the          */
-/* position:fixed drawer/backdrop and break them. The smart auto-hide     */
-/* therefore transforms the .nv-bar (a sibling of the drawer) instead.    */
+/* position:fixed drawer/backdrop and break them.                         */
 /* ---------------------------------------------------------------------- */
 .nv-pos-fixed.mm.navalone {
 	position: fixed;
@@ -127,8 +124,7 @@ body.nv-scroll-lock {
 	z-index: var(--nv-z);
 }
 
-.nv-pos-sticky.mm.navalone,
-.nv-pos-smart.mm.navalone {
+.nv-pos-sticky.mm.navalone {
 	position: sticky;
 	top: 0;
 	z-index: var(--nv-z);
@@ -136,15 +132,6 @@ body.nv-scroll-lock {
 
 .nv-pos-static.mm.navalone {
 	position: relative;
-}
-
-/* Smart auto-hide: slide the bar up out of view and back. */
-.nv-pos-smart .nv-bar {
-	transition: transform var(--nv-duration) ease;
-}
-
-.nv-pos-smart.nv-hidden .nv-bar {
-	transform: translateY(-100%);
 }
 
 /* ====================================================================== */
@@ -324,7 +311,7 @@ body.nv-scroll-lock {
 }
 
 /* ====================================================================== */
-/* Desktop submenu panels (dropdown / dropdown-lg / mega / flyout)        */
+/* Desktop submenu panels — the shared shell every panel flavor sits in   */
 /* ====================================================================== */
 .nv-panel {
 	position: absolute;
@@ -374,190 +361,17 @@ body.nv-scroll-lock {
 	height: 10px;
 }
 
-.nv-flyout.is-open::before {
-	top: 0;
-	left: -10px;
-	right: auto;
-	bottom: 0;
-	width: 10px;
-	height: auto;
-}
-
-.nv-flyout.nv-flip-x.is-open::before {
-	left: auto;
-	right: -10px;
-}
-
 .nv-panel ul {
 	list-style: none;
 }
 
-.nv-dropdown {
-	width: var(--nv-dropdown-width);
-}
-
-.nv-dropdown-lg {
-	width: var(--nv-dropdown-lg-width);
-}
-
-/* Mega: columns laid out side by side. `width: max-content` sizes the panel to
-   its columns (it is absolutely positioned, so without this it would shrink to
-   the narrow trigger <li> and stack everything). `max-width` then caps it to the
-   viewport and `flex-wrap` drops one column at a time as the screen narrows —
-   3/4 columns on large screens, fewer as it shrinks, a single stacked column
-   only as the last step before the bar itself collapses. */
-.nv-mega {
-	display: flex;
-	flex-wrap: wrap;
-	gap: 8px;
-	width: max-content;
-	max-width: calc(100vw - 16px);
-}
-
-.nv-col {
-	flex: 1 1 var(--nv-mega-col-width);
-	min-width: var(--nv-mega-col-width);
-	/* Let the last/only column shrink below its basis on a very narrow panel so
-	   the single-column fallback still fits the screen. */
-	max-width: 100%;
-}
-
-/* Tall panels (a wrapped mega, a long list) that would run off the bottom of
+/* Tall panels (a long list, a wrapped grid) that would run off the bottom of
    the screen scroll internally. The JS adds this only when needed and only on
-   panels that aren't currently hosting a side-flyout, so nested side panels are
+   panels that aren't currently hosting a nested side panel, so those are
    never clipped. */
 .nv-panel.nv-scroll {
 	overflow-y: auto;
 	overflow-x: hidden;
-}
-
-.nv-col-head {
-	font-size: 11px;
-	font-weight: bold;
-	text-transform: uppercase;
-	letter-spacing: 0.08em;
-	color: var(--nv-muted-color);
-	padding: 8px 10px 4px;
-}
-
-/* E-commerce mega ("mega-tabs"): a category rail on the left switching content
-   panes on the right. The panel sizes to its content but is capped to the
-   viewport (like the plain mega); a tall pane scrolls internally via .nv-scroll. */
-.nv-mega-tabs {
-	display: flex;
-	align-items: stretch;
-	gap: var(--nv-mt-gap, 10px);
-	width: max-content;
-	max-width: calc(100vw - 16px);
-}
-
-.nv-mt-nav {
-	flex: 0 0 auto;
-	width: var(--nv-mt-nav-width, 224px);
-	display: flex;
-	flex-direction: column;
-	gap: 1px;
-	border-right: var(--nv-border);
-	padding-right: var(--nv-mt-gap, 10px);
-}
-
-/* Rail buttons mirror the desktop row look, with the chevron pinned right. */
-.nv-mt-cat {
-	display: flex;
-	align-items: center;
-	gap: var(--nv-row-gap);
-	width: 100%;
-	font-family: var(--nv-font);
-	font-size: 15px;
-	color: var(--nv-text-color);
-	background: none;
-	border: none;
-	border-radius: 6px;
-	padding: var(--nv-item-padding);
-	text-align: left;
-	text-decoration: none;
-	cursor: pointer;
-}
-
-.nv-mt-cat .nv-arrow {
-	margin-left: auto;
-	opacity: 0.55;
-}
-
-.nv-mt-cat:hover,
-.nv-mt-cat:focus-visible,
-.nv-mt-cat.is-active {
-	background: var(--nv-hover-bg);
-}
-
-.nv-mt-cat.is-active {
-	font-weight: 600;
-}
-
-.nv-mt-cat.is-disabled {
-	opacity: 0.5;
-	cursor: default;
-}
-
-/* The content panes share a slot: only the active one shows. */
-.nv-mt-panes {
-	flex: 1 1 auto;
-	min-width: 0;
-	display: grid;
-}
-
-.nv-mt-pane {
-	grid-area: 1 / 1;
-	min-width: 0;
-}
-
-.nv-mt-pane:not(.is-active) {
-	display: none;
-}
-
-/* The grid inside a pane is already viewport-capped by its parent panel, so it
-   fills the pane (no second max-width clamp) and still wraps columns. */
-.nv-mt-grid {
-	width: auto;
-	max-width: none;
-}
-
-/* Flyout (nested) panels open to the side of their parent row. */
-.nv-flyout {
-	top: calc(-1 * var(--nv-panel-pad) - 1px);
-	left: 100%;
-	margin-left: 4px;
-	transform: translateX(6px);
-}
-
-.nv-flyout.is-open {
-	transform: none;
-}
-
-.nv-flyout.nv-flip-x {
-	left: auto;
-	right: 100%;
-	margin-left: 0;
-	margin-right: 4px;
-}
-
-/* Narrow-screen fallback: when there is no room for a nested flyout on either
-   side of its parent row, drop it in-flow directly below the row (a "drill in
-   place"). It pushes the rows beneath it down rather than flying off-screen. */
-.nv-flyout.nv-flyout-below {
-	position: static;
-	margin: 4px 0 0;
-	transform: none;
-	width: auto;
-	max-width: 100%;
-}
-
-.nv-flyout.nv-flyout-below:not(.is-open) {
-	display: none;
-}
-
-.nv-flyout.nv-flyout-below.is-open {
-	display: block;
 }
 
 /* Desktop rows */
@@ -718,7 +532,7 @@ body.nv-scroll-lock {
 }
 
 /* ====================================================================== */
-/* Mobile sliding drill-down (Phase 1) — hosted inside .nv-panels         */
+/* Drawer panel host — shared by both mobile engines                      */
 /* ====================================================================== */
 .nv-panels {
 	position: relative;
@@ -754,37 +568,9 @@ body.nv-scroll-lock {
 }
 
 .menu-level {
-	position: absolute;
-	top: 0;
-	left: 0;
 	width: 100%;
 	background: var(--nv-panel-bg);
 	color: var(--nv-text-color);
-	opacity: 0;
-	visibility: hidden;
-	transition: transform var(--nv-duration) ease,
-		opacity var(--nv-duration) ease,
-		visibility 0s linear var(--nv-duration);
-}
-
-.nv-panels.no-transition .menu-level {
-	transition: none;
-}
-
-.active-menu {
-	opacity: 1;
-	visibility: visible;
-	transition: transform var(--nv-duration) ease,
-		opacity var(--nv-duration) ease,
-		visibility 0s;
-}
-
-.level-1 {
-	transform: translateX(0);
-}
-
-.menu-level:not(.level-1) {
-	transform: translateX(100%);
 }
 
 .menu-level ul {
@@ -891,7 +677,7 @@ body.nv-scroll-lock {
 	display: block;
 }
 
-/* Mega-menu column headings, flattened into the drill-down panel. */
+/* Grouped-rows heading (column headings flattened into a drawer panel). */
 .nv-group {
 	font-size: 11px;
 	font-weight: bold;
@@ -905,119 +691,4 @@ body.nv-scroll-lock {
 	opacity: var(--nv-disabled-opacity);
 	cursor: not-allowed;
 	pointer-events: none;
-}
-
-/* ---------------------------------------------------------------------- */
-/* Sub-panel header                                                       */
-/* ---------------------------------------------------------------------- */
-.menu-header {
-	display: flex;
-	align-items: center;
-	justify-content: space-between;
-	gap: 12px;
-	background: var(--nv-header-bg);
-	color: var(--nv-header-color);
-	border-bottom: var(--nv-border);
-	padding: 10px 14px;
-	position: relative;
-	z-index: 1;
-}
-
-/* Back button: chevron + label, sits on the left. */
-.menu-header .back-button {
-	display: inline-flex;
-	align-items: center;
-	gap: 6px;
-	flex: 0 0 auto;
-	color: var(--nv-back-color);
-	font-family: var(--nv-font);
-	font-size: 14px;
-	font-weight: 600;
-	line-height: 1;
-	background: none;
-	border: none;
-	cursor: pointer;
-	padding: 7px 10px 7px 8px;
-	margin: -4px 0 -4px -6px;
-	border-radius: var(--nv-radius);
-	transition: background var(--nv-duration) ease, color var(--nv-duration) ease;
-}
-
-.menu-header .back-button:hover {
-	background: rgba(255, 255, 255, 0.12);
-	color: var(--nv-header-color);
-}
-
-.menu-header .back-button .nv-chevron {
-	width: 18px;
-	height: 18px;
-}
-
-.menu-header .back-button:focus-visible {
-	outline: 2px solid var(--nv-focus-color);
-	outline-offset: -2px;
-}
-
-/* The parent level's name, on the right. */
-.menu-header .menu-title {
-	flex: 1 1 auto;
-	min-width: 0;
-	text-align: right;
-	font-family: var(--nv-font);
-	font-weight: 600;
-	font-size: 15px;
-	color: var(--nv-header-color);
-	overflow: hidden;
-	text-overflow: ellipsis;
-	white-space: nowrap;
-	pointer-events: none;
-}
-
-/* ====================================================================== */
-/* Mobile accordion (inline expand) — `mobileMenu: "accordion"`            */
-/* ====================================================================== */
-/* The host flows naturally (no animated --mmHeight) and scrolls as a whole;
-   the single panel is laid out in normal flow rather than absolute-stacked. */
-.nv-panels.nv-acc {
-	height: auto;
-	min-height: 0;
-}
-
-.nv-panels.nv-acc > .menu-level {
-	position: relative;
-	opacity: 1;
-	visibility: visible;
-	transform: none;
-	transition: none;
-}
-
-/* Each submenu is a collapsible region animated via grid-template-rows
-   (0fr → 1fr): the inner <ul> clips its overflow so the row count animates
-   smoothly without measuring heights in JS. */
-.nv-acc-panel {
-	display: grid;
-	grid-template-rows: 0fr;
-	transition: grid-template-rows var(--nv-duration) ease;
-}
-
-.nv-panels.no-transition .nv-acc-panel {
-	transition: none;
-}
-
-.nv-acc-panel > ul {
-	overflow: hidden;
-	min-height: 0;
-}
-
-.nv-acc-li.is-open > .nv-acc-panel {
-	grid-template-rows: 1fr;
-}
-
-/* The trigger chevron points down and flips up when its submenu is open. */
-.nv-acc-li > .menu-item .nv-arrow {
-	transition: transform var(--nv-duration) ease;
-}
-
-.nv-acc-li.is-open > .menu-item .nv-arrow {
-	transform: rotate(180deg);
 }
