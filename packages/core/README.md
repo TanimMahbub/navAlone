@@ -49,6 +49,6 @@ The IIFE bundle assigns `window.Navalone`.
 | `style` / `./css`     | `dist/navalone.css`           |
 
 Full API reference (options, methods, events, data contract, theming, accessibility) is in
-the [repository README](https://github.com/tanim/navalone#readme).
+the [repository README](https://github.com/TanimMahbub/navAlone#readme).
 
 MIT © Tanim Mahbub

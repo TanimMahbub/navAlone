@@ -66,8 +66,7 @@ app.innerHTML = `
             <a class="brand" href="#getting-started">Navalone <span>docs</span></a>
             <nav class="topbar-links" aria-label="External">
                 <a href="/">Home</a>
-                <a href="https://www.npmjs.com/package/navalone">npm</a>
-                <a href="https://github.com/">GitHub</a>
+                <a href="https://github.com/TanimMahbub/navAlone">GitHub</a>
             </nav>
             <button class="nav-toggle" aria-expanded="false" aria-controls="sidebar">Menu</button>
         </div>
