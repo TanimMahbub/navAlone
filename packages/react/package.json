@@ -1,6 +1,6 @@
 {
     "name": "@navalone/react",
-    "version": "0.0.0",
+    "version": "0.1.0",
     "description": "React wrapper for Navalone — a free, open-source responsive main-menu plugin. A thin adapter over the framework-agnostic core.",
     "keywords": [
         "navalone",
@@ -52,8 +52,11 @@
         "example": "vite example",
         "example:build": "vite build example"
     },
+    "publishConfig": {
+        "access": "public"
+    },
     "peerDependencies": {
-        "navalone": "workspace:^",
+        "navalone": "^0.1.0",
         "react": "^18.0.0 || ^19.0.0",
         "react-dom": "^18.0.0 || ^19.0.0"
     },

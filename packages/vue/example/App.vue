@@ -1,10 +1,10 @@
 <script setup lang="ts">
 import { ref } from "vue";
 // In a real app this is `import { Navalone } from "@navalone/vue"`.
-import { Navalone } from "../src/index";
+import { Navalone, type NavaloneExposed } from "../src/index";
 import { demoItems } from "./demo-items";
 
-const menu = ref<InstanceType<typeof Navalone> | null>(null);
+const menu = ref<NavaloneExposed | null>(null);
 const log = ref<string[]>([]);
 
 function push(line: string) {

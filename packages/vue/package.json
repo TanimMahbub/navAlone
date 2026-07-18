@@ -1,6 +1,6 @@
 {
     "name": "@navalone/vue",
-    "version": "0.0.0",
+    "version": "0.1.0",
     "description": "Vue 3 wrapper for Navalone — a free, open-source responsive main-menu plugin. A thin adapter over the framework-agnostic core.",
     "keywords": [
         "navalone",
@@ -53,8 +53,11 @@
         "example": "vite example",
         "example:build": "vite build example"
     },
+    "publishConfig": {
+        "access": "public"
+    },
     "peerDependencies": {
-        "navalone": "workspace:^",
+        "navalone": "^0.1.0",
         "vue": "^3.4.0"
     },
     "devDependencies": {

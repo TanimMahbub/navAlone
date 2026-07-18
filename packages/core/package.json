@@ -1,6 +1,6 @@
 {
     "name": "navalone",
-    "version": "0.0.0",
+    "version": "0.1.0",
     "description": "A free, open-source responsive main-menu plugin — desktop dropdowns, multi-level menus and mega menus that collapse to a sliding mobile drawer. A free alternative to mmenu.js.",
     "keywords": [
         "menu",
@@ -69,6 +69,7 @@
     ],
     "scripts": {
         "build": "tsup && node scripts/build-dist.mjs",
+        "prepublishOnly": "npm run build",
         "dev": "tsup --watch --onSuccess \"node scripts/build-dist.mjs\"",
         "test": "vitest run",
         "test:watch": "vitest",

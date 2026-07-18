@@ -98,6 +98,24 @@ type NavaloneProps = {
     [K in keyof typeof navaloneProps]?: NavaloneOptions[K & keyof NavaloneOptions];
 };
 
+/**
+ * The methods and getters `expose`d on the component instance. Vue cannot infer
+ * exposed members for render-function components, so template refs should be
+ * typed with this explicitly: `const menu = ref<NavaloneExposed | null>(null)`.
+ */
+export interface NavaloneExposed {
+    open: () => void;
+    close: () => void;
+    toggle: () => void;
+    navigateTo: (panelId: string, trigger?: HTMLElement | null) => boolean;
+    back: () => boolean;
+    openSubmenu: (id: string) => void;
+    closeSubmenu: (id: string) => void;
+    closeAll: () => void;
+    destroy: () => void;
+    readonly instance: NavaloneCore | null;
+}
+
 /** Collect only the defined data props into a core options object. */
 function collectOptions(props: NavaloneProps): NavaloneOptions {
     const out: Record<string, unknown> = {};
@@ -151,7 +169,7 @@ export const Navalone = defineComponent({
             }
         );
 
-        expose({
+        const exposed: NavaloneExposed = {
             open: () => instance?.open(),
             close: () => instance?.close(),
             toggle: () => instance?.toggle(),
@@ -165,7 +183,8 @@ export const Navalone = defineComponent({
             get instance() {
                 return instance;
             }
-        });
+        };
+        expose(exposed);
 
         return () => h("div", { ref: host });
     }
