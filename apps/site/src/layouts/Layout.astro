@@ -7,12 +7,19 @@ import SiteBackground from "../components/SiteBackground.astro";
 interface Props {
     title?: string;
     description?: string;
+    /** Path to the social share image in public/, e.g. "/og-studio.png". */
+    image?: string;
 }
 
 const {
     title = "Navalone — one nav for every screen",
-    description = "One navigation that stands alone across every device. Desktop dropdowns, mega menus and nested flyouts fold into a sliding mobile drawer — from a single data model. Free and open source."
+    description = "One navigation that stands alone across every device. Desktop dropdowns, mega menus and nested flyouts fold into a sliding mobile drawer — from a single data model. Free and open source.",
+    image = "/og.png"
 } = Astro.props;
+
+// og:image must be an absolute URL; resolve against the configured site.
+const imageURL = new URL(image, Astro.site);
+const canonicalURL = new URL(Astro.url.pathname, Astro.site);
 ---
 
 <!doctype html>
@@ -21,9 +28,19 @@ const {
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <meta name="description" content={description} />
+        <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+        <link rel="canonical" href={canonicalURL} />
         <meta property="og:title" content={title} />
         <meta property="og:description" content={description} />
         <meta property="og:type" content="website" />
+        <meta property="og:url" content={canonicalURL} />
+        <meta property="og:image" content={imageURL} />
+        <meta property="og:image:width" content="1200" />
+        <meta property="og:image:height" content="630" />
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content={title} />
+        <meta name="twitter:description" content={description} />
+        <meta name="twitter:image" content={imageURL} />
         <title>{title}</title>
         <script is:inline>
             // Arm the scroll-reveal hidden state before first paint (so there's no
